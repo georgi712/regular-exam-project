@@ -6,7 +6,6 @@ export default function Navbar() {
   const [theme, setTheme] = useState(
     document.documentElement.getAttribute("data-theme") || "light"
   );
-  const [activeDropdown, setActiveDropdown] = useState(null);
 
   useEffect(() => {
     // Function to update the theme state
@@ -86,32 +85,34 @@ export default function Navbar() {
                   Home
                 </Link>
               </li>
-              <li>
-                <div className="dropdown dropdown-end">
-                  <div tabIndex={0} role="button" className={`flex items-center gap-1 hover:bg-accent hover:text-accent-content ${
+              <li className="dropdown dropdown-hover dropdown-end">
+                <div 
+                  tabIndex={0} 
+                  role="button" 
+                  className={`flex items-center gap-1 hover:bg-accent hover:text-accent-content text-success-content ${
                     isActive("/products") ? "bg-accent text-accent-content" : ""
-                  }`}>
-                    Products
-                    <svg
-                      className="h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-20">
-                    <li><Link to="/products?category=fruits" className="text-base-content hover:bg-accent hover:text-accent-content">Fruits</Link></li>
-                    <li><Link to="/products?category=vegetables" className="text-base-content hover:bg-accent hover:text-accent-content">Vegetables</Link></li>
-                    <li><Link to="/products?category=juices" className="text-base-content hover:bg-accent hover:text-accent-content">Fresh Juices</Link></li>
-                    <li><Link to="/products?category=smoothies" className="text-base-content hover:bg-accent hover:text-accent-content">Smoothies</Link></li>
-                  </ul>
+                  }`}
+                >
+                  Products
+                  <svg
+                    className="h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </div>
+                <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-6">
+                  <li><Link to="/products?category=fruits" className="text-base-content hover:bg-accent hover:text-accent-content">Fruits</Link></li>
+                  <li><Link to="/products?category=vegetables" className="text-base-content hover:bg-accent hover:text-accent-content">Vegetables</Link></li>
+                  <li><Link to="/products?category=juices" className="text-base-content hover:bg-accent hover:text-accent-content">Fresh Juices</Link></li>
+                  <li><Link to="/products?category=smoothies" className="text-base-content hover:bg-accent hover:text-accent-content">Smoothies</Link></li>
+                </ul>
               </li>
               <li>
                 <Link
@@ -139,12 +140,8 @@ export default function Navbar() {
           {/* Right side - Cart & Profile */}
           <div className="flex-none flex gap-2 ml-auto">
             {/* Cart Dropdown */}
-            <div 
-              className="relative"
-              onMouseEnter={() => setActiveDropdown('cart')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <div className="btn btn-ghost btn-circle hover:bg-accent hover:text-accent-content">
+            <div className="dropdown dropdown-end">
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle hover:bg-accent hover:text-accent-content">
                 <div className="indicator">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -163,11 +160,7 @@ export default function Navbar() {
                   <span className="badge badge-sm indicator-item badge-primary">8</span>
                 </div>
               </div>
-              <div
-                className={`absolute top-full right-0 mt-6 card card-compact w-52 bg-base-100 text-base-content shadow ${
-                  activeDropdown === 'cart' ? 'block' : 'hidden'
-                }`}
-              >
+              <div tabIndex={0} className="dropdown-content z-[1] card card-compact w-52 bg-base-100 text-base-content shadow mt-3">
                 <div className="card-body">
                   <span className="font-bold text-lg">8 Items</span>
                   <span className="text-base-content/80">Subtotal: $999</span>
@@ -181,21 +174,13 @@ export default function Navbar() {
             </div>
 
             {/* Profile Dropdown */}
-            <div 
-              className="relative"
-              onMouseEnter={() => setActiveDropdown('profile')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <div className="btn btn-ghost btn-circle hover:bg-accent hover:text-accent-content">
+            <div className="dropdown dropdown-end">
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle hover:bg-accent hover:text-accent-content">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
-              <ul
-                className={`absolute top-full right-0 mt-6 menu menu-sm bg-base-100 text-base-content rounded-box w-52 p-2 shadow ${
-                  activeDropdown === 'profile' ? 'block' : 'hidden'
-                }`}
-              >
+              <ul tabIndex={0} className="dropdown-content z-[1] menu menu-sm bg-base-100 text-base-content rounded-box w-52 p-2 shadow mt-3">
                 <li>
                   <Link to="/profile" className="justify-between hover:bg-accent hover:text-accent-content">
                     Profile
