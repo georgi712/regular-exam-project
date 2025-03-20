@@ -63,11 +63,11 @@ export default function Navbar() {
 
           {/* Logo */}
           <div className="flex-none">
-            <Link to="/" className="h-16 flex items-center">
+            <Link to="/" className="h-20 flex items-center">
               <img
                 src={logoSrc}
                 alt="FruVida"
-                className="h-20 w-auto object-contain"
+                className="h-24 w-auto object-contain"
               />
             </Link>
           </div>
@@ -89,7 +89,7 @@ export default function Navbar() {
                 <div 
                   tabIndex={0} 
                   role="button" 
-                  className={`flex items-center gap-1 hover:bg-accent hover:text-accent-content text-success-content ${
+                  className={`flex items-center gap-1 hover:bg-accent hover:text-accent-content ${
                     isActive("/products") ? "bg-accent text-accent-content" : ""
                   }`}
                 >

@@ -12,6 +12,7 @@ import Contact from "./components/contact/Contact.jsx";
 import About from "./components/about/About.jsx";
 import NotFound from './components/not-found/NotFound.jsx';
 import ProductDetails from './components/product-details/ProductDetails.jsx';
+import Checkout from './components/checkout/Checkout.jsx';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/products" element={<Products />} />
             <Route path="/products/:productId/details" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
