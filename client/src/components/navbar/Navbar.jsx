@@ -87,17 +87,10 @@ export default function Navbar() {
                 </Link>
               </li>
               <li>
-                <div 
-                  className="relative"
-                  onMouseEnter={() => setActiveDropdown('products')}
-                  onMouseLeave={() => setActiveDropdown(null)}
-                >
-                  <Link
-                    to="/products"
-                    className={`flex items-center gap-1 hover:bg-accent hover:text-accent-content px-4 py-2 rounded-full ${
-                      isActive("/products") ? "bg-accent text-accent-content" : ""
-                    }`}
-                  >
+                <div className="dropdown dropdown-end">
+                  <div tabIndex={0} role="button" className={`flex items-center gap-1 hover:bg-accent hover:text-accent-content ${
+                    isActive("/products") ? "bg-accent text-accent-content" : ""
+                  }`}>
                     Products
                     <svg
                       className="h-4 w-4"
@@ -111,16 +104,12 @@ export default function Navbar() {
                         clipRule="evenodd"
                       />
                     </svg>
-                  </Link>
-                  <ul 
-                    className={`absolute top-full menu dropdown-content z-[1] p-2 shadow bg-base-100 text-base-content rounded-box w-52 ${
-                      activeDropdown === 'products' ? 'block' : 'hidden'
-                    }`}
-                  >
-                    <li><Link to="/products?category=fruits" className="hover:bg-accent hover:text-accent-content">Fruits</Link></li>
-                    <li><Link to="/products?category=vegetables" className="hover:bg-accent hover:text-accent-content">Vegetables</Link></li>
-                    <li><Link to="/products?category=juices" className="hover:bg-accent hover:text-accent-content">Fresh Juices</Link></li>
-                    <li><Link to="/products?category=smoothies" className="hover:bg-accent hover:text-accent-content">Smoothies</Link></li>
+                  </div>
+                  <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-20">
+                    <li><Link to="/products?category=fruits" className="text-base-content hover:bg-accent hover:text-accent-content">Fruits</Link></li>
+                    <li><Link to="/products?category=vegetables" className="text-base-content hover:bg-accent hover:text-accent-content">Vegetables</Link></li>
+                    <li><Link to="/products?category=juices" className="text-base-content hover:bg-accent hover:text-accent-content">Fresh Juices</Link></li>
+                    <li><Link to="/products?category=smoothies" className="text-base-content hover:bg-accent hover:text-accent-content">Smoothies</Link></li>
                   </ul>
                 </div>
               </li>
@@ -175,7 +164,7 @@ export default function Navbar() {
                 </div>
               </div>
               <div
-                className={`absolute top-full card card-compact w-52 bg-base-100 text-base-content shadow ${
+                className={`absolute top-full right-0 mt-6 card card-compact w-52 bg-base-100 text-base-content shadow ${
                   activeDropdown === 'cart' ? 'block' : 'hidden'
                 }`}
               >
@@ -203,7 +192,7 @@ export default function Navbar() {
                 </svg>
               </div>
               <ul
-                className={`absolute top-full menu menu-sm bg-base-100 text-base-content rounded-box w-52 p-2 shadow ${
+                className={`absolute top-full right-0 mt-6 menu menu-sm bg-base-100 text-base-content rounded-box w-52 p-2 shadow ${
                   activeDropdown === 'profile' ? 'block' : 'hidden'
                 }`}
               >
