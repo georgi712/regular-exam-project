@@ -74,7 +74,7 @@ export default function Navbar() {
 
           {/* Centered Navbar for large screens */}
           <div className="flex-1 hidden lg:flex justify-center items-center">
-            <ul className="menu menu-horizontal items-center gap-6">
+            <ul className="menu menu-horizontal items-center gap-4">
               <li>
                 <Link
                   to="/"
@@ -85,7 +85,7 @@ export default function Navbar() {
                   Home
                 </Link>
               </li>
-              <li className="dropdown dropdown-hover dropdown-end">
+              <li className="dropdown dropdown-hover">
                 <div 
                   tabIndex={0} 
                   role="button" 
@@ -182,14 +182,18 @@ export default function Navbar() {
               </div>
               <ul tabIndex={0} className="dropdown-content z-[1] menu menu-sm bg-base-100 text-base-content rounded-box w-52 p-2 shadow mt-3">
                 <li>
-                  <Link to="/profile" className="justify-between hover:bg-accent hover:text-accent-content">
-                    Profile
-                    <span className="badge badge-accent">New</span>
+                  <Link to="/login" className="hover:bg-accent hover:text-accent-content">
+                    Login
                   </Link>
                 </li>
                 <li>
-                  <Link to="/profile/settings" className="hover:bg-accent hover:text-accent-content">
-                    Settings
+                  <Link to="/register" className="hover:bg-accent hover:text-accent-content">
+                    Register
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/profile" className="hover:bg-accent hover:text-accent-content">
+                    My Profile
                   </Link>
                 </li>
                 <div className="divider my-0"></div>
