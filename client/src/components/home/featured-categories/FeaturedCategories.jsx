@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const FeaturedCategories = () => {
   return (
@@ -9,20 +10,20 @@ const FeaturedCategories = () => {
           <p className="text-base-content/70 max-w-2xl mx-auto">Explore our wide range of fresh and healthy products, carefully organized into categories for your convenience.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {['Fruits', 'Vegetables', 'Fresh Juices', 'Smoothies'].map((category) => (
+          {['Fruits', 'Vegetables', 'Fresh Juices', 'Nuts'].map((category) => (
             <div key={category} className="card bg-base-100 border border-base-200 hover:border-accent transition-all duration-300">
               <figure className="px-4 pt-4">
                 <img
-                  src={`/images/${category.toLowerCase().replace(' ', '-')}.jpg`}
+                  src={`/images/categories/categories-${category.toLowerCase().replace(' ', '-')}.png`}
                   alt={category}
                   className="rounded-xl h-56 w-full object-cover"
                 />
               </figure>
               <div className="card-body items-center text-center">
                 <h3 className="card-title text-xl">{category}</h3>
-                <button className="btn btn-accent btn-sm mt-2">
+                <Link to={`products?category=${category.toLowerCase().replace(' ', '-')}`} className="btn btn-accent btn-sm mt-2">
                   View All
-                </button>
+                </Link>
               </div>
             </div>
           ))}

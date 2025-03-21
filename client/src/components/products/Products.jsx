@@ -29,7 +29,7 @@ const MOCK_PRODUCTS = [
   // Add more mock products as needed
 ];
 
-const CATEGORIES = ['All', 'Fruits', 'Vegetables', 'Fresh Juices', 'Smoothies'];
+const CATEGORIES = ['All', 'Fruits', 'Vegetables', 'Fresh Juices', 'Nuts'];
 const SORT_OPTIONS = ['Newest', 'Price: Low to High', 'Price: High to Low', 'Most Popular'];
 
 export default function Products() {

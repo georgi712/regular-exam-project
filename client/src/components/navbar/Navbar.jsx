@@ -110,8 +110,8 @@ export default function Navbar() {
                 <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-6">
                   <li><Link to="/products?category=fruits" className="text-base-content hover:bg-accent hover:text-accent-content">Fruits</Link></li>
                   <li><Link to="/products?category=vegetables" className="text-base-content hover:bg-accent hover:text-accent-content">Vegetables</Link></li>
-                  <li><Link to="/products?category=juices" className="text-base-content hover:bg-accent hover:text-accent-content">Fresh Juices</Link></li>
-                  <li><Link to="/products?category=smoothies" className="text-base-content hover:bg-accent hover:text-accent-content">Smoothies</Link></li>
+                  <li><Link to="/products?category=fresh-juices" className="text-base-content hover:bg-accent hover:text-accent-content">Fresh Juices</Link></li>
+                  <li><Link to="/products?category=nuts" className="text-base-content hover:bg-accent hover:text-accent-content">Nuts</Link></li>
                 </ul>
               </li>
               <li>
@@ -198,7 +198,7 @@ export default function Navbar() {
                 </li>
                 <div className="divider my-0"></div>
                 <li>
-                  <Link to="/login" className="text-error hover:bg-error/10">
+                  <Link to="/logout" className="text-error hover:bg-error/10">
                     Logout
                   </Link>
                 </li>
@@ -233,7 +233,7 @@ export default function Navbar() {
                 <li><Link to="/products?category=fruits" className="hover:bg-accent hover:text-accent-content">Fruits</Link></li>
                 <li><Link to="/products?category=vegetables" className="hover:bg-accent hover:text-accent-content">Vegetables</Link></li>
                 <li><Link to="/products?category=juices" className="hover:bg-accent hover:text-accent-content">Fresh Juices</Link></li>
-                <li><Link to="/products?category=smoothies" className="hover:bg-accent hover:text-accent-content">Smoothies</Link></li>
+                <li><Link to="/products?category=Nuts" className="hover:bg-accent hover:text-accent-content">Nuts</Link></li>
               </ul>
             </details>
           </li>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const UserWelcome = ({ userName = "Guest" }) => {
   const [showAddressChange, setShowAddressChange] = useState(false);
@@ -30,7 +31,7 @@ const UserWelcome = ({ userName = "Guest" }) => {
                   </div>
                   
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <button className="btn btn-primary btn-lg flex-1 h-14 sm:h-auto py-3">Browse Products</button>
+                    <Link to={"/products?category=fruits"} className="btn btn-primary btn-lg flex-1 h-14 sm:h-auto py-3">Browse Products</Link>
                     <button 
                       className="btn btn-outline btn-success btn-lg flex-1 h-14 sm:h-auto py-3"
                       onClick={() => setShowAddressChange(true)}

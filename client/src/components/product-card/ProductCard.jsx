@@ -11,6 +11,7 @@ const ProductCard = ({
   onAddToCart 
 }) => {
   const [quantity, setQuantity] = useState(1);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleQuantityChange = (change) => {
     const newQuantity = Math.max(1, quantity + change);
@@ -22,28 +23,41 @@ const ProductCard = ({
   };
 
   return (
-    <div className="card bg-base-100 border border-base-200 hover:border-accent transition-all duration-300">
-      <figure className="px-4 pt-4">
+    <div 
+      className="card bg-base-100 shadow-lg transition-all duration-300 h-full"
+      style={{
+        transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
+        boxShadow: isHovered ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' : ''
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <figure className="px-4 pt-4 relative overflow-hidden rounded-t-xl">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-black/10 opacity-0 transition-opacity duration-300"
+             style={{ opacity: isHovered ? 0.1 : 0 }}>
+        </div>
         <img
           src={image}
           alt={name}
-          className="rounded-xl h-56 w-full object-cover"
+          className="rounded-xl h-56 w-full object-cover transition-transform duration-500"
+          style={{ transform: isHovered ? 'scale(1.05)' : 'scale(1)' }}
         />
       </figure>
-      <div className="card-body space-y-4">
-        <div className="space-y-2">
-          <h3 className="card-title text-xl">{name}</h3>
-          <div className="flex items-center gap-2">
+      
+      <div className="card-body p-5">
+        <div className="mb-2">
+          <h3 className="card-title text-xl font-bold">{name}</h3>
+          <div className="flex items-center gap-2 mt-1">
             <span className="text-accent font-bold text-lg">{price} лв</span>
             <span className="text-sm text-base-content/70">/ {pricePerKg} лв/кг</span>
           </div>
         </div>
         
-        <div className="flex items-center gap-2 text-base-content/70 text-sm">
+        <div className="flex items-center gap-2 text-base-content/70 text-sm bg-base-200/50 p-2 rounded-lg mb-4">
           <span>{grammage}</span>
           <span>•</span>
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-full overflow-hidden">
+            <div className="w-5 h-5 rounded-full overflow-hidden border border-base-300">
               <img 
                 src={originFlag} 
                 alt={`${origin} flag`} 
@@ -53,32 +67,32 @@ const ProductCard = ({
             <span>{origin}</span>
           </div>
         </div>
-
-        <div className="flex items-center gap-4 pt-2">
-          <div className="flex items-center border rounded-lg">
+        
+        <div className="flex flex-col gap-3 mt-auto">
+          <div className="flex items-center justify-between bg-base-200/50 rounded-lg p-2">
             <button 
-              className="btn btn-ghost btn-sm px-3"
+              className="btn btn-sm btn-circle btn-ghost text-lg"
               onClick={() => handleQuantityChange(-1)}
             >
               -
             </button>
-            <input 
-              type="number" 
-              value={quantity}
-              onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-              className="w-16 text-center border-x px-2 py-1"
-              min="1"
-            />
+            <span className="font-medium text-base">{quantity}</span>
             <button 
-              className="btn btn-ghost btn-sm px-3"
+              className="btn btn-sm btn-circle btn-ghost text-lg"
               onClick={() => handleQuantityChange(1)}
             >
               +
             </button>
           </div>
+          
           <button 
-            className="btn btn-accent flex-grow"
+            className="btn btn-accent w-full"
             onClick={handleAddToCart}
+            style={{
+              transform: isHovered ? 'translateY(0)' : 'translateY(0)',
+              opacity: isHovered ? 1 : 0.9,
+              transition: 'all 0.3s ease'
+            }}
           >
             Add to Cart
           </button>

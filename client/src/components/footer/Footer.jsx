@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './Footer.css'
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   const [theme, setTheme] = useState(
@@ -36,10 +37,10 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="/" className="hover:text-accent">Home</a></li>
-              <li><a href="/about" className="hover:text-accent">About Us</a></li>
-              <li><a href="/products" className="hover:text-accent">Products</a></li>
-              <li><a href="/contact" className="hover:text-accent">Contact</a></li>
+              <li><Link to="/" className="hover:text-accent">Home</Link></li>
+              <li><Link to="/about" className="hover:text-accent">About Us</Link></li>
+              <li><Link to="/products" className="hover:text-accent">Products</Link></li>
+              <li><Link to="/contact" className="hover:text-accent">Contact</Link></li>
             </ul>
           </div>
 
@@ -47,10 +48,10 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">Categories</h3>
             <ul className="space-y-2">
-              <li><a href="/category/fruits" className="hover:text-accent">Fruits</a></li>
-              <li><a href="/category/vegetables" className="hover:text-accent">Vegetables</a></li>
-              <li><a href="/category/juices" className="hover:text-accent">Fresh Juices</a></li>
-              <li><a href="/category/smoothies" className="hover:text-accent">Smoothies</a></li>
+              <li><Link to="/products?category=fruits" className="hover:text-accent">Fruits</Link></li>
+              <li><Link to="/products?category=vegetables" className="hover:text-accent">Vegetables</Link></li>
+              <li><Link to="/products?category=fresh-juices" className="hover:text-accent">Fresh Juices</Link></li>
+              <li><Link to="/products?category=nuts" className="hover:text-accent">Nuts</Link></li>
             </ul>
           </div>
 

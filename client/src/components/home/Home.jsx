@@ -9,7 +9,7 @@ import Newsletter from './newsletter/Newsletter';
 
 export default function Home() {
   // This would be determined by authentication state
-  const isLoggedIn = false;
+  const isLoggedIn = true;
   const userName = "John Doe";
 
   return (
