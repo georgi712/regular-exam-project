@@ -13,6 +13,7 @@ import About from "./components/about/About.jsx";
 import NotFound from './components/not-found/NotFound.jsx';
 import ProductDetails from './components/product-details/ProductDetails.jsx';
 import Checkout from './components/checkout/Checkout.jsx';
+import Admin from './components/admin/Admin.jsx';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
