@@ -1,6 +1,31 @@
-import { Link } from 'react-router-dom';
+import { useActionState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { UserContext } from '../../contexts/userContext.js';
+import { useRegister } from '../../api/authApi.js';
 
 export default function Register() {
+  const navigate = useNavigate();
+  const {userLoginHandler} = useContext(UserContext);
+  const { register } = useRegister();
+
+  const registerHandler = async (previousState, formData) => {
+    const values = Object.fromEntries(formData);
+    const username = values.firstName + ' ' + values.lastName;
+
+    if (values.password !== values.rePass) {
+      console.error('Password mismatch!');
+
+      return;
+    }
+
+    const authData = await register(values.email, values.password, username);
+    userLoginHandler(authData);
+    navigate('/');
+    return values
+  }
+
+  const [values, registerAction, isPending] = useActionState(registerHandler, { firstName: '', lastName: '', email: '', password: '', rePass: '' })
+
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-base-100">
       <div className="max-w-md w-full space-y-8">
@@ -13,7 +38,7 @@ export default function Register() {
 
         <div className="card bg-base-100 border border-base-200">
           <div className="card-body">
-            <form className="space-y-6">
+            <form className="space-y-6" action={registerAction}>
               <div className="grid grid-cols-2 gap-4">
                 <div className="form-control">
                   <label className="label">
@@ -22,6 +47,7 @@ export default function Register() {
                   <input
                     type="text"
                     placeholder="John"
+                    name="firstName"
                     className="input input-bordered w-full"
                     required
                   />
@@ -34,6 +60,7 @@ export default function Register() {
                   <input
                     type="text"
                     placeholder="Doe"
+                    name="lastName"
                     className="input input-bordered w-full"
                     required
                   />
@@ -47,6 +74,7 @@ export default function Register() {
                 <input
                   type="email"
                   placeholder="your@email.com"
+                  name="email"
                   className="input input-bordered w-full"
                   required
                 />
@@ -59,6 +87,7 @@ export default function Register() {
                 <input
                   type="password"
                   placeholder="••••••••"
+                  name="password"
                   className="input input-bordered w-full"
                   required
                 />
@@ -71,12 +100,13 @@ export default function Register() {
                 <input
                   type="password"
                   placeholder="••••••••"
+                  name="rePass"
                   className="input input-bordered w-full"
                   required
                 />
               </div>
 
-              <div className="form-control">
+              {/* <div className="form-control">
                 <label className="label cursor-pointer">
                   <span className="label-text font-medium">
                     I agree to the{' '}
@@ -86,9 +116,9 @@ export default function Register() {
                   </span>
                   <input type="checkbox" className="checkbox checkbox-accent" required />
                 </label>
-              </div>
+              </div> */}
 
-              <button className="btn btn-primary w-full">Create Account</button>
+              <input className="btn btn-primary w-full" type="submit" value="Create Account" disabled={isPending}></input>
 
               <div className="divider">OR</div>
 
