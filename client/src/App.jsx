@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import { UserContext } from './contexts/userContext.js';
+
 import Navbar from "./components/navbar/Navbar.jsx";
 import Footer from "./components/footer/Footer.jsx";
 import Home from "./components/home/Home.jsx";
@@ -16,12 +18,13 @@ import Checkout from './components/checkout/Checkout.jsx';
 import Admin from './components/admin/Admin.jsx';
 
 function App() {
+  
   const [authData,  setAuthData] = useState({});
   const userLoginHandler = (data) => {
     setAuthData(data)
   }
   return (
-    <Router>
+    <UserContext.Provider value={{...authData, userLoginHandler}}>
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow">
@@ -32,7 +35,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/login" element={<Login onLogin={userLoginHandler}/>} />
+            <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
@@ -42,7 +45,7 @@ function App() {
         </main>
         <Footer />
       </div>
-    </Router>
+    </UserContext.Provider>
   );
 }
 
