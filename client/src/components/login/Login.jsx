@@ -1,6 +1,26 @@
-import { Link } from 'react-router-dom';
+import { useActionState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useLogin } from '../../api/authApi.js';
 
-export default function Login() {
+export default function Login({
+    onLogin,
+}) {
+
+  const navigate = useNavigate();
+  const { login } = useLogin();
+
+  const loginHandler = async (previousState, formData) => {
+    const values = Object.fromEntries(formData);
+
+    const authData  = await login(values.email, values.password);
+
+    onLogin(authData);
+    navigate('/');
+    return values
+  }
+
+  const [values, loginAction, isPending] = useActionState(loginHandler, {email: '', password: ''})
+
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-base-100">
       <div className="max-w-md w-full space-y-8">
@@ -13,13 +33,14 @@ export default function Login() {
 
         <div className="card bg-base-100 border border-base-200">
           <div className="card-body">
-            <form className="space-y-6">
+            <form className="space-y-6" action={loginAction}>
               <div className="form-control">
                 <label className="label">
                   <span className="label-text font-medium">Email</span>
                 </label>
                 <input
                   type="email"
+                  name="email"
                   placeholder="your@email.com"
                   className="input input-bordered w-full"
                   required
@@ -35,20 +56,14 @@ export default function Login() {
                 </label>
                 <input
                   type="password"
+                  name="password"
                   placeholder="••••••••"
                   className="input input-bordered w-full"
                   required
                 />
               </div>
 
-              <div className="form-control">
-                <label className="label cursor-pointer">
-                  <span className="label-text font-medium">Remember me</span>
-                  <input type="checkbox" className="checkbox checkbox-accent" />
-                </label>
-              </div>
-
-              <button className="btn btn-primary w-full">Sign In</button>
+              <input className="btn btn-primary w-full" type="submit" value="Sign in" disabled={isPending} ></input>
 
               <div className="divider">OR</div>
 

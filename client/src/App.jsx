@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from "./components/navbar/Navbar.jsx";
 import Footer from "./components/footer/Footer.jsx";
@@ -16,6 +16,10 @@ import Checkout from './components/checkout/Checkout.jsx';
 import Admin from './components/admin/Admin.jsx';
 
 function App() {
+  const [authData,  setAuthData] = useState({});
+  const userLoginHandler = (data) => {
+    setAuthData(data)
+  }
   return (
     <Router>
       <div className="min-h-screen flex flex-col">
@@ -28,7 +32,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<Login onLogin={userLoginHandler}/>} />
             <Route path="/register" element={<Register />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
