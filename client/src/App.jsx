@@ -16,6 +16,7 @@ import NotFound from './components/not-found/NotFound.jsx';
 import ProductDetails from './components/product-details/ProductDetails.jsx';
 import Checkout from './components/checkout/Checkout.jsx';
 import Admin from './components/admin/Admin.jsx';
+import Logout from './components/logout/Logout.jsx';
 
 function App() {
   
@@ -23,8 +24,11 @@ function App() {
   const userLoginHandler = (data) => {
     setAuthData(data)
   }
+  const userLogoutHandler = () => {
+    setAuthData({})
+  }
   return (
-    <UserContext.Provider value={{...authData, userLoginHandler}}>
+    <UserContext.Provider value={{...authData, userLoginHandler, userLogoutHandler}}>
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow">
@@ -36,6 +40,7 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/logout" element={<Logout />} />
             <Route path="/register" element={<Register />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />

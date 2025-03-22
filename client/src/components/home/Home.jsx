@@ -10,16 +10,10 @@ import { UserContext } from '../../contexts/userContext.js';
 
 export default function Home() {
   // This would be determined by authentication state
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const {email} = useContext(UserContext);
-  useEffect(() => {
-    if (email) {
-      setIsLoggedIn(true)
-    }
-  }, [email])
+  const {accessToken} = useContext(UserContext);
   return (
     <>
-      {isLoggedIn ? (
+      {!!accessToken ? (
         <UserWelcome />
       ) : (
         <AddressChecker />
