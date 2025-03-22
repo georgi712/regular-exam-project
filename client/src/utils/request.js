@@ -14,10 +14,8 @@ const request = async (method, url, data, options = {}) => {
             body: JSON.stringify(data)
         }
     }
-    console.log(options);
 
     const response = await fetch(url, options);
-    console.log(response);
     const responseContentType = response.headers.get('Content-Type')
     if (!responseContentType) {
         return;

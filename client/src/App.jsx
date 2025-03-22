@@ -17,10 +17,11 @@ import ProductDetails from './components/product-details/ProductDetails.jsx';
 import Checkout from './components/checkout/Checkout.jsx';
 import Admin from './components/admin/Admin.jsx';
 import Logout from './components/logout/Logout.jsx';
+import usePersistedState from './hooks/usePersistedState.js';
 
 function App() {
   
-  const [authData,  setAuthData] = useState({});
+  const [authData,  setAuthData] = usePersistedState({});
   const userLoginHandler = (data) => {
     setAuthData(data)
   }
