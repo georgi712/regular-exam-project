@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import AddProductModal from './modals/AddProductModal';
 import EditProductModal from './modals/EditProductModal';
+import { useCreateProduct } from '../../../api/productApi.js';
+import { useNavigate } from 'react-router-dom';
 
 const ProductsManager = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const {create} = useCreateProduct();
+  const navigate = useNavigate();
   
   // Product categories for filtering
   const PRODUCT_CATEGORIES = [
@@ -88,13 +92,12 @@ const ProductsManager = () => {
     setShowEditModal(true);
   };
 
-  const handleSaveProduct = (newProduct) => {
-    const newProductWithId = {
-      ...newProduct,
-      id: Math.max(...products.map(p => p.id), 0) + 1,
-    };
-    setProducts([...products, newProductWithId]);
+  const handleSaveProduct = async (newProduct) => {
+    const response = await create(newProduct)
+    setProducts([...products, newProduct]);
+    console.log(response);
     setShowAddModal(false);
+    navigate('/products')
   };
 
   const handleUpdateProduct = (updatedProduct) => {

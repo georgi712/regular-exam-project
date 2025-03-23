@@ -1,6 +1,68 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { uploadImageToFirebase } from '../../../../firebase/storage.js';
 
 const AddProductModal = ({ isOpen, onClose, categories, onSave }) => {
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  const nameRef = useRef(null);
+  const priceRef = useRef(null);
+  const categoryRef = useRef(null);
+  const stockRef = useRef(null);
+  const featuredRef = useRef(null);
+  const descriptionRef = useRef(null);
+
+  useEffect(() => {
+    if (categoryRef.current && categories.length > 0) {
+      setSelectedCategory(categories[0].value);
+    }
+  }, [categories]);
+  
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      setImageFile(file)
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsUploading(true);
+    
+    try {
+      let imageUrl = '';
+
+      if (imageFile) {
+        imageUrl = await uploadImageToFirebase(imageFile);
+      }
+
+      const newProduct = {
+        name: nameRef.current.value,
+        price: parseFloat(priceRef.current.value),
+        category: categoryRef.current.value,
+        stock: parseInt(stockRef.current.value, 10),
+        featured: featuredRef.current.checked,
+        description: descriptionRef.current.value,
+        imageUrl: imageUrl ,
+      };
+      
+      onSave(newProduct);
+      
+      setImagePreview(null);
+      setImageData(null);
+    } catch (error) {
+      console.error("Error creating product:", error);
+      alert("Error creating product. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -11,70 +73,128 @@ const AddProductModal = ({ isOpen, onClose, categories, onSave }) => {
           <button className="btn btn-sm btn-circle" onClick={onClose}>✕</button>
         </div>
         
-        <div className="form-control w-full mb-3">
-          <label className="label">
-            <span className="label-text">Product Name</span>
-          </label>
-          <input type="text" placeholder="Enter product name" className="input input-bordered w-full" />
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-          <div className="form-control w-full">
+        <form onSubmit={handleSubmit}>
+          <div className="form-control w-full mb-3">
             <label className="label">
-              <span className="label-text">Price ($)</span>
+              <span className="label-text">Product Name</span>
             </label>
-            <input type="number" step="0.01" min="0" placeholder="0.00" className="input input-bordered w-full" />
+            <input 
+              ref={nameRef}
+              type="text" 
+              placeholder="Enter product name" 
+              className="input input-bordered w-full"
+              required
+            />
           </div>
           
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text">Category</span>
-            </label>
-            <select className="select select-bordered w-full">
-              <option disabled selected>Select category</option>
-              {categories.map(category => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-          <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text">Stock Quantity</span>
-            </label>
-            <input type="number" min="0" placeholder="0" className="input input-bordered w-full" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+            <div className="form-control w-full">
+              <label className="label">
+                <span className="label-text">Price ($)</span>
+              </label>
+              <input 
+                ref={priceRef}
+                type="number" 
+                step="0.01" 
+                min="0" 
+                placeholder="0.00" 
+                className="input input-bordered w-full"
+                required
+              />
+            </div>
+            
+            <div className="form-control w-full">
+              <label className="label">
+                <span className="label-text">Category</span>
+              </label>
+              <select 
+                ref={categoryRef}
+                className="select select-bordered w-full"
+                required
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                <option disabled value="">Select category</option>
+                {categories.map(category => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           
-          <div className="form-control">
-            <label className="label cursor-pointer">
-              <span className="label-text">Featured Product</span>
-              <input type="checkbox" className="toggle toggle-primary" />
-            </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+            <div className="form-control w-full">
+              <label className="label">
+                <span className="label-text">Stock Quantity</span>
+              </label>
+              <input 
+                ref={stockRef}
+                type="number" 
+                min="0" 
+                placeholder="0" 
+                className="input input-bordered w-full"
+                required
+              />
+            </div>
+            
+            <div className="form-control">
+              <label className="label cursor-pointer">
+                <span className="label-text">Featured Product</span>
+                <input 
+                  ref={featuredRef}
+                  type="checkbox" 
+                  className="toggle toggle-primary" 
+                />
+              </label>
+            </div>
           </div>
-        </div>
-        
-        <div className="form-control w-full mb-3">
-          <label className="label">
-            <span className="label-text">Product Image</span>
-          </label>
-          <input type="file" className="file-input file-input-bordered w-full" />
-        </div>
-        
-        <div className="form-control w-full mb-3">
-          <label className="block mb-2">
-            <span className="text-sm font-medium">Description</span>
-          </label>
-          <textarea className="textarea textarea-bordered h-24 w-full" placeholder="Enter product description"></textarea>
-        </div>
-        
-        <div className="modal-action pt-4 border-t">
-          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
-          <button className="btn btn-primary" onClick={onSave}>Save Product</button>
-        </div>
+          
+          <div className="form-control w-full mb-3">
+            <label className="label">
+              <span className="label-text">Product Image</span>
+            </label>
+            {imagePreview && (
+              <div className="mb-2">
+                <img 
+                  src={imagePreview} 
+                  alt="Product preview" 
+                  className="h-32 w-32 object-cover rounded-lg"
+                />
+              </div>
+            )}
+            <input 
+              type="file" 
+              accept="image/*"
+              onChange={handleImageChange}
+              className="file-input file-input-bordered w-full" 
+            />
+          </div>
+          
+          <div className="form-control w-full mb-3">
+            <label className="block mb-2">
+              <span className="text-sm font-medium">Description</span>
+            </label>
+            <textarea 
+              ref={descriptionRef}
+              className="textarea textarea-bordered h-24 w-full" 
+              placeholder="Enter product description"
+              required
+            ></textarea>
+          </div>
+          
+          <div className="modal-action pt-4 border-t">
+            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+            <button 
+              type="submit" 
+              className="btn btn-primary" 
+              disabled={isUploading}
+            >
+              {isUploading ? 'Saving...' : 'Save Product'}
+            </button>
+          </div>
+        </form>
       </div>
       <form method="dialog" className="modal-backdrop">
         <button onClick={onClose}>close</button>
