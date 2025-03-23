@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import UserDetailsModal from './modals/UserDetailsModal';
 
 const UsersManager = () => {
   const [showUserModal, setShowUserModal] = useState(false);
@@ -119,6 +120,10 @@ const UsersManager = () => {
     }
     setShowUserModal(false);
   };
+  
+  const handleTempRoleChange = (newRole) => {
+    setTempRole(newRole);
+  };
 
   return (
     <div>
@@ -209,102 +214,19 @@ const UsersManager = () => {
         </table>
       </div>
       
-      {/* User Details Modal */}
-      {showUserModal && selectedUser && (
-        <div className="modal modal-open modal-bottom sm:modal-middle">
-          <div className="modal-box w-11/12 max-w-4xl">
-            <div className="flex justify-between items-center mb-6 pb-3 border-b">
-              <h3 className="font-bold text-lg">User Profile - {selectedUser.name}</h3>
-              <button className="btn btn-sm btn-circle" onClick={() => setShowUserModal(false)}>✕</button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="card bg-base-100 shadow-sm border border-base-300">
-                <div className="card-body p-5">
-                  <h4 className="font-semibold text-lg mb-3">Basic Information</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm font-medium text-base-content/60">Full Name</p>
-                      <p className="font-medium">{selectedUser.name}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-base-content/60">Email Address</p>
-                      <p>{selectedUser.email}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-base-content/60">Role</p>
-                      <div>{getRoleBadge(selectedUser.role)}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="card bg-base-100 shadow-sm border border-base-300">
-                <div className="card-body p-5">
-                  <h4 className="font-semibold text-lg mb-3">Account Details</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm font-medium text-base-content/60">Registered Date</p>
-                      <p>{formatDate(selectedUser.registeredDate)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-base-content/60">Total Orders</p>
-                      <p>{selectedUser.ordersCount} orders</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-base-content/60">Total Spent</p>
-                      <p className="font-medium">${selectedUser.totalSpent.toFixed(2)}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="card bg-base-100 shadow-sm border border-base-300 mb-6">
-              <div className="card-body p-5">
-                <h4 className="font-semibold text-lg mb-3">Account Management</h4>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="form-control w-full">
-                    <label className="label">
-                      <span className="label-text">Change Role</span>
-                    </label>
-                    <select 
-                      className="select select-bordered w-full"
-                      value={tempRole}
-                      onChange={(e) => setTempRole(e.target.value)}
-                    >
-                      {Object.values(USER_ROLES).map(role => (
-                        <option key={role.value} value={role.value}>
-                          {role.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-control w-full">
-                    <label className="label">
-                      <span className="label-text">Account Status</span>
-                    </label>
-                    <button 
-                      className={`btn ${selectedUser.status === 'active' ? 'btn-error' : 'btn-success'}`}
-                      onClick={() => handleStatusToggle(selectedUser.id)}
-                    >
-                      {selectedUser.status === 'active' ? 'Deactivate Account' : 'Activate Account'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="modal-action pt-4 border-t">
-              <button className="btn btn-ghost" onClick={() => setShowUserModal(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={handleSaveChanges}>Save Changes</button>
-            </div>
-          </div>
-          <form method="dialog" className="modal-backdrop">
-            <button onClick={() => setShowUserModal(false)}>close</button>
-          </form>
-        </div>
-      )}
+      {/* User modal */}
+      <UserDetailsModal 
+        isOpen={showUserModal}
+        onClose={() => setShowUserModal(false)}
+        user={selectedUser}
+        userRoles={USER_ROLES}
+        tempRole={tempRole}
+        onRoleChange={handleTempRoleChange}
+        onStatusToggle={handleStatusToggle}
+        onSave={handleSaveChanges}
+        formatDate={formatDate}
+        getRoleBadge={getRoleBadge}
+      />
     </div>
   );
 };
