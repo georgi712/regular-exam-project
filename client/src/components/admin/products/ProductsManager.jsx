@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AddProductModal from './modals/AddProductModal';
 import EditProductModal from './modals/EditProductModal';
-import { useCreateProduct } from '../../../api/productApi.js';
+import { useCreateProduct, useProducts } from '../../../api/productApi.js';
 import { useNavigate } from 'react-router-dom';
 
 const ProductsManager = () => {
@@ -18,62 +18,11 @@ const ProductsManager = () => {
     { value: 'nuts', label: 'Nuts' },
   ];
   
-  // Mock products data
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: 'Wireless Bluetooth Headphones',
-      category: 'electronics',
-      price: 89.99,
-      stock: 45,
-      featured: true,
-      image: 'https://placehold.co/100x100/333/FFF?text=BT+Headphones',
-      description: 'High-quality wireless headphones with noise cancellation.'
-    },
-    {
-      id: 2,
-      name: 'Men\'s Casual T-Shirt',
-      category: 'clothing',
-      price: 24.99,
-      stock: 120,
-      featured: false,
-      image: 'https://placehold.co/100x100/333/FFF?text=T-Shirt',
-      description: 'Comfortable cotton t-shirt for everyday wear.'
-    },
-    {
-      id: 3,
-      name: 'Stainless Steel Cookware Set',
-      category: 'home',
-      price: 149.99,
-      stock: 30,
-      featured: true,
-      image: 'https://placehold.co/100x100/333/FFF?text=Cookware',
-      description: 'Premium 10-piece stainless steel cookware set.'
-    },
-    {
-      id: 4,
-      name: 'Best-Selling Novel',
-      category: 'books',
-      price: 18.95,
-      stock: 200,
-      featured: false,
-      image: 'https://placehold.co/100x100/333/FFF?text=Book',
-      description: 'The latest best-selling fiction novel.'
-    },
-    {
-      id: 5,
-      name: 'Building Blocks Set',
-      category: 'toys',
-      price: 34.50,
-      stock: 60,
-      featured: false,
-      image: 'https://placehold.co/100x100/333/FFF?text=Blocks',
-      description: 'Creative building blocks for ages 3+.'
-    },
-  ]);
+  const { products, setProducts } = useProducts();
 
+  console.log(products);
   const handleToggleFeatured = (productId) => {
-    const updatedProducts = products.map(product => 
+    const updatedProducts = products?.map(product => 
       product.id === productId 
         ? { ...product, featured: !product.featured } 
         : product
@@ -92,14 +41,19 @@ const ProductsManager = () => {
 
   const handleSaveProduct = async (newProduct) => {
     const response = await create(newProduct)
-    setProducts([...products, newProduct]);
+    if (products.length > 0) {
+      setProducts([...products, newProduct]);
+    } else {
+      setProducts([newProduct])
+    }
+
     console.log(response);
     setShowAddModal(false);
     navigate('/products')
   };
 
   const handleUpdateProduct = (updatedProduct) => {
-    const updatedProducts = products.map(product => 
+    const updatedProducts = products?.map(product => 
       product.id === updatedProduct.id 
         ? updatedProduct
         : product
@@ -165,12 +119,13 @@ const ProductsManager = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
-              <tr key={product.id} className="hover">
+            { products.length > 0
+            ? (products.map((product) => (
+              <tr key={product._id} className="hover">
                 <td className="flex items-center gap-3">
                   <div className="avatar">
                     <div className="w-12 h-12 rounded-lg">
-                      <img src={product.image} alt={product.name} />
+                      <img src={product.imageUrl} alt={product.name} />
                     </div>
                   </div>
                   <div className="font-medium">{product.name}</div>
@@ -209,7 +164,12 @@ const ProductsManager = () => {
                   </div>
                 </td>
               </tr>
-            ))}
+            )))
+          : (
+              <tr>
+                <td colSpan={6} className="text-center">No products found</td>
+              </tr>
+          )}
           </tbody>
         </table>
       </div>
