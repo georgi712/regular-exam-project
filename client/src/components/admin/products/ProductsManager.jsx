@@ -11,13 +11,11 @@ const ProductsManager = () => {
   const {create} = useCreateProduct();
   const navigate = useNavigate();
   
-  // Product categories for filtering
   const PRODUCT_CATEGORIES = [
-    { value: 'electronics', label: 'Electronics' },
-    { value: 'clothing', label: 'Clothing' },
-    { value: 'home', label: 'Home & Kitchen' },
-    { value: 'books', label: 'Books' },
-    { value: 'toys', label: 'Toys & Games' },
+    { value: 'fruits', label: 'Fruits' },
+    { value: 'vegetables', label: 'Vegetables' },
+    { value: 'fresh-juices', label: 'Fresh Juices' },
+    { value: 'nuts', label: 'Nuts' },
   ];
   
   // Mock products data

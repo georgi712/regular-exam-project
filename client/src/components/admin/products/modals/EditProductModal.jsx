@@ -1,23 +1,40 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { uploadImageToFirebase } from '../../../../firebase/storage';
 
 const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
   const [imagePreview, setImagePreview] = useState(null);
-  const [imageData, setImageData] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    price: '',
+    origin: '',
+    pricePerKg: '',
+    weight: '',
+    category: '',
+    stock: '',
+    featured: false,
+    description: '',
+  });
   
-  const nameRef = useRef(null);
-  const priceRef = useRef(null);
-  const categoryRef = useRef(null);
-  const stockRef = useRef(null);
-  const featuredRef = useRef(null);
-  const descriptionRef = useRef(null);
-
   // Initialize with existing product data
   useEffect(() => {
     if (product && isOpen) {
       // Use existing product image for preview
       setImagePreview(product.image);
-      setImageData(product.image);
+      
+      // Set form data from product
+      setFormData({
+        name: product.name || '',
+        price: product.price || '',
+        origin: product.origin || '',
+        pricePerKg: product.pricePerKg || '',
+        weight: product.weight || '',
+        category: product.category || '',
+        stock: product.stock || '',
+        featured: product.featured || false,
+        description: product.description || '',
+      });
     }
   }, [product, isOpen]);
 
@@ -30,20 +47,21 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
     };
   }, [imagePreview]);
 
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       // Create a preview URL
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
-      
-      // Read the file as Base64
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // reader.result contains the Base64 data URL
-        setImageData(reader.result);
-      };
-      reader.readAsDataURL(file);
+      setImageFile(file);
     }
   };
 
@@ -52,16 +70,22 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
     setIsSubmitting(true);
     
     try {
+      let imageUrl = product.image; // Keep existing image if no new one is selected
+      
+      if (imageFile) {
+        imageUrl = await uploadImageToFirebase(imageFile);
+      }
+      
       // Create updated product object
       const updatedProduct = {
         ...product, // Keep the original id and other unchanged properties
-        name: nameRef.current.value,
-        price: parseFloat(priceRef.current.value),
-        category: categoryRef.current.value,
-        stock: parseInt(stockRef.current.value, 10),
-        featured: featuredRef.current.checked,
-        description: descriptionRef.current.value,
-        image: imageData || product.image, // Use new image or keep existing
+        ...formData,
+        price: parseFloat(formData.price),
+        pricePerKg: parseFloat(formData.pricePerKg),
+        weight: parseFloat(formData.weight),
+        stock: parseInt(formData.stock, 10),
+        image: imageUrl, // Use new image or keep existing
+        updatedAt: new Date().toISOString(),
       };
       
       // Call the save function from props
@@ -90,11 +114,12 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
               <span className="label-text">Product Name</span>
             </label>
             <input 
-              ref={nameRef}
               type="text" 
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
               placeholder="Enter product name" 
               className="input input-bordered w-full" 
-              defaultValue={product.name}
               required
             />
           </div>
@@ -105,13 +130,14 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
                 <span className="label-text">Price ($)</span>
               </label>
               <input 
-                ref={priceRef}
                 type="number" 
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
                 step="0.01" 
                 min="0" 
                 placeholder="0.00" 
                 className="input input-bordered w-full" 
-                defaultValue={product.price}
                 required
               />
             </div>
@@ -121,11 +147,13 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
                 <span className="label-text">Category</span>
               </label>
               <select 
-                ref={categoryRef}
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
                 className="select select-bordered w-full"
-                defaultValue={product.category}
                 required
               >
+                <option key="select-category" disabled value="">Select category</option>
                 {categories.map(category => (
                   <option key={category.value} value={category.value}>
                     {category.label}
@@ -135,18 +163,79 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
             </div>
           </div>
           
+          <div className="form-control w-full mb-3">
+            <label className="label">
+              <span className="label-text">Origin (Country/Region)</span>
+            </label>
+            <input 
+              type="text" 
+              name="origin"
+              value={formData.origin}
+              onChange={handleChange}
+              placeholder="e.g., Spain, Italy, Greece" 
+              className="input input-bordered w-full"
+              required
+            />
+            <label className="label">
+              <span className="label-text-alt">Where the product is from</span>
+            </label>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+            <div className="form-control w-full">
+              <label className="label">
+                <span className="label-text">Price per Kg ($)</span>
+              </label>
+              <input 
+                type="number" 
+                name="pricePerKg"
+                value={formData.pricePerKg}
+                onChange={handleChange}
+                step="0.01" 
+                min="0" 
+                placeholder="0.00" 
+                className="input input-bordered w-full"
+                required
+              />
+              <label className="label">
+                <span className="label-text-alt">Cost per kilogram</span>
+              </label>
+            </div>
+            
+            <div className="form-control w-full">
+              <label className="label">
+                <span className="label-text">Weight (kg)</span>
+              </label>
+              <input 
+                type="number" 
+                name="weight"
+                value={formData.weight}
+                onChange={handleChange}
+                step="0.01" 
+                min="0" 
+                placeholder="0.00" 
+                className="input input-bordered w-full"
+                required
+              />
+              <label className="label">
+                <span className="label-text-alt">Weight in kilograms</span>
+              </label>
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
             <div className="form-control w-full">
               <label className="label">
                 <span className="label-text">Stock Quantity</span>
               </label>
               <input 
-                ref={stockRef}
                 type="number" 
+                name="stock"
+                value={formData.stock}
+                onChange={handleChange}
                 min="0" 
                 placeholder="0" 
                 className="input input-bordered w-full" 
-                defaultValue={product.stock}
                 required
               />
             </div>
@@ -155,10 +244,11 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
               <label className="label cursor-pointer">
                 <span className="label-text">Featured Product</span>
                 <input 
-                  ref={featuredRef}
                   type="checkbox" 
+                  name="featured"
+                  checked={formData.featured}
+                  onChange={handleChange}
                   className="toggle toggle-primary" 
-                  defaultChecked={product.featured}
                 />
               </label>
             </div>
@@ -189,10 +279,11 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
               <span className="text-sm font-medium">Description</span>
             </label>
             <textarea 
-              ref={descriptionRef}
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
               className="textarea textarea-bordered h-24 w-full" 
               placeholder="Enter product description"
-              defaultValue={product.description}
               required
             ></textarea>
           </div>
