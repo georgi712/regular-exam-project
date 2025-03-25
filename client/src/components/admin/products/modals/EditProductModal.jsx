@@ -70,7 +70,7 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
     setIsSubmitting(true);
     
     try {
-      let imageUrl = product.image; // Keep existing image if no new one is selected
+      let imageUrl = product.imageUrl; // Keep existing image if no new one is selected
       
       if (imageFile) {
         imageUrl = await uploadImageToFirebase(imageFile);

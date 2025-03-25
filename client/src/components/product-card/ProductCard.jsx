@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
 const ProductCard = ({ 
-  image, 
+  imageUrl, 
   name, 
   price, 
   pricePerKg, 
-  grammage, 
+  weight, 
   origin, 
   originFlag,
   onAddToCart 
@@ -37,7 +37,7 @@ const ProductCard = ({
              style={{ opacity: isHovered ? 0.1 : 0 }}>
         </div>
         <img
-          src={image}
+          src={imageUrl}
           alt={name}
           className="rounded-xl h-56 w-full object-cover transition-transform duration-500"
           style={{ transform: isHovered ? 'scale(1.05)' : 'scale(1)' }}
@@ -54,7 +54,7 @@ const ProductCard = ({
         </div>
         
         <div className="flex items-center gap-2 text-base-content/70 text-sm bg-base-200/50 p-2 rounded-lg mb-4">
-          <span>{grammage}</span>
+          <span>{weight}</span>
           <span>•</span>
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 rounded-full overflow-hidden border border-base-300">

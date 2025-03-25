@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AddProductModal from './modals/AddProductModal';
 import EditProductModal from './modals/EditProductModal';
-import { useCreateProduct, useProducts } from '../../../api/productApi.js';
+import { useCreateProduct, useAllProducts } from '../../../api/productApi.js';
 import { useNavigate } from 'react-router-dom';
 
 const ProductsManager = () => {
@@ -18,7 +18,7 @@ const ProductsManager = () => {
     { value: 'nuts', label: 'Nuts' },
   ];
   
-  const { products, setProducts } = useProducts();
+  const { products, setProducts } = useAllProducts();
 
   console.log(products);
   const handleToggleFeatured = (productId) => {
@@ -113,15 +113,17 @@ const ProductsManager = () => {
               <th>Product</th>
               <th>Category</th>
               <th>Price</th>
+              <th>Origin</th>
+              <th>Price/Kg</th>
+              <th>Weight</th>
               <th>Stock</th>
               <th>Featured</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            { products.length > 0
-            ? (products.map((product) => (
-              <tr key={product._id} className="hover">
+            {products.map((product) => (
+              <tr key={product.id} className="hover">
                 <td className="flex items-center gap-3">
                   <div className="avatar">
                     <div className="w-12 h-12 rounded-lg">
@@ -131,7 +133,10 @@ const ProductsManager = () => {
                   <div className="font-medium">{product.name}</div>
                 </td>
                 <td>{getCategoryLabel(product.category)}</td>
-                <td>${product.price.toFixed(2)}</td>
+                <td>${product.price?.toFixed(2) || '0.00'}</td>
+                <td>{product.origin || 'N/A'}</td>
+                <td>${product.pricePerKg?.toFixed(2) || '0.00'}</td>
+                <td>{product.weight ? `${product.weight} kg` : 'N/A'}</td>
                 <td>
                   <div className="flex items-center gap-2">
                     {product.stock}
@@ -164,12 +169,7 @@ const ProductsManager = () => {
                   </div>
                 </td>
               </tr>
-            )))
-          : (
-              <tr>
-                <td colSpan={6} className="text-center">No products found</td>
-              </tr>
-          )}
+            ))}
           </tbody>
         </table>
       </div>
