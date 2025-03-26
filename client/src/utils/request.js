@@ -2,16 +2,23 @@ const request = async (method, url, data, options = {}) => {
     if (method !== 'GET') {
         options.method = method;
         
-    }
-
-    if (data) {
-        options = {
-            ...options,
-            headers: {
-                ...options.headers,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
+        if (data) {
+            options = {
+                ...options,
+                headers: {
+                    ...options.headers,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            }
+        }
+    } else {
+        if (data && Object.keys(data).length > 0) {
+            const queryParams = new URLSearchParams();
+            for (const [key, value] of Object.entries(data)) {
+                queryParams.append(key, value);
+            }
+            url = `${url}${url.includes('?') ? '&' : '?'}${queryParams.toString()}`;
         }
     }
 
