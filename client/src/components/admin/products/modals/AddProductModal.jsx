@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { uploadImageToFirebase } from '../../../../firebase/storage';
+import { useCreateProduct } from '../../../../api/productApi.js';
 
-const AddProductModal = ({ isOpen, onClose, categories, onSave }) => {
+const AddProductModal = ({ isOpen, onClose, categories, onProductAdded }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const { create } = useCreateProduct();
+  
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -79,7 +82,10 @@ const AddProductModal = ({ isOpen, onClose, categories, onSave }) => {
         imageUrl: imageUrl,
       };
       
-      onSave(newProduct);
+      const response = await create(newProduct);
+      console.log("Product created successfully:", response);
+      
+      onProductAdded(response);
       resetForm();
     } catch (error) {
       console.error("Error creating product:", error);

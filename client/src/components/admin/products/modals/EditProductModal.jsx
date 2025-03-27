@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { uploadImageToFirebase } from '../../../../firebase/storage';
+import { useEditProduct } from '../../../../api/productApi.js';
 
-const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
+const EditProductModal = ({ isOpen, onClose, product, categories, onProductUpdated }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { edit } = useEditProduct();
+  
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -17,13 +20,10 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
     description: '',
   });
   
-  // Initialize with existing product data
   useEffect(() => {
     if (product && isOpen) {
-      // Use existing product image for preview
       setImagePreview(product.imageUrl);
       
-      // Set form data from product
       setFormData({
         name: product.name || '',
         price: product.price || '',
@@ -38,7 +38,6 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
     }
   }, [product, isOpen]);
 
-  // Clean up preview URL when component unmounts or when preview changes
   useEffect(() => {
     return () => {
       if (imagePreview && imagePreview.startsWith('blob:')) {
@@ -58,7 +57,6 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Create a preview URL
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
       setImageFile(file);
@@ -70,26 +68,27 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
     setIsSubmitting(true);
     
     try {
-      let imageUrl = product.imageUrl; // Keep existing image if no new one is selected
+      let imageUrl = product.imageUrl; 
       
       if (imageFile) {
         imageUrl = await uploadImageToFirebase(imageFile);
       }
       
-      // Create updated product object
       const updatedProduct = {
-        ...product, // Keep the original id and other unchanged properties
+        ...product, 
         ...formData,
         price: parseFloat(formData.price),
         pricePerKg: parseFloat(formData.pricePerKg),
         weight: parseFloat(formData.weight),
         stock: parseInt(formData.stock, 10),
-        image: imageUrl, // Use new image or keep existing
+        imageUrl: imageUrl, 
         updatedAt: new Date().toISOString(),
       };
       
-      // Call the save function from props
-      onSave(updatedProduct);
+      const response = await edit(updatedProduct._id, updatedProduct);
+      console.log("Product updated successfully:", response);
+      
+      onProductUpdated(updatedProduct);
     } catch (error) {
       console.error("Error updating product:", error);
       alert("Error updating product. Please try again.");

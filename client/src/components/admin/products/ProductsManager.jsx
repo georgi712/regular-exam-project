@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import AddProductModal from './modals/AddProductModal';
 import EditProductModal from './modals/EditProductModal';
-import { useCreateProduct, useAllProducts } from '../../../api/productApi.js';
-import { useNavigate } from 'react-router-dom';
+import { useDeleteProduct } from '../../../api/productApi.js';
 import { useProductUrlParams } from '../../../api/productApi.js';
 
 const ProductsManager = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const {create} = useCreateProduct();
-  const navigate = useNavigate();
+  const { deleteProduct } = useDeleteProduct();
   
   const PRODUCT_CATEGORIES = [
     { value: 'fruits', label: 'Fruits' },
@@ -20,6 +18,31 @@ const ProductsManager = () => {
   ];
   
   const { products, error, loading, setProducts } = useProductUrlParams();
+
+  // Callback for when a product is added
+  const handleProductAdded = useCallback((newProduct) => {
+    setProducts(prevProducts => {
+      if (!prevProducts || !Array.isArray(prevProducts)) {
+        return [newProduct];
+      }
+      return [...prevProducts, newProduct];
+    });
+    setShowAddModal(false);
+  }, [setProducts]);
+
+  // Callback for when a product is updated
+  const handleProductUpdated = useCallback((updatedProduct) => {
+    setProducts(prevProducts => {
+      if (!prevProducts || !Array.isArray(prevProducts)) {
+        return prevProducts;
+      }
+      return prevProducts.map(product => 
+        product._id === updatedProduct._id ? updatedProduct : product
+      );
+    });
+    setShowEditModal(false);
+    setSelectedProduct(null);
+  }, [setProducts]);
 
   const handleToggleFeatured = (productId) => {
     if (!products || !Array.isArray(products)) return;
@@ -32,46 +55,21 @@ const ProductsManager = () => {
     setProducts(updatedProducts);
   };
 
-  const handleDeleteProduct = (productId) => {
-    if (!products || !Array.isArray(products)) return;
-    
-    setProducts(products.filter(product => product.id !== productId));
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await deleteProduct(productId);
+      
+      if (!products || !Array.isArray(products)) return;
+      
+      setProducts(products.filter(product => product._id !== productId));
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
   };
 
   const openEditModal = (product) => {
     setSelectedProduct(product);
     setShowEditModal(true);
-  };
-
-  const handleSaveProduct = async (newProduct) => {
-    try {
-      const response = await create(newProduct);
-      console.log('Product created:', response);
-      
-      if (!products || !Array.isArray(products)) {
-        setProducts([response]);
-      } else {
-        setProducts([...products, response]);
-      }
-      
-      setShowAddModal(false);
-      navigate('/products');
-    } catch (error) {
-      console.error('Error creating product:', error);
-    }
-  };
-
-  const handleUpdateProduct = (updatedProduct) => {
-    if (!products || !Array.isArray(products)) return;
-    
-    const updatedProducts = products.map(product => 
-      product.id === updatedProduct.id 
-        ? updatedProduct
-        : product
-    );
-    setProducts(updatedProducts);
-    setShowEditModal(false);
-    setSelectedProduct(null);
   };
 
   const getCategoryLabel = (categoryValue) => {
@@ -167,7 +165,7 @@ const ProductsManager = () => {
                         
                         <button 
                           className="btn btn-ghost btn-sm text-error"
-                          onClick={() => handleDeleteProduct(product.id)}
+                          onClick={() => handleDeleteProduct(product._id)}
                         >
                           Delete
                         </button>
@@ -192,7 +190,7 @@ const ProductsManager = () => {
         isOpen={showAddModal}
         categories={PRODUCT_CATEGORIES}
         onClose={() => setShowAddModal(false)}
-        onSave={handleSaveProduct}
+        onProductAdded={handleProductAdded}
       />
       
       <EditProductModal
@@ -200,7 +198,7 @@ const ProductsManager = () => {
         product={selectedProduct}
         categories={PRODUCT_CATEGORIES}
         onClose={() => setShowEditModal(false)}
-        onSave={handleUpdateProduct}
+        onProductUpdated={handleProductUpdated}
       />
     </div>
   );

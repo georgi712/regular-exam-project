@@ -158,3 +158,15 @@ export const useEditProduct = () => {
         edit,
     }
 }
+
+export const useDeleteProduct = () => {
+    const { request } = useAuth();
+
+    const deleteProduct = (productId) => {
+        return request.delete(`${baseUrl}/${productId}`)
+    }
+
+    return {
+        deleteProduct,
+    }
+}
