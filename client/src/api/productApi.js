@@ -239,15 +239,29 @@ export const useAdvancedProductFiltering = (initialFilters = {}) => {
 }
 
 export const useFeaturedProducts = () => {
-    const [featuredProducts, setFeaturedProducts] = useState([])
-    const query = encodeURIComponent('featured=true');
+    const [featuredProducts, setFeaturedProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        request.get(`${baseUrl}?where=${query}&pageSize=8`)
-            .then(setFeaturedProducts)
-    }, [])
+        const abortController = new AbortController();
+        const signal = abortController.signal;
+        const query = encodeURIComponent('featured=true');
 
-    return {
-        featuredProducts,
-    }
-}
+        setLoading(true);
+        
+        request.get(`${baseUrl}?where=${query}&pageSize=8`, { signal })
+            .then(result => setFeaturedProducts(result || []))
+            .catch(err => {
+                if (err.name !== 'AbortError') {
+                    console.error('Error fetching featured products:', err);
+                    setError(err.message || 'Failed to fetch featured products');
+                }
+            })
+            .finally(() => setLoading(false));
+
+        return () => abortController.abort();
+    }, []);
+
+    return { featuredProducts, loading, error };
+};
