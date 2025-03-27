@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import request from "../utils/request.js"
-import { UserContext } from "../contexts/userContext.js"
 import { useSearchParams } from "react-router-dom"
+import useAuth from "../hooks/useAuth.js"
 
 const baseUrl = 'http://localhost:3030/data/products'
 
@@ -123,16 +123,10 @@ export const useProductUrlParams = () => {
 }
 
 export const useCreateProduct = () => {
-    const { accessToken } = useContext(UserContext);
-
-    const options = {
-        headers: {
-            'X-Authorization': accessToken,
-        }
-    }
+    const { request } = useAuth();
 
     const create = (productData) => {
-        return request.post(baseUrl, productData, options)
+        return request.post(baseUrl, productData);
     }
 
     return {
@@ -153,4 +147,14 @@ export const useProduct = (productId) => {
     }
 }
 
+export const useEditProduct = () => {
+    const { request } = useAuth();
+
+    const edit = (productId, productData) => {
+        return request.put(`${baseUrl}/${productId}`, {...productData, _id: productId})
+    }
+
+    return {
+        edit,
+    }
 }
