@@ -238,4 +238,16 @@ export const useAdvancedProductFiltering = (initialFilters = {}) => {
     };
 }
 
+export const useFeaturedProducts = () => {
+    const [featuredProducts, setFeaturedProducts] = useState([])
+    const query = encodeURIComponent('featured=true');
+
+    useEffect(() => {
+        request.get(`${baseUrl}?where=${query}&pageSize=8`)
+            .then(setFeaturedProducts)
+    }, [])
+
+    return {
+        featuredProducts,
+    }
 }
