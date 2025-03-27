@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ProductCard from '../../product-card/ProductCard';
+import { useFeaturedProducts } from '../../../api/productApi.js';
 
 const FeaturedProducts = () => {
   const [startIndex, setStartIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
-  
+  useFeaturedProducts();
   const products = [
     {
       id: 1,

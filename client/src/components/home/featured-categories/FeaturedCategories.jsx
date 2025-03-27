@@ -13,15 +13,18 @@ const FeaturedCategories = () => {
           {['Fruits', 'Vegetables', 'Fresh Juices', 'Nuts'].map((category) => (
             <div key={category} className="card bg-base-100 border border-base-200 hover:border-accent transition-all duration-300">
               <figure className="px-4 pt-4">
-                <img
+                <img 
                   src={`/images/categories/categories-${category.toLowerCase().replace(' ', '-')}.png`}
-                  alt={category}
+                  alt={category} 
                   className="rounded-xl h-56 w-full object-cover"
                 />
               </figure>
               <div className="card-body items-center text-center">
                 <h3 className="card-title text-xl">{category}</h3>
-                <Link to={`products?category=${category.toLowerCase().replace(' ', '-')}`} className="btn btn-accent btn-sm mt-2">
+                <Link 
+                  to={`products?category=${category === 'Fresh Juices' ? 'juices' : category.toLowerCase().replace(' ', '-')}`} 
+                  className="btn btn-accent btn-sm mt-2"
+                >
                   View All
                 </Link>
               </div>

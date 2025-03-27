@@ -1346,310 +1346,1023 @@
     	}
     };
     var seedData = {
-    	recipes: {
-    		"3987279d-0ad4-4afb-8ca9-5b256ae3b298": {
-    			_ownerId: "35c62d76-8152-4626-8712-eeb96381bea8",
-    			name: "Easy Lasagna",
-    			img: "assets/lasagna.jpg",
-    			ingredients: [
-    				"1 tbsp Ingredient 1",
-    				"2 cups Ingredient 2",
-    				"500 g  Ingredient 3",
-    				"25 g Ingredient 4"
-    			],
-    			steps: [
-    				"Prepare ingredients",
-    				"Mix ingredients",
-    				"Cook until done"
-    			],
-    			_createdOn: 1613551279012
-    		},
-    		"8f414b4f-ab39-4d36-bedb-2ad69da9c830": {
-    			_ownerId: "35c62d76-8152-4626-8712-eeb96381bea8",
-    			name: "Grilled Duck Fillet",
-    			img: "assets/roast.jpg",
-    			ingredients: [
-    				"500 g  Ingredient 1",
-    				"3 tbsp Ingredient 2",
-    				"2 cups Ingredient 3"
-    			],
-    			steps: [
-    				"Prepare ingredients",
-    				"Mix ingredients",
-    				"Cook until done"
-    			],
-    			_createdOn: 1613551344360
-    		},
-    		"985d9eab-ad2e-4622-a5c8-116261fb1fd2": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			name: "Roast Trout",
-    			img: "assets/fish.jpg",
-    			ingredients: [
-    				"4 cups Ingredient 1",
-    				"1 tbsp Ingredient 2",
-    				"1 tbsp Ingredient 3",
-    				"750 g  Ingredient 4",
-    				"25 g Ingredient 5"
-    			],
-    			steps: [
-    				"Prepare ingredients",
-    				"Mix ingredients",
-    				"Cook until done"
-    			],
-    			_createdOn: 1613551388703
-    		}
-    	},
-    	comments: {
-    		"0a272c58-b7ea-4e09-a000-7ec988248f66": {
-    			_ownerId: "35c62d76-8152-4626-8712-eeb96381bea8",
-    			content: "Great recipe!",
-    			recipeId: "8f414b4f-ab39-4d36-bedb-2ad69da9c830",
-    			_createdOn: 1614260681375,
-    			_id: "0a272c58-b7ea-4e09-a000-7ec988248f66"
-    		}
-    	},
-    	records: {
-    		i01: {
-    			name: "John1",
-    			val: 1,
-    			_createdOn: 1613551388703
-    		},
-    		i02: {
-    			name: "John2",
-    			val: 1,
-    			_createdOn: 1613551388713
-    		},
-    		i03: {
-    			name: "John3",
-    			val: 2,
-    			_createdOn: 1613551388723
-    		},
-    		i04: {
-    			name: "John4",
-    			val: 2,
-    			_createdOn: 1613551388733
-    		},
-    		i05: {
-    			name: "John5",
-    			val: 2,
-    			_createdOn: 1613551388743
-    		},
-    		i06: {
-    			name: "John6",
-    			val: 3,
-    			_createdOn: 1613551388753
-    		},
-    		i07: {
-    			name: "John7",
-    			val: 3,
-    			_createdOn: 1613551388763
-    		},
-    		i08: {
-    			name: "John8",
-    			val: 2,
-    			_createdOn: 1613551388773
-    		},
-    		i09: {
-    			name: "John9",
-    			val: 3,
-    			_createdOn: 1613551388783
-    		},
-    		i10: {
-    			name: "John10",
-    			val: 1,
-    			_createdOn: 1613551388793
-    		}
-    	},
-    	catches: {
-    		"07f260f4-466c-4607-9a33-f7273b24f1b4": {
-    			_ownerId: "35c62d76-8152-4626-8712-eeb96381bea8",
-    			angler: "Paulo Admorim",
-    			weight: 636,
-    			species: "Atlantic Blue Marlin",
-    			location: "Vitoria, Brazil",
-    			bait: "trolled pink",
-    			captureTime: 80,
-    			_createdOn: 1614760714812,
-    			_id: "07f260f4-466c-4607-9a33-f7273b24f1b4"
-    		},
-    		"bdabf5e9-23be-40a1-9f14-9117b6702a9d": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			angler: "John Does",
-    			weight: 554,
-    			species: "Atlantic Blue Marlin",
-    			location: "Buenos Aires, Argentina",
-    			bait: "trolled pink",
-    			captureTime: 120,
-    			_createdOn: 1614760782277,
-    			_id: "bdabf5e9-23be-40a1-9f14-9117b6702a9d"
-    		}
-    	},
-    	furniture: {
-    	},
-    	orders: {
-    	},
-    	movies: {
-    		"1240549d-f0e0-497e-ab99-eb8f703713d7": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			title: "Black Widow",
-    			description: "Natasha Romanoff aka Black Widow confronts the darker parts of her ledger when a dangerous conspiracy with ties to her past arises. Comes on the screens 2020.",
-    			img: "https://miro.medium.com/max/735/1*akkAa2CcbKqHsvqVusF3-w.jpeg",
-    			_createdOn: 1614935055353,
-    			_id: "1240549d-f0e0-497e-ab99-eb8f703713d7"
-    		},
-    		"143e5265-333e-4150-80e4-16b61de31aa0": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			title: "Wonder Woman 1984",
-    			description: "Diana must contend with a work colleague and businessman, whose desire for extreme wealth sends the world down a path of destruction, after an ancient artifact that grants wishes goes missing.",
-    			img: "https://pbs.twimg.com/media/ETINgKwWAAAyA4r.jpg",
-    			_createdOn: 1614935181470,
-    			_id: "143e5265-333e-4150-80e4-16b61de31aa0"
-    		},
-    		"a9bae6d8-793e-46c4-a9db-deb9e3484909": {
-    			_ownerId: "35c62d76-8152-4626-8712-eeb96381bea8",
-    			title: "Top Gun 2",
-    			description: "After more than thirty years of service as one of the Navy's top aviators, Pete Mitchell is where he belongs, pushing the envelope as a courageous test pilot and dodging the advancement in rank that would ground him.",
-    			img: "https://i.pinimg.com/originals/f2/a4/58/f2a458048757bc6914d559c9e4dc962a.jpg",
-    			_createdOn: 1614935268135,
-    			_id: "a9bae6d8-793e-46c4-a9db-deb9e3484909"
-    		}
-    	},
-    	likes: {
-    	},
-    	ideas: {
-    		"833e0e57-71dc-42c0-b387-0ce0caf5225e": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			title: "Best Pilates Workout To Do At Home",
-    			description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Minima possimus eveniet ullam aspernatur corporis tempore quia nesciunt nostrum mollitia consequatur. At ducimus amet aliquid magnam nulla sed totam blanditiis ullam atque facilis corrupti quidem nisi iusto saepe, consectetur culpa possimus quos? Repellendus, dicta pariatur! Delectus, placeat debitis error dignissimos nesciunt magni possimus quo nulla, fuga corporis maxime minus nihil doloremque aliquam quia recusandae harum. Molestias dolorum recusandae commodi velit cum sapiente placeat alias rerum illum repudiandae? Suscipit tempore dolore autem, neque debitis quisquam molestias officia hic nesciunt? Obcaecati optio fugit blanditiis, explicabo odio at dicta asperiores distinctio expedita dolor est aperiam earum! Molestias sequi aliquid molestiae, voluptatum doloremque saepe dignissimos quidem quas harum quo. Eum nemo voluptatem hic corrupti officiis eaque et temporibus error totam numquam sequi nostrum assumenda eius voluptatibus quia sed vel, rerum, excepturi maxime? Pariatur, provident hic? Soluta corrupti aspernatur exercitationem vitae accusantium ut ullam dolor quod!",
-    			img: "./images/best-pilates-youtube-workouts-2__medium_4x3.jpg",
-    			_createdOn: 1615033373504,
-    			_id: "833e0e57-71dc-42c0-b387-0ce0caf5225e"
-    		},
-    		"247efaa7-8a3e-48a7-813f-b5bfdad0f46c": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			title: "4 Eady DIY Idea To Try!",
-    			description: "Similique rem culpa nemo hic recusandae perspiciatis quidem, quia expedita, sapiente est itaque optio enim placeat voluptates sit, fugit dignissimos tenetur temporibus exercitationem in quis magni sunt vel. Corporis officiis ut sapiente exercitationem consectetur debitis suscipit laborum quo enim iusto, labore, quod quam libero aliquid accusantium! Voluptatum quos porro fugit soluta tempore praesentium ratione dolorum impedit sunt dolores quod labore laudantium beatae architecto perspiciatis natus cupiditate, iure quia aliquid, iusto modi esse!",
-    			img: "./images/brightideacropped.jpg",
-    			_createdOn: 1615033452480,
-    			_id: "247efaa7-8a3e-48a7-813f-b5bfdad0f46c"
-    		},
-    		"b8608c22-dd57-4b24-948e-b358f536b958": {
-    			_ownerId: "35c62d76-8152-4626-8712-eeb96381bea8",
-    			title: "Dinner Recipe",
-    			description: "Consectetur labore et corporis nihil, officiis tempora, hic ex commodi sit aspernatur ad minima? Voluptas nesciunt, blanditiis ex nulla incidunt facere tempora laborum ut aliquid beatae obcaecati quidem reprehenderit consequatur quis iure natus quia totam vel. Amet explicabo quidem repellat unde tempore et totam minima mollitia, adipisci vel autem, enim voluptatem quasi exercitationem dolor cum repudiandae dolores nostrum sit ullam atque dicta, tempora iusto eaque! Rerum debitis voluptate impedit corrupti quibusdam consequatur minima, earum asperiores soluta. A provident reiciendis voluptates et numquam totam eveniet! Dolorum corporis libero dicta laborum illum accusamus ullam?",
-    			img: "./images/dinner.jpg",
-    			_createdOn: 1615033491967,
-    			_id: "b8608c22-dd57-4b24-948e-b358f536b958"
-    		}
-    	},
-    	catalog: {
-    		"53d4dbf5-7f41-47ba-b485-43eccb91cb95": {
-    			_ownerId: "35c62d76-8152-4626-8712-eeb96381bea8",
-    			make: "Table",
-    			model: "Swedish",
-    			year: 2015,
-    			description: "Medium table",
-    			price: 235,
-    			img: "./images/table.png",
-    			material: "Hardwood",
-    			_createdOn: 1615545143015,
-    			_id: "53d4dbf5-7f41-47ba-b485-43eccb91cb95"
-    		},
-    		"f5929b5c-bca4-4026-8e6e-c09e73908f77": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			make: "Sofa",
-    			model: "ES-549-M",
-    			year: 2018,
-    			description: "Three-person sofa, blue",
-    			price: 1200,
-    			img: "./images/sofa.jpg",
-    			material: "Frame - steel, plastic; Upholstery - fabric",
-    			_createdOn: 1615545572296,
-    			_id: "f5929b5c-bca4-4026-8e6e-c09e73908f77"
-    		},
-    		"c7f51805-242b-45ed-ae3e-80b68605141b": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			make: "Chair",
-    			model: "Bright Dining Collection",
-    			year: 2017,
-    			description: "Dining chair",
-    			price: 180,
-    			img: "./images/chair.jpg",
-    			material: "Wood laminate; leather",
-    			_createdOn: 1615546332126,
-    			_id: "c7f51805-242b-45ed-ae3e-80b68605141b"
-    		}
-    	},
-    	teams: {
-    		"34a1cab1-81f1-47e5-aec3-ab6c9810efe1": {
-    			_ownerId: "35c62d76-8152-4626-8712-eeb96381bea8",
-    			name: "Storm Troopers",
-    			logoUrl: "/assets/atat.png",
-    			description: "These ARE the droids we're looking for",
-    			_createdOn: 1615737591748,
-    			_id: "34a1cab1-81f1-47e5-aec3-ab6c9810efe1"
-    		},
-    		"dc888b1a-400f-47f3-9619-07607966feb8": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			name: "Team Rocket",
-    			logoUrl: "/assets/rocket.png",
-    			description: "Gotta catch 'em all!",
-    			_createdOn: 1615737655083,
-    			_id: "dc888b1a-400f-47f3-9619-07607966feb8"
-    		},
-    		"733fa9a1-26b6-490d-b299-21f120b2f53a": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			name: "Minions",
-    			logoUrl: "/assets/hydrant.png",
-    			description: "Friendly neighbourhood jelly beans, helping evil-doers succeed.",
-    			_createdOn: 1615737688036,
-    			_id: "733fa9a1-26b6-490d-b299-21f120b2f53a"
-    		}
-    	},
-    	members: {
-    		"cc9b0a0f-655d-45d7-9857-0a61c6bb2c4d": {
-    			_ownerId: "35c62d76-8152-4626-8712-eeb96381bea8",
-    			teamId: "34a1cab1-81f1-47e5-aec3-ab6c9810efe1",
-    			status: "member",
-    			_createdOn: 1616236790262,
-    			_updatedOn: 1616236792930
-    		},
-    		"61a19986-3b86-4347-8ca4-8c074ed87591": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			teamId: "dc888b1a-400f-47f3-9619-07607966feb8",
-    			status: "member",
-    			_createdOn: 1616237188183,
-    			_updatedOn: 1616237189016
-    		},
-    		"8a03aa56-7a82-4a6b-9821-91349fbc552f": {
-    			_ownerId: "847ec027-f659-4086-8032-5173e2f9c93a",
-    			teamId: "733fa9a1-26b6-490d-b299-21f120b2f53a",
-    			status: "member",
-    			_createdOn: 1616237193355,
-    			_updatedOn: 1616237195145
-    		},
-    		"9be3ac7d-2c6e-4d74-b187-04105ab7e3d6": {
-    			_ownerId: "35c62d76-8152-4626-8712-eeb96381bea8",
-    			teamId: "dc888b1a-400f-47f3-9619-07607966feb8",
-    			status: "member",
-    			_createdOn: 1616237231299,
-    			_updatedOn: 1616237235713
-    		},
-    		"280b4a1a-d0f3-4639-aa54-6d9158365152": {
-    			_ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc",
-    			teamId: "dc888b1a-400f-47f3-9619-07607966feb8",
-    			status: "member",
-    			_createdOn: 1616237257265,
-    			_updatedOn: 1616237278248
-    		},
-    		"e797fa57-bf0a-4749-8028-72dba715e5f8": {
-    			_ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc",
-    			teamId: "34a1cab1-81f1-47e5-aec3-ab6c9810efe1",
-    			status: "member",
-    			_createdOn: 1616237272948,
-    			_updatedOn: 1616237293676
-    		}
-    	}
+        products: {
+            // FRUITS - 18 products
+            "f0001": {
+                _id: "f0001",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Red Apples",
+                price: 3.99,
+                pricePerKg: 7.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "fruits",
+                stock: 45,
+                featured: true,
+                description: "Fresh and crisp red apples from local Bulgarian farms. Rich in flavor and perfect for snacking or baking."
+            },
+            "f0002": {
+                _id: "f0002",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Bananas",
+                price: 2.49,
+                pricePerKg: 4.98,
+                weight: 0.5,
+                origin: "Ecuador",
+                category: "fruits",
+                stock: 60,
+                featured: true,
+                description: "Sweet and nutritious bananas, perfect for smoothies, baking, or a quick healthy snack."
+            },
+            "f0003": {
+                _id: "f0003",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Oranges",
+                price: 4.29,
+                pricePerKg: 8.58,
+                weight: 0.5,
+                origin: "Spain",
+                category: "fruits",
+                stock: 35,
+                featured: false,
+                description: "Juicy and tangy oranges packed with vitamin C. Great for juicing or eating fresh."
+            },
+            "f0004": {
+                _id: "f0004",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Strawberries",
+                price: 5.99,
+                pricePerKg: 17.11,
+                weight: 0.35,
+                origin: "Bulgaria",
+                category: "fruits",
+                stock: 25,
+                featured: true,
+                description: "Sweet and aromatic strawberries. Locally grown and harvested at peak ripeness."
+            },
+            "f0005": {
+                _id: "f0005",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Grapes",
+                price: 4.49,
+                pricePerKg: 8.98,
+                weight: 0.5,
+                origin: "Italy",
+                category: "fruits",
+                stock: 30,
+                featured: false,
+                description: "Seedless green grapes with a perfect balance of sweetness and tartness."
+            },
+            "f0006": {
+                _id: "f0006",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Blueberries",
+                price: 6.99,
+                pricePerKg: 23.30,
+                weight: 0.3,
+                origin: "Poland",
+                category: "fruits",
+                stock: 20,
+                featured: true,
+                description: "Plump and juicy blueberries, loaded with antioxidants and natural sweetness."
+            },
+            "f0007": {
+                _id: "f0007",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Pineapple",
+                price: 5.49,
+                pricePerKg: 5.49,
+                weight: 1,
+                origin: "Costa Rica",
+                category: "fruits",
+                stock: 15,
+                featured: false,
+                description: "Tropical and sweet pineapple. Perfect for desserts, fruit salads, or grilling."
+            },
+            "f0008": {
+                _id: "f0008",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Watermelon",
+                price: 7.99,
+                pricePerKg: 2.66,
+                weight: 3,
+                origin: "Greece",
+                category: "fruits",
+                stock: 10,
+                featured: true,
+                description: "Sweet and refreshing watermelon, perfect for hot summer days. Sold as a quarter melon."
+            },
+            "f0009": {
+                _id: "f0009",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Kiwi",
+                price: 3.99,
+                pricePerKg: 13.30,
+                weight: 0.3,
+                origin: "New Zealand",
+                category: "fruits",
+                stock: 40,
+                featured: false,
+                description: "Tangy and sweet kiwi fruit loaded with vitamin C and dietary fiber."
+            },
+            "f0010": {
+                _id: "f0010",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Peaches",
+                price: 4.79,
+                pricePerKg: 9.58,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "fruits",
+                stock: 25,
+                featured: false,
+                description: "Juicy and fragrant peaches from local farms. Perfect for fresh eating or desserts."
+            },
+            "f0011": {
+                _id: "f0011",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Mangoes",
+                price: 6.49,
+                pricePerKg: 12.98,
+                weight: 0.5,
+                origin: "Brazil",
+                category: "fruits",
+                stock: 20,
+                featured: true,
+                description: "Sweet and tropical mangoes with a rich, creamy texture and exotic flavor."
+            },
+            "f0012": {
+                _id: "f0012",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Lemons",
+                price: 3.49,
+                pricePerKg: 11.63,
+                weight: 0.3,
+                origin: "Italy",
+                category: "fruits",
+                stock: 45,
+                featured: false,
+                description: "Bright and tangy lemons, perfect for cooking, baking, or making refreshing beverages."
+            },
+            "f0013": {
+                _id: "f0013",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Pears",
+                price: 4.29,
+                pricePerKg: 8.58,
+                weight: 0.5,
+                origin: "Belgium",
+                category: "fruits",
+                stock: 35,
+                featured: false,
+                description: "Sweet and juicy pears with a soft, buttery texture. Great for snacking or desserts."
+            },
+            "f0014": {
+                _id: "f0014",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Raspberries",
+                price: 6.99,
+                pricePerKg: 34.95,
+                weight: 0.2,
+                origin: "Poland",
+                category: "fruits",
+                stock: 15,
+                featured: true,
+                description: "Delicate and sweet raspberries with a slight tartness. Perfect for desserts or enjoying fresh."
+            },
+            "f0015": {
+                _id: "f0015",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Cherries",
+                price: 7.99,
+                pricePerKg: 15.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "fruits",
+                stock: 20,
+                featured: true,
+                description: "Plump and sweet cherries with deep red color. A seasonal delight."
+            },
+            "f0016": {
+                _id: "f0016",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Avocados",
+                price: 5.99,
+                pricePerKg: 11.98,
+                weight: 0.5,
+                origin: "Mexico",
+                category: "fruits",
+                stock: 30,
+                featured: false,
+                description: "Creamy and nutritious avocados, perfect for toast, salads, or guacamole."
+            },
+            "f0017": {
+                _id: "f0017",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Plums",
+                price: 4.49,
+                pricePerKg: 8.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "fruits",
+                stock: 25,
+                featured: false,
+                description: "Sweet and juicy plums with a hint of tartness. Great for snacking or baking."
+            },
+            "f0018": {
+                _id: "f0018",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Dragon Fruit",
+                price: 8.99,
+                pricePerKg: 17.98,
+                weight: 0.5,
+                origin: "Vietnam",
+                category: "fruits",
+                stock: 10,
+                featured: true,
+                description: "Exotic dragon fruit with mildly sweet flavor and striking appearance. Rich in antioxidants."
+            },
+
+            // VEGETABLES - 18 products
+            "v0001": {
+                _id: "v0001",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Tomatoes",
+                price: 3.49,
+                pricePerKg: 6.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "vegetables",
+                stock: 50,
+                featured: true,
+                description: "Ripe and juicy tomatoes, locally grown and perfect for salads, sandwiches, or cooking."
+            },
+            "v0002": {
+                _id: "v0002",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Cucumbers",
+                price: 2.99,
+                pricePerKg: 5.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "vegetables",
+                stock: 45,
+                featured: false,
+                description: "Fresh and crisp cucumbers. Great for salads, tzatziki, or as a refreshing snack."
+            },
+            "v0003": {
+                _id: "v0003",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Bell Peppers",
+                price: 4.29,
+                pricePerKg: 8.58,
+                weight: 0.5,
+                origin: "Spain",
+                category: "vegetables",
+                stock: 35,
+                featured: true,
+                description: "Colorful bell peppers with sweet flavor. Perfect for stir-fries, salads, or stuffing."
+            },
+            "v0004": {
+                _id: "v0004",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Carrots",
+                price: 2.79,
+                pricePerKg: 5.58,
+                weight: 0.5,
+                origin: "Netherlands",
+                category: "vegetables",
+                stock: 60,
+                featured: false,
+                description: "Sweet and crunchy carrots, excellent for snacking, cooking, or juicing."
+            },
+            "v0005": {
+                _id: "v0005",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Broccoli",
+                price: 3.99,
+                pricePerKg: 7.98,
+                weight: 0.5,
+                origin: "Italy",
+                category: "vegetables",
+                stock: 30,
+                featured: true,
+                description: "Nutritious broccoli florets, perfect for steaming, stir-frying, or roasting."
+            },
+            "v0006": {
+                _id: "v0006",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Zucchini",
+                price: 3.49,
+                pricePerKg: 6.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "vegetables",
+                stock: 40,
+                featured: false,
+                description: "Tender and versatile zucchini. Great for grilling, sautéing, or making zoodles."
+            },
+            "v0007": {
+                _id: "v0007",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Potatoes",
+                price: 2.99,
+                pricePerKg: 2.99,
+                weight: 1,
+                origin: "Bulgaria",
+                category: "vegetables",
+                stock: 70,
+                featured: true,
+                description: "Versatile potatoes ideal for roasting, mashing, or frying. A kitchen staple."
+            },
+            "v0008": {
+                _id: "v0008",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Onions",
+                price: 2.49,
+                pricePerKg: 2.49,
+                weight: 1,
+                origin: "Bulgaria",
+                category: "vegetables",
+                stock: 65,
+                featured: false,
+                description: "Yellow onions with balanced flavor. Essential for countless recipes."
+            },
+            "v0009": {
+                _id: "v0009",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Spinach",
+                price: 3.79,
+                pricePerKg: 12.63,
+                weight: 0.3,
+                origin: "Bulgaria",
+                category: "vegetables",
+                stock: 25,
+                featured: true,
+                description: "Fresh and tender spinach leaves. Packed with nutrients and perfect for salads or cooking."
+            },
+            "v0010": {
+                _id: "v0010",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Mushrooms",
+                price: 4.49,
+                pricePerKg: 14.97,
+                weight: 0.3,
+                origin: "Poland",
+                category: "vegetables",
+                stock: 35,
+                featured: false,
+                description: "Fresh button mushrooms with earthy flavor. Great for salads, stir-fries, or soups."
+            },
+            "v0011": {
+                _id: "v0011",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Eggplant",
+                price: 3.99,
+                pricePerKg: 7.98,
+                weight: 0.5,
+                origin: "Turkey",
+                category: "vegetables",
+                stock: 20,
+                featured: false,
+                description: "Glossy purple eggplants, perfect for roasting, grilling, or making baba ganoush."
+            },
+            "v0012": {  
+                _id: "v0012",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Cauliflower",
+                price: 4.29,
+                pricePerKg: 8.58,
+                weight: 0.5,
+                origin: "France",
+                category: "vegetables",
+                stock: 25,
+                featured: true,
+                description: "Fresh cauliflower, versatile for roasting, steaming, or making cauliflower rice."
+            },
+            "v0013": {
+                _id: "v0013",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Red Cabbage",
+                price: 2.99,
+                pricePerKg: 2.99,
+                weight: 1,
+                origin: "Bulgaria",
+                category: "vegetables",
+                stock: 40,
+                featured: false,
+                description: "Vibrant red cabbage, perfect for slaws, salads, or pickling."
+            },
+            "v0014": {
+                _id: "v0014",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Sweet Corn",
+                price: 4.99,
+                pricePerKg: 9.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "vegetables",
+                stock: 30,
+                featured: true,
+                description: "Sweet and juicy corn on the cob. Perfect for grilling, boiling, or roasting."
+            },
+            "v0015": { 
+                _id: "v0015",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Asparagus",
+                price: 6.99,
+                pricePerKg: 13.98,
+                weight: 0.5,
+                origin: "Peru",
+                category: "vegetables",
+                stock: 15,
+                featured: true,
+                description: "Tender asparagus spears, delicious roasted, grilled, or steamed."
+            },
+            "v0016": {
+                _id: "v0016",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Brussels Sprouts",
+                price: 4.49,
+                pricePerKg: 8.98,
+                weight: 0.5,
+                origin: "Belgium",
+                category: "vegetables",
+                stock: 20,
+                featured: false,
+                description: "Nutrient-rich Brussels sprouts, perfect for roasting with a bit of olive oil and salt."
+            },
+            "v0017": { 
+                _id: "v0017",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Garlic",
+                price: 2.99,
+                pricePerKg: 19.93,
+                weight: 0.15,
+                origin: "Bulgaria",
+                category: "vegetables",
+                stock: 50,
+                featured: false,
+                description: "Aromatic garlic bulbs, essential for countless recipes and rich in health benefits."
+            },
+            "v0018": {
+                _id: "v0018",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Artichokes",
+                price: 5.99,
+                pricePerKg: 11.98,
+                weight: 0.5,
+                origin: "Italy",
+                category: "vegetables",
+                stock: 15,
+                featured: true,
+                description: "Tender artichokes with rich, earthy flavor. Perfect steamed or stuffed."
+            },
+            
+            // JUICES - 18 products
+            "j0001": {
+                _id: "j0001",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Fresh Orange Juice",
+                price: 5.99,
+                pricePerKg: 11.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 25,
+                featured: true,
+                description: "Freshly squeezed orange juice, 100% natural with no added sugar or preservatives."
+            },
+            "j0002": {  
+                _id: "j0002",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Apple Juice",
+                price: 4.99,
+                pricePerKg: 9.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 30,
+                featured: false,
+                description: "Cold-pressed apple juice made from local Bulgarian apples. Naturally sweet and refreshing."
+            },
+            "j0003": {
+                _id: "j0003",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Carrot Juice",
+                price: 5.49,
+                pricePerKg: 10.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 20,
+                featured: true,
+                description: "Fresh carrot juice packed with vitamins and nutrients. A healthy daily boost."
+            },
+            "j0004": {
+                _id: "j0004",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Mixed Berry Juice",
+                price: 6.99,
+                pricePerKg: 13.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 15,
+                featured: true,
+                description: "A delicious blend of strawberries, blueberries, and raspberries. Rich in antioxidants."
+            },
+            "j0005": {
+                _id: "j0005",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Pomegranate Juice",
+                price: 7.49,
+                pricePerKg: 14.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 20,
+                featured: true,
+                description: "Freshly pressed pomegranate juice, loaded with antioxidants and refreshing taste."
+            },
+            "j0006": {
+                _id: "j0006",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Grapefruit Juice",
+                price: 5.99,
+                pricePerKg: 11.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 25,
+                featured: false,
+                description: "Tangy and refreshing grapefruit juice, a perfect start to your morning."
+            },
+            "j0007": {  
+                _id: "j0007",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Watermelon Juice",
+                price: 5.49,
+                pricePerKg: 10.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 15,
+                featured: true,
+                description: "Sweet and refreshing watermelon juice, perfect for hot summer days."
+            },
+            "j0008": { 
+                _id: "j0008",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Pineapple Juice",
+                price: 6.49,
+                pricePerKg: 12.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 20,
+                featured: false,
+                description: "Tropical pineapple juice, naturally sweet and packed with enzymes."
+            },
+            "j0009": { 
+                _id: "j0009",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Green Detox Juice",
+                price: 7.99,
+                pricePerKg: 15.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 15,
+                featured: true,
+                description: "A nutritious blend of spinach, cucumber, celery, and apple. Perfect for cleansing."
+            },
+            "j0010": { 
+                _id: "j0010",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Beetroot Juice",
+                price: 5.99,
+                pricePerKg: 11.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 20,
+                featured: false,
+                description: "Earthy and sweet beetroot juice, great for boosting stamina and blood health."
+            },
+            "j0011": { 
+                _id: "j0011",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Mango Juice",
+                price: 6.99,
+                pricePerKg: 13.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 20,
+                featured: true,
+                description: "Tropical mango juice, thick and sweet with rich exotic flavor."
+            },
+            "j0012": { 
+                _id: "j0012",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Celery Juice",
+                price: 5.49,
+                pricePerKg: 10.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 15,
+                featured: false,
+                description: "Fresh celery juice, light and hydrating with subtle earthy flavor."
+            },
+            "j0013": { 
+                _id: "j0013",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Lemonade",
+                price: 4.99,
+                pricePerKg: 9.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 30,
+                featured: true,
+                description: "Classic homemade lemonade, perfectly balanced between sweet and tart."
+            },
+            "j0014": { 
+                _id: "j0014",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Kiwi & Cucumber Juice",
+                price: 6.49,
+                pricePerKg: 12.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 15,
+                featured: false,
+                description: "Refreshing blend of kiwi and cucumber. Light, hydrating, and cleansing."
+            },
+            "j0015": { 
+                _id: "j0015",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Orange & Carrot Juice",
+                price: 5.99,
+                pricePerKg: 11.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 25,
+                featured: true,
+                description: "Vibrant blend of orange and carrot, packed with vitamins A and C."
+            },
+            "j0016": { 
+                _id: "j0016",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Cherry Juice",
+                price: 7.49,
+                pricePerKg: 14.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 20,
+                featured: false,
+                description: "Tart cherry juice with potential anti-inflammatory properties. Great for recovery."
+            },
+            "j0017": { 
+                _id: "j0017",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Strawberry & Banana Smoothie",
+                price: 6.99,
+                pricePerKg: 13.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 20,
+                featured: true,
+                description: "Creamy smoothie made with fresh strawberries and bananas. A classic combination."
+            },
+            "j0018": { 
+                _id: "j0018",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Pear & Ginger Juice",
+                price: 6.49,
+                pricePerKg: 12.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "juices",
+                stock: 15,
+                featured: true,
+                description: "Sweet pear juice with a hint of spicy ginger. Soothing and warming."
+            },
+            
+            // NUTS - 18 products
+            "n0001": { 
+                _id: "n0001",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Almonds",
+                price: 8.99,
+                pricePerKg: 17.98,
+                weight: 0.5,
+                origin: "USA",
+                category: "nuts",
+                stock: 40,
+                featured: true,
+                description: "Premium raw almonds, packed with protein and healthy fats. Perfect for snacking."
+            },
+            "n0002": {  
+                _id: "n0002",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Walnuts",
+                price: 9.49,
+                pricePerKg: 18.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "nuts",
+                stock: 35,
+                featured: true,
+                description: "Locally grown walnuts with rich buttery flavor. Great for baking or snacking."
+            },
+            "n0003": { 
+                _id: "n0003",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Cashews",
+                price: 10.99,
+                pricePerKg: 21.98,
+                weight: 0.5,
+                origin: "Vietnam",
+                category: "nuts",
+                stock: 30,
+                featured: false,
+                description: "Creamy and slightly sweet cashews, great for snacking or adding to stir-fries."
+            },
+            "n0004": { 
+                _id: "n0004",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Pistachios",
+                price: 11.99,
+                pricePerKg: 23.98,
+                weight: 0.5,
+                origin: "Turkey",
+                category: "nuts",
+                stock: 25,
+                featured: true,
+                description: "Roasted and salted pistachios. A delicious and nutrient-rich snack."
+            },
+            "n0005": {  
+                _id: "n0005",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Hazelnuts",
+                price: 9.99,
+                pricePerKg: 19.98,
+                weight: 0.5,
+                origin: "Turkey",
+                category: "nuts",
+                stock: 30,
+                featured: false,
+                description: "Premium hazelnuts with rich flavor. Perfect for baking or eating as is."
+            },
+            "n0006": { 
+                _id: "n0006",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Brazil Nuts",
+                price: 12.49,
+                pricePerKg: 24.98,
+                weight: 0.5,
+                origin: "Bolivia",
+                category: "nuts",
+                stock: 20,
+                featured: false,
+                description: "Large, creamy Brazil nuts, rich in selenium and healthy fats."
+            },
+            "n0007": { 
+                _id: "n0007",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Pecans",
+                price: 11.49,
+                pricePerKg: 22.98,
+                weight: 0.5,
+                origin: "USA",
+                category: "nuts",
+                stock: 25,
+                featured: true,
+                description: "Buttery and rich pecans, perfect for baking or adding to salads."
+            },
+            "n0008": {  
+                _id: "n0008",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Pine Nuts",
+                price: 14.99,
+                pricePerKg: 29.98,
+                weight: 0.5,
+                origin: "China",
+                category: "nuts",
+                stock: 15,
+                featured: false,
+                description: "Delicate pine nuts with unique flavor, perfect for pesto or topping salads."
+            },
+            "n0009": { 
+                _id: "n0009",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Macadamia Nuts",
+                price: 15.99,
+                pricePerKg: 31.98,
+                weight: 0.5,
+                origin: "Australia",
+                category: "nuts",
+                stock: 20,
+                featured: true,
+                description: "Creamy and buttery macadamia nuts, a luxurious and indulgent treat."
+            },
+            "n0010": {  
+                _id: "n0010",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Mixed Nuts",
+                price: 10.99,
+                pricePerKg: 21.98,
+                weight: 0.5,
+                origin: "Various",
+                category: "nuts",
+                stock: 35,
+                featured: true,
+                description: "A premium blend of almonds, cashews, walnuts, and hazelnuts. The perfect snack mix."
+            },
+            "n0011": {  
+                _id: "n0011",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Peanuts",
+                price: 6.99,
+                pricePerKg: 13.98,
+                weight: 0.5,
+                origin: "Argentina",
+                category: "nuts",
+                stock: 50,
+                featured: false,
+                description: "Roasted and lightly salted peanuts. A classic and affordable protein-rich snack."
+            },
+            "n0012": {  
+                _id: "n0012",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Pumpkin Seeds",
+                price: 7.99,
+                pricePerKg: 15.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "nuts",
+                stock: 40,
+                featured: true,
+                description: "Crunchy roasted pumpkin seeds, rich in zinc and magnesium. Great for snacking."
+            },
+            "n0013": {  
+                _id: "n0013",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Sunflower Seeds",
+                price: 6.49,
+                pricePerKg: 12.98,
+                weight: 0.5,
+                origin: "Bulgaria",
+                category: "nuts",
+                stock: 45,
+                featured: false,
+                description: "Shelled and roasted sunflower seeds with mild nutty flavor. Packed with vitamin E."
+            },
+            "n0014": {  
+                _id: "n0014",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Chia Seeds",
+                price: 8.49,
+                pricePerKg: 16.98,
+                weight: 0.5,
+                origin: "Mexico",
+                category: "nuts",
+                stock: 30,
+                featured: true,
+                description: "Nutrient-rich chia seeds, perfect for adding to smoothies, puddings, or as a topping."
+            },
+            "n0015": {  
+                _id: "n0015",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Flax Seeds",
+                price: 7.49,
+                pricePerKg: 14.98,
+                weight: 0.5,
+                origin: "Canada",
+                category: "nuts",
+                stock: 35,
+                featured: false,
+                description: "Omega-3 rich flax seeds, great for adding to baked goods or sprinkling on cereal."
+            },
+            "n0016": {  
+                _id: "n0016",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Almond Butter",
+                price: 12.99,
+                pricePerKg: 25.98,
+                weight: 0.5,
+                origin: "USA",
+                category: "nuts",
+                stock: 20,
+                featured: true,
+                description: "Creamy almond butter made from roasted almonds. No added sugar or preservatives."
+            },
+            "n0017": {  
+                _id: "n0017",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Chocolate Covered Almonds",
+                price: 9.99,
+                pricePerKg: 19.98,
+                weight: 0.5,
+                origin: "Belgium",
+                category: "nuts",
+                stock: 25,
+                featured: true,
+                description: "Premium almonds coated in rich dark chocolate. A perfect treat."
+            },
+            "n0018": {  
+                _id: "n0018",
+                _createdOn: 1617194299472,
+                _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
+                name: "Coconut Flakes",
+                price: 6.99,
+                pricePerKg: 13.98,
+                weight: 0.5,
+                origin: "Philippines",
+                category: "nuts",
+                stock: 30,
+                featured: false,
+                description: "Unsweetened coconut flakes, perfect for baking, cooking, or adding to smoothies."
+            }
+        }
     };
     var rules$1 = {
     	users: {

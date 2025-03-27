@@ -50,7 +50,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li><Link to="/products?category=fruits" className="hover:text-accent">Fruits</Link></li>
               <li><Link to="/products?category=vegetables" className="hover:text-accent">Vegetables</Link></li>
-              <li><Link to="/products?category=fresh-juices" className="hover:text-accent">Fresh Juices</Link></li>
+              <li><Link to="/products?category=juices" className="hover:text-accent">Fresh Juices</Link></li>
               <li><Link to="/products?category=nuts" className="hover:text-accent">Nuts</Link></li>
             </ul>
           </div>

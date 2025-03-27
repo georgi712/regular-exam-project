@@ -1,4 +1,4 @@
-import { useProductUrlParams } from "../../api/productApi.js";
+import { useAdvancedProductFiltering } from "../../api/productApi.js";
 import ProductCard from "../product-card/ProductCard";
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -9,40 +9,20 @@ const ITEMS_PER_PAGE = 6;
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedSort, setSelectedSort] = useState('Sort by');
-
-  const categoryParam = searchParams.get('category') || '';
-  let currentCategory = 'All';
   
-  if (categoryParam === 'fruits') currentCategory = 'Fruits';
-  else if (categoryParam === 'vegetables') currentCategory = 'Vegetables';
-  else if (categoryParam === 'juices') currentCategory = 'Fresh Juices';
-  else if (categoryParam === 'nuts') currentCategory = 'Nuts';
-
-  useEffect(() => {
-    setSelectedCategory(currentCategory);
-    
-    const sortByParam = searchParams.get('sortBy');
-    if (sortByParam) {
-      if (sortByParam === '_createdOn desc') setSelectedSort('Newest');
-      else if (sortByParam === 'price') setSelectedSort('Price: Low to High');
-      else if (sortByParam === 'price desc') setSelectedSort('Price: High to Low');
-      else setSelectedSort('Default Sorting');
-    } else {
-      setSelectedSort('Default Sorting');
-    }
-  }, [currentCategory, searchParams]);
-
-  useEffect(() => {
-    const pageSize = searchParams.get('pageSize');
-    if (!pageSize) {
-      const newParams = new URLSearchParams(searchParams);
-      newParams.set('pageSize', ITEMS_PER_PAGE.toString());
-      setSearchParams(newParams);
-    }
-  }, []);
+  const { 
+    products, 
+    error, 
+    loading, 
+    filters, 
+    updateFilters, 
+    resetFilters, 
+    filterOptions
+  } = useAdvancedProductFiltering({
+    sortBy: 'name',
+    sortDirection: 'asc'
+  });
 
   useEffect(() => {
     const offset = searchParams.get('offset');
@@ -54,31 +34,54 @@ export default function Products() {
     }
   }, [searchParams]);
 
-  const { products, totalCount, error, loading } = useProductUrlParams();
-  
-  const totalPages = Math.ceil((totalCount || products.length) / ITEMS_PER_PAGE);
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam && categoryParam !== filters.category) {
+      updateFilters({ category: categoryParam });
+    }
+    
+    const sortByParam = searchParams.get('sortBy');
+    if (sortByParam) {
+      if (sortByParam === '_createdOn desc') {
+        updateFilters({ sortBy: '_createdOn', sortDirection: 'desc' });
+      } else if (sortByParam === 'price') {
+        updateFilters({ sortBy: 'price', sortDirection: 'asc' });
+      } else if (sortByParam === 'price desc') {
+        updateFilters({ sortBy: 'price', sortDirection: 'desc' });
+      }
+    }
+  }, [searchParams]);
+
+  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
+  const currentProducts = products.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE, 
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const handleSortChange = (e) => {
     const newSort = e.target.value;
-    setSelectedSort(newSort);
-    
     const newParams = new URLSearchParams(searchParams);
     
     let formatedSort = '';
+    let sortBy, sortDirection;
 
     if(newSort === 'Newest') {
-      formatedSort = '_createdOn desc'
+      formatedSort = '_createdOn desc';
+      sortBy = '_createdOn';
+      sortDirection = 'desc';
     } else if(newSort === 'Default Sorting') {
-      formatedSort = '' 
+      formatedSort = '';
+      sortBy = 'name';
+      sortDirection = 'asc';
     } else if(newSort === 'Price: Low to High') {
-      formatedSort = 'price'
-      console.log("Sorting price ascending");
+      formatedSort = 'price';
+      sortBy = 'price';
+      sortDirection = 'asc';
     } else if (newSort === 'Price: High to Low'){
-      formatedSort = 'price desc'
-      console.log("Sorting price descending");
+      formatedSort = 'price desc';
+      sortBy = 'price';
+      sortDirection = 'desc';
     }
-
-    console.log(`Sorting by: ${newSort} => ${formatedSort}`);
 
     if (newSort === 'Default Sorting') {
       newParams.delete('sortBy');
@@ -88,28 +91,27 @@ export default function Products() {
     
     setCurrentPage(1);
     newParams.delete('offset');
-    
     setSearchParams(newParams);
+    updateFilters({ sortBy, sortDirection });
   };
 
   const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-    
     const newParams = new URLSearchParams(searchParams);
     
+    let categoryValue = '';
     if (category === 'All') {
       newParams.delete('category');
+      categoryValue = '';
     } else {
-      const categoryValue = category === 'Fresh Juices' ? 'juices' : category.split(' ')[0].toLowerCase();
+      categoryValue = category === 'Fresh Juices' ? 'juices' : category.toLowerCase();
       newParams.set('category', categoryValue);
     }
     
     setCurrentPage(1);
     newParams.delete('offset');
-    
     newParams.set('pageSize', ITEMS_PER_PAGE.toString());
-    
     setSearchParams(newParams);
+    updateFilters({ category: categoryValue });
   };
 
   const handlePageChange = (page) => {
@@ -126,8 +128,24 @@ export default function Products() {
     
     newParams.set('pageSize', ITEMS_PER_PAGE.toString());
     setSearchParams(newParams);
-    
     window.scrollTo(0, 0);
+  };
+
+  const getCurrentSortOption = () => {
+    if (filters.sortBy === '_createdOn' && filters.sortDirection === 'desc') {
+      return 'Newest';
+    } else if (filters.sortBy === 'price' && filters.sortDirection === 'asc') {
+      return 'Price: Low to High';
+    } else if (filters.sortBy === 'price' && filters.sortDirection === 'desc') {
+      return 'Price: High to Low';
+    }
+    return 'Default Sorting';
+  };
+
+  const getSelectedCategory = () => {
+    if (!filters.category) return 'All';
+    if (filters.category === 'juices') return 'Fresh Juices';
+    return filters.category.charAt(0).toUpperCase() + filters.category.slice(1);
   };
 
   return (
@@ -138,9 +156,23 @@ export default function Products() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <h1 className="text-4xl font-bold text-white mb-4 md:mb-0">Our Products</h1>
             <div className="flex flex-wrap gap-4">
+              <div className="join">
+                <input 
+                  type="text" 
+                  placeholder="Search products..." 
+                  className="input input-bordered join-item w-full md:w-auto bg-white/90"
+                  value={filters.search}
+                  onChange={(e) => updateFilters({ search: e.target.value })}
+                />
+                <button className="btn join-item bg-white/90">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </div>
               <select 
                 className="select select-bordered w-full md:w-auto bg-white/90" 
-                value={selectedSort}
+                value={getCurrentSortOption()}
                 onChange={handleSortChange}
               >
                 {SORT_OPTIONS.map((option) => (
@@ -153,7 +185,6 @@ export default function Products() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Error Message */}
         {error && (
           <div className="alert alert-error shadow-lg mb-8">
             <div>
@@ -164,13 +195,11 @@ export default function Products() {
         )}
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters */}
           <div className="lg:w-1/4">
             <div className="card bg-base-100 border border-base-200">
               <div className="card-body">
                 <h2 className="card-title mb-4">Filters</h2>
                 
-                {/* Categories */}
                 <div className="mb-6">
                   <h3 className="font-bold mb-2">Categories</h3>
                   <div className="space-y-2">
@@ -179,7 +208,7 @@ export default function Products() {
                         <input 
                           type="radio" 
                           className="radio radio-accent" 
-                          checked={cat === selectedCategory}
+                          checked={cat === getSelectedCategory()}
                           value={cat}
                           onChange={() => handleCategoryChange(cat)}
                           name="category"
@@ -189,40 +218,152 @@ export default function Products() {
                     ))}
                   </div>
                 </div>
+
+                {filterOptions.origins && filterOptions.origins.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="font-bold mb-2">Origin</h3>
+                    <select 
+                      className="select select-bordered w-full"
+                      value={filters.origin}
+                      onChange={(e) => updateFilters({ origin: e.target.value })}
+                    >
+                      <option value="">All Origins</option>
+                      {filterOptions.origins.map(origin => (
+                        <option key={origin} value={origin}>{origin}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {filterOptions.priceRange && (
+                  <div className="mb-6">
+                    <h3 className="font-bold mb-2">Price Range</h3>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="number" 
+                          placeholder="Min Price" 
+                          className="input input-bordered w-full"
+                          value={filters.minPrice}
+                          onChange={(e) => updateFilters({ minPrice: e.target.value })}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="number" 
+                          placeholder="Max Price" 
+                          className="input input-bordered w-full"
+                          value={filters.maxPrice}
+                          onChange={(e) => updateFilters({ maxPrice: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-2">
+                      Range: ${filterOptions.priceRange.min?.toFixed(2)} - ${filterOptions.priceRange.max?.toFixed(2)}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mb-6">
+                  <h3 className="font-bold mb-2">Featured</h3>
+                  <select 
+                    className="select select-bordered w-full"
+                    value={filters.featured}
+                    onChange={(e) => updateFilters({ featured: e.target.value })}
+                  >
+                    <option value="">All Products</option>
+                    <option value="true">Featured Only</option>
+                    <option value="false">Non-Featured Only</option>
+                  </select>
+                </div>
+
+                <button 
+                  className="btn btn-outline btn-block"
+                  onClick={() => {
+                    resetFilters();
+                    const newParams = new URLSearchParams();
+                    newParams.set('pageSize', ITEMS_PER_PAGE.toString());
+                    setSearchParams(newParams);
+                  }}
+                >
+                  Reset Filters
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Product Grid */}
           <div className="lg:w-3/4 flex flex-col min-h-[600px]">
-            {/* Loading State */}
+            {(filters.search || filters.category || filters.minPrice || filters.maxPrice || filters.origin || filters.featured) && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="text-sm font-medium self-center">Active filters:</span>
+                {filters.search && (
+                  <div className="badge badge-primary gap-1">
+                    Search: {filters.search}
+                    <button onClick={() => updateFilters({ search: '' })}>×</button>
+                  </div>
+                )}
+                {filters.category && (
+                  <div className="badge badge-primary gap-1">
+                    Category: {getSelectedCategory()}
+                    <button onClick={() => handleCategoryChange('All')}>×</button>
+                  </div>
+                )}
+                {filters.minPrice && (
+                  <div className="badge badge-primary gap-1">
+                    Min Price: ${filters.minPrice}
+                    <button onClick={() => updateFilters({ minPrice: '' })}>×</button>
+                  </div>
+                )}
+                {filters.maxPrice && (
+                  <div className="badge badge-primary gap-1">
+                    Max Price: ${filters.maxPrice}
+                    <button onClick={() => updateFilters({ maxPrice: '' })}>×</button>
+                  </div>
+                )}
+                {filters.origin && (
+                  <div className="badge badge-primary gap-1">
+                    Origin: {filters.origin}
+                    <button onClick={() => updateFilters({ origin: '' })}>×</button>
+                  </div>
+                )}
+                {filters.featured && (
+                  <div className="badge badge-primary gap-1">
+                    {filters.featured === 'true' ? 'Featured' : 'Non-Featured'}
+                    <button onClick={() => updateFilters({ featured: '' })}>×</button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {loading && (
               <div className="flex-grow flex justify-center items-center">
                 <span className="loading loading-spinner loading-lg"></span>
               </div>
             )}
 
-            {/* Products or No Products Message */}
+            {!loading && (
+              <div className="mb-4 text-sm text-gray-500">
+                Showing {currentProducts.length} of {products.length} products
+              </div>
+            )}
+
             {!loading && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-grow">
-                {products.length > 0 ? (
-                  products.map((product) => {
-                    console.log("Rendering product:", product);
-                    return (
-                      <ProductCard
-                        key={product._id}
-                        id={product._id}
-                        imageUrl={product.image || product.imageUrl}
-                        name={product.name}
-                        price={product.price}
-                        pricePerKg={product.pricePerKg}
-                        weight={product.weight}
-                        origin={product.origin}
-                        originFlag={product.originFlag || "https://via.placeholder.com/30"}
-                        onAddToCart={(item) => console.log('Added to cart:', item)}
-                      />
-                    );
-                  })
+                {currentProducts.length > 0 ? (
+                  currentProducts.map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      id={product._id}
+                      imageUrl={product.image || product.imageUrl}
+                      name={product.name}
+                      price={product.price}
+                      pricePerKg={product.pricePerKg}
+                      weight={product.weight}
+                      origin={product.origin}
+                      originFlag={product.originFlag || "https://via.placeholder.com/30"}
+                      onAddToCart={(item) => console.log('Added to cart:', item)}
+                    />
+                  ))
                 ) : !error ? (
                   <div className="col-span-full flex items-center justify-center h-[400px]">
                     <div className="text-4xl font-bold text-gray-400">No products found</div>
@@ -231,7 +372,6 @@ export default function Products() {
               </div>
             )}
 
-            {/* Pagination */}
             {!loading && products.length > 0 && (
               <div className="flex justify-center mt-auto pt-8">
                 <div className="join">
