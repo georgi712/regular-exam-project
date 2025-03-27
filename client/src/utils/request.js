@@ -34,7 +34,7 @@ const request = async (method, url, data, options = {}) => {
 }
 
 export default {
-    request,
+    baseRequest: request,
     get: request.bind(null, 'GET'),
     post: request.bind(null, 'POST'),
     put: request.bind(null, 'PUT'),
