@@ -211,6 +211,7 @@ export default function Products() {
                     return (
                       <ProductCard
                         key={product._id}
+                        id={product._id}
                         imageUrl={product.image || product.imageUrl}
                         name={product.name}
                         price={product.price}

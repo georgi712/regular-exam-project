@@ -21,7 +21,7 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onSave }) => {
   useEffect(() => {
     if (product && isOpen) {
       // Use existing product image for preview
-      setImagePreview(product.image);
+      setImagePreview(product.imageUrl);
       
       // Set form data from product
       setFormData({

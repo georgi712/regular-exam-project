@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ 
+  id,
   imageUrl, 
   name, 
   price, 
@@ -12,25 +14,32 @@ const ProductCard = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
 
   const handleQuantityChange = (change) => {
     const newQuantity = Math.max(1, quantity + change);
     setQuantity(newQuantity);
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
     onAddToCart({ name, price, quantity });
+  };
+
+  const handleCardClick = () => {
+    navigate(`/products/${id}/details`);
   };
 
   return (
     <div 
-      className="card bg-base-100 shadow-lg transition-all duration-300 h-full"
+      className="card bg-base-100 shadow-lg transition-all duration-300 h-full cursor-pointer"
       style={{
         transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
         boxShadow: isHovered ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' : ''
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
     >
       <figure className="px-4 pt-4 relative overflow-hidden rounded-t-xl">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-black/10 opacity-0 transition-opacity duration-300"
@@ -72,14 +81,14 @@ const ProductCard = ({
           <div className="flex items-center justify-between bg-base-200/50 rounded-lg p-2">
             <button 
               className="btn btn-sm btn-circle btn-ghost text-lg"
-              onClick={() => handleQuantityChange(-1)}
+              onClick={(e) => { e.stopPropagation(); handleQuantityChange(-1); }}
             >
               -
             </button>
             <span className="font-medium text-base">{quantity}</span>
             <button 
               className="btn btn-sm btn-circle btn-ghost text-lg"
-              onClick={() => handleQuantityChange(1)}
+              onClick={(e) => { e.stopPropagation(); handleQuantityChange(1); }}
             >
               +
             </button>

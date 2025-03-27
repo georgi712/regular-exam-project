@@ -1,7 +1,11 @@
-import { useState } from 'react';
-import ProductCard from '../product-card/ProductCard';
+import { useParams } from 'react-router-dom';
+import { useProduct } from '../../api/productApi';
+import { useState, useEffect } from 'react';
 
 export default function ProductDetails() {
+  const { productId } = useParams();
+  const { product } = useProduct(productId);
+  
   const [activeTab, setActiveTab] = useState("details");
   const [quantity, setQuantity] = useState(1);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -9,12 +13,6 @@ export default function ProductDetails() {
   const reviews = [
     { id: 1, user: 'Alice', avatar: 'A', rating: 5, comment: 'Great product! Really enjoyed the taste and quality.' },
     { id: 2, user: 'Bob', avatar: 'B', rating: 4, comment: 'Very useful and healthy. Would recommend to friends and family.' },
-  ];
-  
-  const relatedProducts = [
-    { id: 1, name: 'Similar Product 1', price: '89.99', pricePerKg: '179.98', grammage: '500g', origin: 'Bulgaria', originFlag: '/images/flags/bg.png', image: 'https://via.placeholder.com/200x150' },
-    { id: 2, name: 'Similar Product 2', price: '79.99', pricePerKg: '159.98', grammage: '500g', origin: 'Spain', originFlag: '/images/flags/es.png', image: 'https://via.placeholder.com/200x150/yellow' },
-    { id: 3, name: 'Similar Product 3', price: '109.99', pricePerKg: '219.98', grammage: '500g', origin: 'Italy', originFlag: '/images/flags/it.png', image: 'https://via.placeholder.com/200x150/blue' },
   ];
   
   // Calculate average rating
@@ -26,99 +24,61 @@ export default function ProductDetails() {
     ratingCounts[review.rating - 1]++;
   });
 
-  return (
-    <div className="container mx-auto p-4 bg-base-100">
-      {/* Breadcrumbs */}
-      <div className="text-sm breadcrumbs mb-4">
-        <ul>
-          <li><a>Home</a></li>
-          <li><a>Products</a></li>
-          <li>Product Name</li>
-        </ul>
-      </div>
-      
-      {/* Hero section with product image and details */}
-      <div className="card lg:card-side bg-base-100 shadow-xl mb-8">
-        <div className="lg:w-1/2">
-          {/* Single product image */}
-          <figure>
-            <img src="https://via.placeholder.com/800x600" alt="Product" className="w-full h-full object-cover rounded-l-xl" />
-          </figure>
+  if (!product) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-[400px]">
+          <span className="loading loading-spinner loading-lg"></span>
         </div>
-        
-        <div className="card-body lg:w-1/2">
-          <div className="flex justify-between items-start">
-            <h1 className="card-title text-4xl font-bold">Product Name</h1>
-            <div className="flex gap-2">
-              <button className="btn btn-circle btn-outline">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </button>
-              <div className="dropdown dropdown-end">
-                <label tabIndex={0} className="btn btn-circle btn-outline">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                  </svg>
-                </label>
-                <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                  <li><a>Share on Facebook</a></li>
-                  <li><a>Share on Twitter</a></li>
-                  <li><a>Share on Instagram</a></li>
-                </ul>
-              </div>
-            </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Product Image */}
+        <div className="rounded-xl overflow-hidden">
+          <img
+            src={product.image || product.imageUrl}
+            alt={product.name}
+            className="w-full h-[500px] object-cover"
+          />
+        </div>
+
+        {/* Product Info */}
+        <div className="flex flex-col gap-6">
+          <h1 className="text-4xl font-bold">{product.name}</h1>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-3xl font-bold text-accent">{product.price} лв</span>
+            <span className="text-lg text-base-content/70">/ {product.pricePerKg} лв/кг</span>
           </div>
-          
-          <div className="flex items-center mb-2">
-            <div className="rating rating-sm">
-              {[...Array(5)].map((_, i) => (
-                <input 
-                  key={i} 
-                  type="radio" 
-                  name="product-rating" 
-                  className="mask mask-star-2 bg-orange-400"
-                  checked={i + 1 === Math.round(averageRating)}
-                  readOnly
-                />
-              ))}
-            </div>
-            <span className="ml-2 text-sm text-gray-600">({reviews.length} reviews)</span>
-          </div>
-          
-          <div className="badge badge-accent badge-lg text-xl py-4 px-6 my-2">$99.99</div>
-          <p className="text-lg mb-4">Product description goes here. It provides details about the product. Our premium organic selection ensures the highest quality for your health needs.</p>
-          
-          <div className="flex flex-wrap gap-2 my-2">
-            <div className="badge badge-outline">Organic</div>
-            <div className="badge badge-outline">Fresh</div>
-            <div className="badge badge-outline">Healthy</div>
-          </div>
-          
-          <div className="form-control w-full max-w-xs my-6">
-            <label className="label mb-2">
-              <span className="label-text text-lg">Quantity</span>
-            </label>
+
+          <div className="flex items-center gap-2 text-base-content/70 text-base bg-base-200/50 p-3 rounded-lg">
+            <span>{product.weight}</span>
+            <span>•</span>
             <div className="flex items-center gap-2">
-              <button 
-                className="btn"
-                onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-              >-</button>
-              <input 
-                type="text" 
-                className="input input-bordered w-20 text-center" 
-                value={quantity}
-                readOnly
-              />
-              <button 
-                className="btn"
-                onClick={() => setQuantity(prev => prev + 1)}
-              >+</button>
+              <div className="w-6 h-6 rounded-full overflow-hidden border border-base-300">
+                <img 
+                  src={product.originFlag || "https://via.placeholder.com/30"} 
+                  alt={`${product.origin} flag`} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span>{product.origin}</span>
             </div>
           </div>
-          
-          <div className="card-actions justify-end mt-6">
-            <button className="btn btn-primary btn-lg">Add to Cart</button>
+
+          <div className="prose max-w-none">
+            <h2 className="text-2xl font-semibold mb-4">Description</h2>
+            <p className="text-base-content/80">{product.description || 'No description available.'}</p>
+          </div>
+
+          <div className="mt-auto">
+            <button className="btn btn-accent btn-lg w-full">
+              Add to Cart
+            </button>
           </div>
         </div>
       </div>
@@ -323,26 +283,6 @@ export default function ProductDetails() {
           </div>
         </div>
       )}
-      
-      {/* Related Products */}
-      <div className="mt-12">
-        <h2 className="text-3xl font-bold mb-6">You May Also Like</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {relatedProducts.map(product => (
-            <ProductCard
-              key={product.id}
-              image={product.image}
-              name={product.name}
-              price={product.price}
-              pricePerKg={product.pricePerKg}
-              grammage={product.grammage}
-              origin={product.origin}
-              originFlag={product.originFlag}
-              onAddToCart={(item) => console.log('Added to cart:', item)}
-            />
-          ))}
-        </div>
-      </div>
     </div>
   );
 } 
