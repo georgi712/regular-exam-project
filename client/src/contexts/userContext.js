@@ -9,4 +9,5 @@ export const UserContext = createContext({
     cart: [],
     userLoginHandler: () => null,
     userLogoutHandler: () => null,
+    updateUserAddress: () => null,
 })

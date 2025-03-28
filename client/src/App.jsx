@@ -28,8 +28,36 @@ function App() {
   const userLogoutHandler = () => {
     setAuthData({})
   }
+  
+  const updateUserAddress = (addressData) => {
+    const newAddress = {
+      address: addressData.address,
+      isDefault: true
+    };
+    
+    setAuthData(currentData => {
+      const existingAddresses = currentData.addresses 
+        ? currentData.addresses.map(addr => ({...addr, isDefault: false}))
+        : [];
+      
+      const updatedAddresses = [...existingAddresses, newAddress];
+      
+      return {
+        ...currentData,
+        addresses: updatedAddresses
+      };
+    });
+    
+    return true;
+  };
+  
   return (
-    <UserContext.Provider value={{...authData, userLoginHandler, userLogoutHandler}}>
+    <UserContext.Provider value={{
+      ...authData, 
+      userLoginHandler, 
+      userLogoutHandler,
+      updateUserAddress
+    }}>
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow">
