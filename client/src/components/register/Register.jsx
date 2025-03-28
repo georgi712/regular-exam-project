@@ -1,11 +1,12 @@
-import { useActionState, useContext } from 'react';
+import { useActionState, useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../contexts/userContext.js';
 import { useRegister } from '../../api/authApi.js';
 
 export default function Register() {
   const navigate = useNavigate();
-  const {userLoginHandler} = useContext(UserContext);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { register } = useRegister();
 
   const registerHandler = async (previousState, formData) => {
@@ -13,15 +14,28 @@ export default function Register() {
     const username = values.firstName + ' ' + values.lastName;
 
     if (values.password !== values.rePass) {
-      console.error('Password mismatch!');
-
-      return;
+      setError('Passwords do not match!');
+      return values;
     }
 
-    const authData = await register(values.email, values.password, username);
-    userLoginHandler(authData);
-    navigate('/');
-    return values
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = await register(values.email, values.password, username);
+      
+      if (result.success) {
+        navigate('/');
+      } else {
+        setError(result.error || 'Registration failed. Please try again.');
+      }
+    } catch (err) {
+      setError(err.message || 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+    
+    return values;
   }
 
   const [values, registerAction, isPending] = useActionState(registerHandler, { firstName: '', lastName: '', email: '', password: '', rePass: '' })
@@ -38,6 +52,13 @@ export default function Register() {
 
         <div className="card bg-base-100 border border-base-200">
           <div className="card-body">
+            {error && (
+              <div className="alert alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span>{error}</span>
+              </div>
+            )}
+            
             <form className="space-y-6" action={registerAction}>
               <div className="grid grid-cols-2 gap-4">
                 <div className="form-control">
@@ -50,6 +71,7 @@ export default function Register() {
                     name="firstName"
                     className="input input-bordered w-full"
                     required
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -63,6 +85,7 @@ export default function Register() {
                     name="lastName"
                     className="input input-bordered w-full"
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -77,6 +100,7 @@ export default function Register() {
                   name="email"
                   className="input input-bordered w-full"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
@@ -90,6 +114,7 @@ export default function Register() {
                   name="password"
                   className="input input-bordered w-full"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
@@ -103,22 +128,22 @@ export default function Register() {
                   name="rePass"
                   className="input input-bordered w-full"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
-              {/* <div className="form-control">
-                <label className="label cursor-pointer">
-                  <span className="label-text font-medium">
-                    I agree to the{' '}
-                    <Link to="/terms" className="link link-hover text-accent">
-                      Terms and Conditions
-                    </Link>
-                  </span>
-                  <input type="checkbox" className="checkbox checkbox-accent" required />
-                </label>
-              </div> */}
-
-              <input className="btn btn-primary w-full" type="submit" value="Create Account" disabled={isPending}></input>
+              <button
+                className="btn btn-primary w-full"
+                type="submit"
+                disabled={isPending || isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm mr-2"></span>
+                    Creating Account...
+                  </>
+                ) : 'Create Account'}
+              </button>
 
               <div className="divider"></div>
 

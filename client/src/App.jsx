@@ -52,12 +52,15 @@ function App() {
   };
   
   return (
-    <UserContext.Provider value={{
-      ...authData, 
-      userLoginHandler, 
-      userLogoutHandler,
-      updateUserAddress
-    }}>
+    <UserContext.Provider 
+      value={{
+        ...authData, 
+        userLoginHandler, 
+        userLogoutHandler,
+        updateUserAddress
+      }}
+      key={authData._id || 'no-user'}
+    >
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow">

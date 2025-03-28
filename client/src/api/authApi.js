@@ -13,11 +13,8 @@ export const useLogin = () => {
         try {
             const result = await request.post(`${baseUrl}/login`, {email, password});
             
-            // First update auth state with just the login data
             userLoginHandler(result);
             
-            // Then fetch addresses and update auth state with complete data
-            // Pass the auth data directly to getAddresses
             const addressResult = await getAddresses(result);
             
             if (!addressResult.success) {
@@ -53,10 +50,8 @@ export const useRegister = () => {
         try {
             const result = await request.post(`${baseUrl}/register`, {email, password, username, role: 'User'});
             
-            // Update auth state with the registration data
             userLoginHandler(result);
             
-            // Create user profile with empty addresses
             const profileResult = await createUserProfile(result.accessToken);
             
             if (!profileResult.success) {
