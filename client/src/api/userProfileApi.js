@@ -1,42 +1,26 @@
-import useAuth from "../hooks/useAuth.js"
-import { useState } from "react";
+import { useState } from 'react';
+import useAuth from '../hooks/useAuth.js';
 
 const baseUrl = 'http://localhost:3030/data/user_profiles'
 
-export const useCreateUserProfile = () => {
-    const {request, addresses, cart} = useAuth();
-    const [isCreating, setIsCreating] = useState(false);
-    const [error, setError] = useState(null);
-    
-    const createUserProfile = async (accessToken) => {
-        setIsCreating(true);
-        setError(null);
-        
-        try {
-            const userProfileData = {};
+const findUserProfile = async (userId, request) => {
+  if (!userId) {
+    throw new Error('User not authenticated');
+  }
 
-            const options = {
-                headers: {
-                    'X-Authorization': accessToken
-                }
-            }
+  const searchQuery = encodeURIComponent(`_ownerId="${userId}"`);
+  const profiles = await request.get(`${baseUrl}?where=${searchQuery}`);
+  return profiles.length > 0 ? profiles[0] : null;
+};
 
-            if (addresses) {
-                userProfileData.addresses = addresses
-            }
-            if (cart) {
-                userProfileData.cart = cart
-            }
-            
-            const result = await request.post(baseUrl, userProfileData, options);
-            return { success: true, data: result };
-        } catch (err) {
-            setError(err.message || 'Failed to create user profile');
-            return { success: false, error: err.message || 'Failed to create user profile' };
-        } finally {
-            setIsCreating(false);
-        }
-    }
+const updateUserStorage = (updatedAddresses, authData, userLoginHandler) => {
+  const updatedAuthData = {
+    ...authData,
+    addresses: updatedAddresses
+  };
+  localStorage.setItem('auth', JSON.stringify(updatedAuthData));
+  userLoginHandler(updatedAuthData);
+};
 
     return {
         createUserProfile,
