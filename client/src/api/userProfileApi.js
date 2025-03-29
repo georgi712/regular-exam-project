@@ -22,10 +22,33 @@ const updateUserStorage = (updatedAddresses, authData, userLoginHandler) => {
   userLoginHandler(updatedAuthData);
 };
 
-    return {
-        createUserProfile,
-        isCreating,
-        error
+export const useCreateUserProfile = () => {
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState(null);
+  const { _id: userId, addresses, cart, request } = useAuth();
+
+  const createUserProfile = async () => {
+    setIsCreating(true);
+    setError(null);
+    
+    try {
+      const profileData = {
+        _ownerId: userId,
+        addresses: addresses || [],
+        cart: cart || []
+      };
+      
+      const result = await request.post(`${baseUrl}`, profileData);
+      
+      console.log('Profile created:', result);
+      
+      return { success: true, data: result };
+    } catch (err) {
+      console.error('Error creating profile:', err);
+      setError(err.message || 'An error occurred while creating profile');
+      return { success: false, error: err.message };
+    } finally {
+      setIsCreating(false);
     }
 }
 
