@@ -1,154 +1,134 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { UserContext } from '../../../contexts/userContext.js';
 import { useUpdateAddress } from '../../../api/userProfileApi.js';
-import AddressFormHome, { DELIVERY_AREAS } from './AddressFormHome.jsx';
+import AddressInput from './AddressInput.jsx';
 
 export default function UserWelcome() {
-  const [showAddressChange, setShowAddressChange] = useState(false);
   const userContext = useContext(UserContext);
-  const { username, _id, addresses, updateUserAddress } = userContext;
+  const { username, addresses, updateUserAddress } = userContext;
   const [savedAddress, setSavedAddress] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   
   const { updateAddress, isUpdating } = useUpdateAddress();
-  
-  const [address, setAddress] = useState("");
-  const [validationMessage, setValidationMessage] = useState("");
-  const [isInDeliveryArea, setIsInDeliveryArea] = useState(false);
 
-  useEffect(() => {
-    if (errorMessage && address) {
-      setErrorMessage(null);
-    }
-  }, [address, errorMessage]);
-
+  // Get the user's saved address, if any
   useEffect(() => {
     if (addresses && addresses.length > 0) {
       const defaultAddress = addresses.find(addr => addr.isDefault) || addresses[0];
       setSavedAddress(defaultAddress);
     } else {
-      setShowAddressChange(true);
+      setSavedAddress(null);
+      setShowAddressForm(true);
     }
   }, [addresses]);
 
-  // Force Google Maps to reload when showing address form
-  useEffect(() => {
-    if (showAddressChange) {
-      // Clear any existing Google Maps scripts that might be in a bad state
-      const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
-      existingScripts.forEach(script => {
-        script.remove();
+  const handleAddressSave = async (addressData) => {
+    setErrorMessage("");
+    
+    try {
+      const result = await updateAddress({
+        address: addressData.formattedAddress,
+        isDefault: true
       });
-    }
-  }, [showAddressChange]);
-
-  const checkDeliveryArea = (addressComponents) => {
-    if (!addressComponents) return { deliverable: false, message: "" };
-    
-    const cityComponent = addressComponents.find(
-      component => component.types.includes("locality")
-    );
-    
-    const subLocalityComponent = addressComponents.find(
-      component => component.types.includes("sublocality") || 
-                   component.types.includes("neighborhood")
-    );
-
-    const city = cityComponent?.long_name;
-    const district = subLocalityComponent?.long_name;
-
-    if (city === "София" || city === "Sofia") {
-      if (district && DELIVERY_AREAS[district]) {
-        return {
-          deliverable: true,
-          message: `✅ Great! We deliver to ${district}, ${city}`
+      
+      if (result.success) {
+        const newAddress = {
+          address: addressData.formattedAddress,
+          isDefault: true
         };
+        
+        updateUserAddress(newAddress);
+        setSavedAddress(newAddress);
+        setSuccessMessage("✅ Address saved successfully!");
+        setShowAddressForm(false);
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          setSuccessMessage("");
+        }, 3000);
+      } else {
+        setErrorMessage(result.error || "Failed to save address");
       }
-      return {
-        deliverable: true,
-        message: "✅ Great! We deliver to your area in Sofia"
-      };
+    } catch (error) {
+      setErrorMessage("An error occurred. Please try again.");
     }
-
-    return {
-      deliverable: false,
-      message: `❌ Sorry, we currently don't deliver to ${city || 'this area'}`
-    };
   };
 
-  const clearAddress = () => {
-    setAddress("");
-    setValidationMessage("");
-    setIsInDeliveryArea(false);
-    setErrorMessage(null);
-  };
-
-  const handleAddressSelect = useCallback((placeData) => {
-    if (!placeData.valid) {
-      setValidationMessage(placeData.message);
-      setIsInDeliveryArea(false);
-      return;
-    }
-    
-    const { deliverable, message } = checkDeliveryArea(placeData.address_components);
-    setIsInDeliveryArea(deliverable);
-    setValidationMessage(message);
-    setAddress(placeData.formatted_address);
-  }, []);
-
-  const handleSaveAddress = async () => {
-    if (!isInDeliveryArea || !address) return;
-    
-    setErrorMessage(null);
-    
-    const addressData = {
-      address: address,
-      isDefault: true
-    };
-    
-    const result = await updateAddress(addressData);
-    
-    if (result.success) {
-      setSavedAddress(addressData);
-      
-      updateUserAddress(addressData);
-      
-      setValidationMessage(`✅ Address saved successfully!`);
-      
-      setShowAddressChange(false);
-      clearAddress();
-    } else {
-      setErrorMessage(result.error || 'Failed to save address. Please try again.');
-    }
+  const handleAddressChange = () => {
+    setShowAddressForm(true);
+    setErrorMessage("");
   };
 
   const handleCancel = () => {
-    setShowAddressChange(false);
-    clearAddress();
+    setShowAddressForm(false);
+    setErrorMessage("");
   };
 
+  // Render the form to add/change address
+  const renderAddressForm = () => {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <h3 className="font-semibold text-lg">
+            {savedAddress ? "Change Your Delivery Address" : "Set Your Delivery Address"}
+          </h3>
+          <p className="text-base-content/70">
+            Enter your address to see if we deliver to your area
+          </p>
+        </div>
+
+        <AddressInput 
+          onSave={handleAddressSave}
+          onCancel={savedAddress ? handleCancel : null}
+          isLoading={isUpdating}
+        />
+        
+        {errorMessage && (
+          <div className="alert alert-error shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{errorMessage}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Render the view with the saved address
   const renderSavedAddressView = () => {
     return (
       <>
-        <div className="flex items-center gap-4 mb-4">
-          <div className="bg-success text-success-content p-3 rounded-full">
+        <div className="flex items-start gap-4 mb-6">
+          <div className="bg-success text-success-content p-3 rounded-full flex-shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h3 className="font-semibold">Your Default Delivery Address</h3>
-            <p className="text-base-content/80">{savedAddress.address}</p>
+            <p className="text-base-content/80 break-words">{savedAddress.address}</p>
           </div>
         </div>
+        
+        {successMessage && (
+          <div className="alert alert-success mb-4 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{successMessage}</span>
+          </div>
+        )}
         
         <div className="flex flex-col sm:flex-row gap-4">
           <Link to={"/products?category=fruits"} className="btn btn-primary btn-lg flex-1 h-14 sm:h-auto py-3">Browse Products</Link>
           <button
             className="btn btn-outline btn-success btn-lg flex-1 h-14 sm:h-auto py-3"
-            onClick={() => setShowAddressChange(true)}
+            onClick={handleAddressChange}
           >
             Change Delivery Address
           </button>
@@ -168,19 +148,9 @@ export default function UserWelcome() {
           
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body p-6">
-              {savedAddress && !showAddressChange ? 
+              {savedAddress && !showAddressForm ? 
                 renderSavedAddressView() : 
-                <AddressFormHome
-                  address={address}
-                  onAddressSelect={handleAddressSelect}
-                  onSave={handleSaveAddress}
-                  onCancel={handleCancel}
-                  isLoading={isUpdating}
-                  validationMessage={validationMessage}
-                  isInDeliveryArea={isInDeliveryArea}
-                  errorMessage={errorMessage}
-                  hasSavedAddress={!!savedAddress}
-                />
+                renderAddressForm()
               }
             </div>
           </div>
