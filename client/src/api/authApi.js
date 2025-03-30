@@ -1,21 +1,21 @@
 import { useContext, useEffect } from "react";
 import request from "../utils/request.js"
 import { UserContext } from "../contexts/userContext.js";
-import { useCreateUserProfile, useGetAddresses } from "./userProfileApi.js";
+import { useCreateUserProfile, useGetAddresses, useGetCart } from "./userProfileApi.js";
+import useAuth from "../hooks/useAuth.js";
 
 const baseUrl = 'http://localhost:3030/users';
 
 export const useLogin = () => {
-    const { userLoginHandler } = useContext(UserContext);
+    const { userLoginHandler } = useAuth();
     const { getAddresses } = useGetAddresses();
+    const { getCart } = useGetCart();
     
     const login = async (email, password) => {
         try {
             const result = await request.post(`${baseUrl}/login`, {email, password});
-            
-            userLoginHandler(result);
-            
             const addressResult = await getAddresses(result);
+            const cartResult = await getCart(result)
             
             if (!addressResult.success) {
                 return {
@@ -23,8 +23,22 @@ export const useLogin = () => {
                     data: result,
                     warning: 'Logged in successfully, but failed to load your addresses.'
                 };
+            } 
+
+            if (!cartResult.success) {
+                return {
+                    success: true,
+                    data: result,
+                    warning: 'Logged in successfully, but failed to load your cart.'
+                };
             }
-            
+
+            userLoginHandler({
+                ...result,
+                ...addressResult.data,
+                ...cartResult.data,
+            })
+
             return {
                 success: true,
                 data: result

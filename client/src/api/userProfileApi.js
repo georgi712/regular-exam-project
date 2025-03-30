@@ -13,12 +13,11 @@ const findUserProfile = async (userId, request) => {
   return profiles.length > 0 ? profiles[0] : null;
 };
 
-const updateUserStorage = (updatedAddresses, authData, userLoginHandler) => {
+export const updateUserStorage = (updatedAddresses, authData, userLoginHandler) => {
   const updatedAuthData = {
     ...authData,
     addresses: updatedAddresses
   };
-  localStorage.setItem('auth', JSON.stringify(updatedAuthData));
   userLoginHandler(updatedAuthData);
 };
 
@@ -140,14 +139,12 @@ export const useSetDefaultAddress = () => {
       
       const authData = JSON.parse(localStorage.getItem('auth') || '{}');
       
-      // Prevent potential navigation triggers by using a more controlled update
       const updatedAuthData = {
         ...authData,
         addresses: updatedAddresses
       };
       localStorage.setItem('auth', JSON.stringify(updatedAuthData));
       
-      // Use setTimeout to ensure this happens after the current execution completes
       setTimeout(() => {
         userLoginHandler(updatedAuthData);
       }, 0);
@@ -210,12 +207,12 @@ export const useDeleteAddress = () => {
 };
 
 export const useGetAddresses = () => {
-  const { request, userLoginHandler } = useAuth();
+  const { request } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   
   const getAddresses = async (authData) => {
-    const { _id } = authData;
+    const { _id, accessToken } = authData;
     
     if (!_id) {
       return { 
@@ -224,12 +221,18 @@ export const useGetAddresses = () => {
       };
     }
     
+    const options = {
+        headers: {
+            'X-Authorization': accessToken,
+        }
+    }
+
     setIsLoading(true);
     setError(null);
     
     try {
       const searchQuery = encodeURIComponent(`_ownerId="${_id}"`);
-      const userProfiles = await request.get(`${baseUrl}?where=${searchQuery}`);
+      const userProfiles = await request.get(`${baseUrl}?where=${searchQuery}`, null, options);
       
       if (!userProfiles || userProfiles.length === 0) {
         return { 
@@ -240,8 +243,6 @@ export const useGetAddresses = () => {
       
       const userProfile = userProfiles[0];
       const addresses = userProfile.addresses || [];
-      
-      updateUserStorage(addresses, authData, userLoginHandler);
       
       return { 
         success: true, 
@@ -260,6 +261,66 @@ export const useGetAddresses = () => {
 
   return {
     getAddresses,
+    isLoading,
+    error
+  };
+};
+ 
+export const useGetCart = () => {
+  const { request } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const getCart = async (authData) => {
+    const { _id, accessToken } = authData;
+    
+    if (!_id) {
+      return { 
+        success: false, 
+        error: 'User not authenticated or missing user ID' 
+      };
+    }
+    
+    const options = {
+        headers: {
+            'X-Authorization': accessToken,
+        }
+    }
+
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const searchQuery = encodeURIComponent(`_ownerId="${_id}"`);
+      const userProfiles = await request.get(`${baseUrl}?where=${searchQuery}`, null, options);
+      
+      if (!userProfiles || userProfiles.length === 0) {
+        return { 
+          success: true, 
+          data: { addresses: [] } 
+        };
+      }
+      
+      const userProfile = userProfiles[0];
+      const cart = userProfile.cart || [];
+      
+      return { 
+        success: true, 
+        data: { cart } 
+      };
+    } catch (error) {
+      setError(error.message || 'Failed to fetch addresses');
+      return { 
+        success: false, 
+        error: error.message || 'Failed to fetch addresses' 
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    getCart,
     isLoading,
     error
   };
