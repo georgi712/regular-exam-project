@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth.js";
+import { useCartInfo } from "../../api/userProfileApi.js";
 
 export default function Navbar() {
   const location = useLocation();
   const { accessToken, role } = useAuth();
+  const { cartItems, cartPrice } = useCartInfo();
   const [theme, setTheme] = useState(
     document.documentElement.getAttribute("data-theme") || "light"
   );
@@ -201,7 +203,7 @@ export default function Navbar() {
                     />
                   </svg>
                   <span className="badge badge-sm indicator-item badge-primary">
-                    8
+                    {cartItems}
                   </span>
                 </div>
               </div>
@@ -210,8 +212,8 @@ export default function Navbar() {
                 className="dropdown-content z-[1] card card-compact w-52 bg-base-100 text-base-content shadow mt-3"
               >
                 <div className="card-body">
-                  <span className="font-bold text-lg">8 Items</span>
-                  <span className="text-base-content/80">Subtotal: $999</span>
+                  <span className="font-bold text-lg">{cartItems} Items</span>
+                  <span className="text-base-content/80">Subtotal: ${cartPrice}</span>
                   <div className="card-actions">
                     <Link to="/cart" className="btn btn-primary btn-block">
                       View cart

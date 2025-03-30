@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth.js';
 
 const baseUrl = 'http://localhost:3030/data/user_profiles'
@@ -325,3 +325,19 @@ export const useGetCart = () => {
     error
   };
 };
+
+export const useCartInfo = () => {
+  const { cart } = useAuth()
+  const [cartItems, setCartItems] = useState('');
+  const [cartPrice, setCartPrice] = useState('');
+  
+  useEffect(() => {
+    setCartItems(cart.length);
+    setCartPrice(cart.reduce((acc, cartItem) => acc + Number(cartItem.price), 0))
+  }, [cart])
+
+  return {
+    cartItems,
+    cartPrice
+  }
+}
