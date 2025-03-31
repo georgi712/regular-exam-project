@@ -29,12 +29,12 @@ export const useCreateUserProfile = () => {
   const createUserProfile = async (accessToken) => {
     setIsCreating(true);
     setError(null);
-    
-    const options = {
-      headers: {
-        'X-Authorization': accessToken
-      }
-    }
+
+        const options = {
+            headers: {
+                'X-Authorization': accessToken
+            }
+        }
 
     try {
       const profileData = {
@@ -316,7 +316,7 @@ export const useGetCart = () => {
       };
     } catch (error) {
       setError(error.message || 'Failed to fetch addresses');
-      return { 
+    return {
         success: false, 
         error: error.message || 'Failed to fetch addresses' 
       };
@@ -402,51 +402,116 @@ export const useCart = () => {
   const [error, setError] = useState(null);
   const { _id: userId, request } = useAuth();
 
-  useEffect(() => {
+  const fetchCart = async () => {
     if (!userId) {
       setLoading(false);
       setError("User not authenticated");
       return;
     }
+    
+    try {
+      setLoading(true);
+      
+      const profile = await findUserProfile(userId, request);
 
-    const fetchCart = async () => {
-      try {
-        const profile = await findUserProfile(userId, request);
-
-        if (!profile) {
-          return { success: false, error: 'User profile not found' };
-        }
-
-        setLoading(true);
-
-        const response = await request.get(
-          `${baseUrl}/${profile._id}`
-        );
-
-        if (!response || !response.cart) {
-          setCartItems([]);
-          return;
-        }
-
-        const formattedCart = response.cart.map(item => ({
-          productId: item?.productId,
-          name: item?.name || "Unknown Product",
-          imageUrl: item?.imageUrl || "",
-          quantity: item?.quantity,
-          price: item?.price || 0
-        }));
-
-        setCartItems(formattedCart);
-      } catch (err) {
-        console.error("Error fetching cart:", err);
-        setError(err.message || "Failed to load cart");
-      } finally {
-        setLoading(false);
+      if (!profile) {
+        setCartItems([]);
+        setError('User profile not found');
+        return;
       }
-    };
 
+      const response = await request.get(
+        `${baseUrl}/${profile._id}`
+      );
+
+      if (!response || !response.cart) {
+        setCartItems([]);
+        return;
+      }
+
+      const formattedCart = response.cart.map(item => ({
+        productId: item?.productId,
+        name: item?.name || "Unknown Product",
+        imageUrl: item?.imageUrl || "",
+        quantity: item?.quantity,
+        price: item?.price || 0
+      }));
+
+      setCartItems(formattedCart);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching cart:", err);
+      setError(err.message || "Failed to load cart");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCart();
   }, [userId]);
 
   return { cartItems, loading, error };
+export const useChangeQuantity = () => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [error, setError] = useState(null);
+  const { _id: userId, cart, userLoginHandler, request } = useAuth();
+
+  const changeQuantity = async (productId, newQuantity) => {
+    if (!userId) {
+      return { success: false, error: 'User not authenticated' };
+    }
+
+    if (newQuantity < 1) {
+      return { success: false, error: 'Quantity must be at least 1' };
+    }
+
+    setIsUpdating(true);
+    setError(null);
+
+    try {
+      const profile = await findUserProfile(userId, request);
+
+      if (!profile) {
+        throw new Error('User profile not found');
+      }
+
+      let updatedCart = profile.cart ? [...profile.cart] : [];
+      
+      const productIndex = updatedCart.findIndex(item => item.productId === productId);
+      
+      if (productIndex === -1) {
+        throw new Error('Product not found in cart');
+      }
+      
+      updatedCart[productIndex] = {
+        ...updatedCart[productIndex],
+        quantity: newQuantity
+      };
+
+      const updateResult = await request.put(`${baseUrl}/${profile._id}`, {
+        ...profile,
+        cart: updatedCart
+      });
+
+      const authData = JSON.parse(localStorage.getItem('auth') || '{}');
+      const updatedAuthData = {
+        ...authData,
+        cart: updatedCart
+      };
+      
+      userLoginHandler(updatedAuthData);
+
+      return { success: true, data: updateResult };
+    } catch (err) {
+      console.error('Error changing quantity:', err);
+      setError(err.message || 'Failed to update quantity');
+      return { success: false, error: err.message };
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return { changeQuantity, isUpdating, error };
+};
 };
