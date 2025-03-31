@@ -1,18 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useCart, useClearCart } from '../../api/userProfileApi.js';
+import { useCreateOrder } from '../../api/ordersApi.js';
+import useAuth from '../../hooks/useAuth.js';
+import ReviewCart from './steps/ReviewCart';
+import DeliveryDetails from './steps/DeliveryDetails';
+import PaymentMethod from './steps/PaymentMethod';
 
 const Checkout = () => {
   const [activeStep, setActiveStep] = useState(1);
   const [deliveryOption, setDeliveryOption] = useState('standard');
   const [paymentMethod, setPaymentMethod] = useState('card');
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [orderNumber, setOrderNumber] = useState('');
   
-  // Form states
+  const { _id: userId, email, username, addresses } = useAuth();
+  const defaultAddress = addresses?.find(addr => addr.isDefault) || addresses?.[0];
+  
+  const getUserNames = () => {
+    if (!username) return { firstName: '', lastName: '' };
+    
+    const nameParts = username.trim().split(' ');
+    if (nameParts.length === 1) {
+      return { firstName: nameParts[0], lastName: '' };
+    }
+    
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ');
+    return { firstName, lastName };
+  };
+  
+  const { firstName: authFirstName, lastName: authLastName } = getUserNames();
+  
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    firstName: authFirstName || '',
+    lastName: authLastName || '',
     phone: '',
-    address: '',
+    address: defaultAddress?.address || '',
     notes: '',
-    saveAddress: false,
     cardNumber: '',
     cardExpiry: '',
     cardCvc: '',
@@ -20,39 +44,28 @@ const Checkout = () => {
     promoCode: ''
   });
   
-  const [formErrors, setFormErrors] = useState({});
+  // Update form data if auth data changes
+  useEffect(() => {
+    const { firstName, lastName } = getUserNames();
+    setFormData(prev => ({
+      ...prev,
+      firstName: firstName || prev.firstName,
+      lastName: lastName || prev.lastName,
+      address: defaultAddress?.address || prev.address
+    }));
+  }, [username, defaultAddress]);
   
-  // Mock cart data - would come from a cart context or redux store in a real app
-  const cartItems = [
-    {
-      id: 1,
-      name: 'Fresh Apples',
-      price: 2.99,
-      quantity: 2,
-      image: '/images/apple.jpg',
-      grammage: '500g'
-    },
-    {
-      id: 2,
-      name: 'Organic Bananas',
-      price: 3.99,
-      quantity: 1,
-      image: '/images/banana.jpg',
-      grammage: '500g'
-    },
-    {
-      id: 3,
-      name: 'Sweet Oranges',
-      price: 4.99,
-      quantity: 3,
-      image: '/images/orange.jpg',
-      grammage: '500g'
-    }
-  ];
+  const [formErrors, setFormErrors] = useState({});
+  const [isAddressValid, setIsAddressValid] = useState(!!defaultAddress);
+  
+  const { cartItems, loading, error } = useCart();
+  const { createOrder, isCreating } = useCreateOrder();
+  const { clearCart, isClearing } = useClearCart();
   
   const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   const deliveryFee = deliveryOption === 'express' ? 5.99 : 2.99;
-  const total = subtotal + deliveryFee;
+  const tax = subtotal * 0.1; // 10% tax
+  const total = subtotal + deliveryFee + tax;
   
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -61,12 +74,30 @@ const Checkout = () => {
       [name]: type === 'checkbox' ? checked : value
     });
     
-    // Clear error when field is being edited
     if (formErrors[name]) {
       setFormErrors({
         ...formErrors,
         [name]: ''
       });
+    }
+  };
+  
+  const handleAddressSelect = (address, isValid) => {
+    setFormData({
+      ...formData,
+      address: address
+    });
+    setIsAddressValid(isValid);
+    
+    if (!isValid) {
+      setFormErrors({
+        ...formErrors,
+        address: 'We do not deliver to this address'
+      });
+    } else {
+      const newErrors = { ...formErrors };
+      delete newErrors.address;
+      setFormErrors(newErrors);
     }
   };
   
@@ -78,6 +109,7 @@ const Checkout = () => {
       if (!formData.lastName.trim()) errors.lastName = 'Last name is required';
       if (!formData.phone.trim()) errors.phone = 'Phone number is required';
       if (!formData.address.trim()) errors.address = 'Delivery address is required';
+      if (!isAddressValid) errors.address = 'We do not deliver to this address';
     }
     
     if (activeStep === 3 && paymentMethod === 'card') {
@@ -104,16 +136,127 @@ const Checkout = () => {
     setActiveStep(prevStep => Math.max(prevStep - 1, 1));
   };
   
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     const errors = validateForm();
     
     if (Object.keys(errors).length === 0) {
-      // Handle order submission
-      alert('Your order has been placed successfully!');
+      const orderData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+        address: formData.address,
+        notes: formData.notes,
+        items: cartItems,
+        paymentMethod: paymentMethod,
+        subtotal,
+        deliveryFee,
+        tax,
+        total,
+        deliveryOption
+      };
+
+      if (paymentMethod === 'card') {
+        orderData.cardNumber = formData.cardNumber;
+        orderData.cardName = formData.cardName;
+      }
+
+      const result = await createOrder(orderData);
+      
+      if (result.success) {
+        await clearCart();
+        setOrderNumber(result.data._id);
+        setOrderSuccess(true);
+      } else {
+        setFormErrors({
+          ...formErrors,
+          submit: result.error
+        });
+      }
     } else {
       setFormErrors(errors);
     }
   };
+  
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="alert alert-error">
+          <span>{error}</span>
+        </div>
+      </div>
+    );
+  }
+  
+  if (cartItems.length === 0 && !orderSuccess) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen gap-4">
+        <h2 className="text-2xl font-bold">Your cart is empty</h2>
+        <p>Add some products to your cart before checking out.</p>
+        <a href="/" className="btn btn-primary">Continue Shopping</a>
+      </div>
+    );
+  }
+  
+  if (orderSuccess) {
+    return (
+      <div className="bg-base-200 min-h-screen py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body p-8">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-24 h-24 rounded-full bg-success/20 flex items-center justify-center mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  
+                  <h2 className="text-3xl font-bold mb-2">Order Placed Successfully!</h2>
+                  <p className="text-xl opacity-75 mb-6">Thank you for your purchase</p>
+                  
+                  <div className="badge badge-primary badge-lg font-medium text-base py-4 px-6 mb-6">
+                    Order #{orderNumber}
+                  </div>
+                  
+                  <div className="bg-base-200 rounded-lg p-6 w-full mb-8">
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium">Order Total:</span>
+                      <span className="font-bold">${total.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium">Delivery Method:</span>
+                      <span className="font-medium capitalize">{deliveryOption}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Payment Method:</span>
+                      <span className="font-medium capitalize">{paymentMethod === 'card' ? 'Credit/Debit Card' : 'Cash on Delivery'}</span>
+                    </div>
+                  </div>
+                  
+                  <p className="mb-8 text-sm opacity-70">
+                    A confirmation email has been sent to <span className="font-medium">{email}</span>. 
+                    You will receive updates about your order status.
+                  </p>
+                  
+                  <a href="/" className="btn btn-primary btn-lg px-8 btn-wide">
+                    Continue Shopping
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="bg-base-200 min-h-screen py-12">
@@ -137,307 +280,39 @@ const Checkout = () => {
                 <div className="card-body p-6 sm:p-8">
                   {/* Step 1: Review Cart */}
                   {activeStep === 1 && (
-                    <div>
-                      <h2 className="text-xl font-bold mb-8 text-center sm:text-left">Review Your Order</h2>
-                      
-                      <div className="overflow-x-auto rounded-lg border border-base-300 mb-8">
-                        <table className="table w-full">
-                          <thead className="bg-base-200">
-                            <tr>
-                              <th className="bg-transparent">Product</th>
-                              <th className="bg-transparent text-center">Quantity</th>
-                              <th className="bg-transparent text-end">Price</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {cartItems.map(item => (
-                              <tr key={item.id} className="hover">
-                                <td>
-                                  <div className="flex items-center space-x-3">
-                                    <div className="avatar">
-                                      <div className="mask mask-squircle w-12 h-12 border border-base-300">
-                                        <img src={item.image} alt={item.name} />
-                                      </div>
-                                    </div>
-                                    <div>
-                                      <div className="font-bold">{item.name}</div>
-                                      <div className="text-sm opacity-70">{item.grammage}</div>
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="text-center">{item.quantity}</td>
-                                <td className="text-end font-medium">${(item.price * item.quantity).toFixed(2)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      
-                      <div className="space-y-6">
-                        <h3 className="text-lg font-semibold border-b pb-2">Delivery Options</h3>
-                        <div className="flex flex-col gap-4">
-                          <label className="flex items-center p-4 border border-base-300 rounded-xl cursor-pointer hover:border-primary hover:bg-base-100/50 transition-all duration-200">
-                            <input 
-                              type="radio" 
-                              className="radio radio-primary" 
-                              checked={deliveryOption === 'standard'}
-                              onChange={() => setDeliveryOption('standard')}
-                              name="deliveryOption"
-                              id="standard"
-                            />
-                            <div className="flex flex-col ml-4">
-                              <span className="font-medium text-lg">Standard Delivery</span>
-                              <span className="text-sm opacity-70">Delivery within 24 hours</span>
-                            </div>
-                            <span className="ml-auto font-semibold text-lg">$2.99</span>
-                          </label>
-                          
-                          <label className="flex items-center p-4 border border-base-300 rounded-xl cursor-pointer hover:border-primary hover:bg-base-100/50 transition-all duration-200">
-                            <input 
-                              type="radio" 
-                              className="radio radio-primary" 
-                              checked={deliveryOption === 'express'}
-                              onChange={() => setDeliveryOption('express')}
-                              name="deliveryOption"
-                              id="express"
-                            />
-                            <div className="flex flex-col ml-4">
-                              <span className="font-medium text-lg">Express Delivery</span>
-                              <span className="text-sm opacity-70">Delivery within 2 hours</span>
-                            </div>
-                            <span className="ml-auto font-semibold text-lg">$5.99</span>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
+                    <ReviewCart 
+                      cartItems={cartItems} 
+                      deliveryOption={deliveryOption}
+                      setDeliveryOption={setDeliveryOption}
+                    />
                   )}
                   
                   {/* Step 2: Delivery Details */}
                   {activeStep === 2 && (
-                    <div>
-                      <h2 className="text-xl font-bold mb-8 text-center sm:text-left">Delivery Details</h2>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div className="form-control w-full">
-                          <label className="label" htmlFor="firstName">
-                            <span className="label-text font-medium">First Name</span>
-                          </label>
-                          <input 
-                            type="text" 
-                            id="firstName"
-                            name="firstName"
-                            placeholder="First Name" 
-                            className={`input input-bordered w-full rounded-lg h-12 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ${formErrors.firstName ? 'input-error' : ''}`} 
-                            value={formData.firstName}
-                            onChange={handleInputChange}
-                            required
-                          />
-                          {formErrors.firstName && <span className="text-error text-sm mt-1.5">{formErrors.firstName}</span>}
-                        </div>
-                        
-                        <div className="form-control w-full">
-                          <label className="label" htmlFor="lastName">
-                            <span className="label-text font-medium">Last Name</span>
-                          </label>
-                          <input 
-                            type="text" 
-                            id="lastName"
-                            name="lastName"
-                            placeholder="Last Name" 
-                            className={`input input-bordered w-full rounded-lg h-12 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ${formErrors.lastName ? 'input-error' : ''}`} 
-                            value={formData.lastName}
-                            onChange={handleInputChange}
-                            required
-                          />
-                          {formErrors.lastName && <span className="text-error text-sm mt-1.5">{formErrors.lastName}</span>}
-                        </div>
-                      </div>
-                      
-                      <div className="form-control w-full mb-6">
-                        <label className="label" htmlFor="phone">
-                          <span className="label-text font-medium">Phone Number</span>
-                        </label>
-                        <input 
-                          type="tel" 
-                          id="phone"
-                          name="phone"
-                          placeholder="Phone Number" 
-                          className={`input input-bordered w-full rounded-lg h-12 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ${formErrors.phone ? 'input-error' : ''}`} 
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          required
-                        />
-                        {formErrors.phone && <span className="text-error text-sm mt-1.5">{formErrors.phone}</span>}
-                      </div>
-                      
-                      <div className="form-control w-full mb-6">
-                        <label className="label" htmlFor="address">
-                          <span className="label-text font-medium">Delivery Address</span>
-                        </label>
-                        <textarea 
-                          id="address"
-                          name="address"
-                          placeholder="Enter your delivery address" 
-                          className={`textarea textarea-bordered w-full rounded-lg focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ${formErrors.address ? 'textarea-error' : ''}`}
-                          value={formData.address}
-                          onChange={handleInputChange}
-                          rows={4}
-                          required
-                        ></textarea>
-                        {formErrors.address && <span className="text-error text-sm mt-1.5">{formErrors.address}</span>}
-                      </div>
-                      
-                      <div className="form-control w-full mb-6">
-                        <label className="label" htmlFor="notes">
-                          <span className="label-text font-medium">Delivery Notes (Optional)</span>
-                        </label>
-                        <textarea 
-                          id="notes"
-                          name="notes"
-                          placeholder="Any special instructions for delivery" 
-                          className="textarea textarea-bordered w-full rounded-lg focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                          value={formData.notes}
-                          onChange={handleInputChange}
-                          rows={3}
-                        ></textarea>
-                      </div>
-                      
-                      <div className="form-control mt-6 bg-base-200 p-4 rounded-lg">
-                        <label className="cursor-pointer flex items-center justify-start gap-3" htmlFor="saveAddress">
-                          <input 
-                            type="checkbox" 
-                            id="saveAddress"
-                            name="saveAddress"
-                            className="checkbox checkbox-primary" 
-                            checked={formData.saveAddress}
-                            onChange={handleInputChange}
-                          />
-                          <span className="label-text text-base">Save this address for future orders</span>
-                        </label>
-                      </div>
-                    </div>
+                    <DeliveryDetails 
+                      formData={formData}
+                      formErrors={formErrors}
+                      handleInputChange={handleInputChange}
+                      handleAddressSelect={handleAddressSelect}
+                      isAddressValid={isAddressValid}
+                    />
                   )}
                   
                   {/* Step 3: Payment */}
                   {activeStep === 3 && (
-                    <div>
-                      <h2 className="text-xl font-bold mb-8 text-center sm:text-left">Payment Method</h2>
-                      
-                      <div className="flex flex-col gap-4 mb-8">
-                        <label className="flex items-center p-4 border border-base-300 rounded-xl cursor-pointer hover:border-primary hover:bg-base-100/50 transition-all duration-200">
-                          <input 
-                            type="radio" 
-                            className="radio radio-primary" 
-                            checked={paymentMethod === 'card'}
-                            onChange={() => setPaymentMethod('card')}
-                            name="paymentMethod"
-                            id="cardPayment"
-                          />
-                          <div className="flex flex-col ml-4">
-                            <span className="font-medium text-lg">Credit/Debit Card</span>
-                          </div>
-                          <div className="ml-auto flex gap-2">
-                            <div className="w-10 h-6 bg-base-300 rounded-md flex items-center justify-center text-xs font-medium">VISA</div>
-                            <div className="w-10 h-6 bg-base-300 rounded-md flex items-center justify-center text-xs font-medium">MC</div>
-                          </div>
-                        </label>
-                        
-                        {paymentMethod === 'card' && (
-                          <div className="card bg-base-200 rounded-xl p-6 mt-2 mb-6 border border-base-300">
-                            <div className="grid grid-cols-1 gap-5">
-                              <div className="form-control w-full">
-                                <label className="label" htmlFor="cardNumber">
-                                  <span className="label-text font-medium">Card Number</span>
-                                </label>
-                                <input 
-                                  type="text" 
-                                  id="cardNumber"
-                                  name="cardNumber"
-                                  placeholder="0000 0000 0000 0000" 
-                                  className={`input input-bordered w-full rounded-lg h-12 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ${formErrors.cardNumber ? 'input-error' : ''}`}
-                                  value={formData.cardNumber}
-                                  onChange={handleInputChange}
-                                  required
-                                />
-                                {formErrors.cardNumber && <span className="text-error text-sm mt-1.5">{formErrors.cardNumber}</span>}
-                              </div>
-                              
-                              <div className="grid grid-cols-2 gap-5">
-                                <div className="form-control w-full">
-                                  <label className="label" htmlFor="cardExpiry">
-                                    <span className="label-text font-medium">Expiry Date</span>
-                                  </label>
-                                  <input 
-                                    type="text" 
-                                    id="cardExpiry"
-                                    name="cardExpiry"
-                                    placeholder="MM/YY" 
-                                    className={`input input-bordered w-full rounded-lg h-12 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ${formErrors.cardExpiry ? 'input-error' : ''}`}
-                                    value={formData.cardExpiry}
-                                    onChange={handleInputChange}
-                                    required
-                                  />
-                                  {formErrors.cardExpiry && <span className="text-error text-sm mt-1.5">{formErrors.cardExpiry}</span>}
-                                </div>
-                                
-                                <div className="form-control w-full">
-                                  <label className="label" htmlFor="cardCvc">
-                                    <span className="label-text font-medium">CVC</span>
-                                  </label>
-                                  <input 
-                                    type="text" 
-                                    id="cardCvc"
-                                    name="cardCvc"
-                                    placeholder="CVC" 
-                                    className={`input input-bordered w-full rounded-lg h-12 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ${formErrors.cardCvc ? 'input-error' : ''}`}
-                                    value={formData.cardCvc}
-                                    onChange={handleInputChange}
-                                    required
-                                  />
-                                  {formErrors.cardCvc && <span className="text-error text-sm mt-1.5">{formErrors.cardCvc}</span>}
-                                </div>
-                              </div>
-                              
-                              <div className="form-control w-full">
-                                <label className="label" htmlFor="cardName">
-                                  <span className="label-text font-medium">Name on Card</span>
-                                </label>
-                                <input 
-                                  type="text" 
-                                  id="cardName"
-                                  name="cardName"
-                                  placeholder="Name on Card" 
-                                  className={`input input-bordered w-full rounded-lg h-12 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary ${formErrors.cardName ? 'input-error' : ''}`}
-                                  value={formData.cardName}
-                                  onChange={handleInputChange}
-                                  required
-                                />
-                                {formErrors.cardName && <span className="text-error text-sm mt-1.5">{formErrors.cardName}</span>}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        <label className="flex items-center p-4 border border-base-300 rounded-xl cursor-pointer hover:border-primary hover:bg-base-100/50 transition-all duration-200">
-                          <input 
-                            type="radio" 
-                            className="radio radio-primary" 
-                            checked={paymentMethod === 'cash'}
-                            onChange={() => setPaymentMethod('cash')}
-                            name="paymentMethod"
-                            id="cashPayment"
-                          />
-                          <div className="flex flex-col ml-4">
-                            <span className="font-medium text-lg">Cash on Delivery</span>
-                            <span className="text-sm opacity-70">Pay when you receive your order</span>
-                          </div>
-                        </label>
-                      </div>
-                      
-                      <div className="alert alert-success rounded-xl shadow-md mt-8">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span className="font-medium">Your order is ready to be placed!</span>
-                      </div>
+                    <PaymentMethod 
+                      formData={formData}
+                      formErrors={formErrors}
+                      paymentMethod={paymentMethod}
+                      setPaymentMethod={setPaymentMethod}
+                      handleInputChange={handleInputChange}
+                    />
+                  )}
+                  
+                  {formErrors.submit && (
+                    <div className="alert alert-error mt-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <span>{formErrors.submit}</span>
                     </div>
                   )}
                   
@@ -448,6 +323,7 @@ const Checkout = () => {
                         className="btn btn-outline rounded-lg px-6"
                         onClick={handlePrevStep}
                         type="button"
+                        disabled={isCreating || isClearing}
                       >
                         Back
                       </button>
@@ -467,8 +343,16 @@ const Checkout = () => {
                           className="btn btn-success btn-lg rounded-lg px-8"
                           onClick={handlePlaceOrder}
                           type="button"
+                          disabled={isCreating || isClearing}
                         >
-                          Place Order
+                          {isCreating || isClearing ? (
+                            <>
+                              <span className="loading loading-spinner loading-sm mr-2"></span>
+                              Processing...
+                            </>
+                          ) : (
+                            'Place Order'
+                          )}
                         </button>
                       )}
                     </div>
@@ -493,32 +377,17 @@ const Checkout = () => {
                       <span>Delivery</span>
                       <span className="font-medium">${deliveryFee.toFixed(2)}</span>
                     </div>
+
+                    <div className="flex justify-between text-base">
+                      <span>Tax</span>
+                      <span className="font-medium">${tax.toFixed(2)}</span>
+                    </div>
                     
                     <div className="divider my-2"></div>
                     
                     <div className="flex justify-between font-bold text-lg">
                       <span>Total</span>
                       <span className="text-primary">${total.toFixed(2)}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-8">
-                    <div className="form-control">
-                      <label className="label pb-1" htmlFor="promoCode">
-                        <span className="label-text font-medium">Promo Code</span>
-                      </label>
-                      <div className="flex gap-2">
-                        <input 
-                          type="text" 
-                          id="promoCode"
-                          name="promoCode"
-                          placeholder="Enter promo code" 
-                          className="input input-bordered flex-1 rounded-lg h-12 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" 
-                          value={formData.promoCode}
-                          onChange={handleInputChange}
-                        />
-                        <button className="btn btn-outline rounded-lg" type="button">Apply</button>
-                      </div>
                     </div>
                   </div>
                   

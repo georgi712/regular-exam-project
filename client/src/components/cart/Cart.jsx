@@ -11,7 +11,6 @@ export default function Cart() {
   const [removingItems, setRemovingItems] = useState({});
   const [localCartItems, setLocalCartItems] = useState([]);
   
-  // Initialize local cart state from fetched cart items
   useEffect(() => {
     if (cartItems) {
       setLocalCartItems(cartItems);
@@ -19,7 +18,7 @@ export default function Cart() {
   }, [cartItems]);
   
   const subtotal = localCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = localCartItems.length > 0 ? 5.99 : 0;
+  const shipping = localCartItems.length > 0 ? 2.99 : 0;
   const tax = subtotal * 0.1; // 10% tax
   const total = subtotal + shipping + tax;
   
@@ -31,7 +30,6 @@ export default function Cart() {
       const result = await changeQuantity(productId, newQuantity);
       
       if (result.success) {
-        // Update local state immediately for smoother UX
         setLocalCartItems(prev => prev.map(item => 
           item.productId === productId 
             ? { ...item, quantity: newQuantity } 
@@ -39,7 +37,6 @@ export default function Cart() {
         ));
       } else {
         console.error(result.error);
-        // Refresh from server if the operation failed
         await refreshCart();
       }
     } catch (error) {
@@ -60,7 +57,6 @@ export default function Cart() {
       const result = await changeQuantity(productId, newQuantity);
       
       if (result.success) {
-        // Update local state immediately for smoother UX
         setLocalCartItems(prev => prev.map(item => 
           item.productId === productId 
             ? { ...item, quantity: newQuantity } 
@@ -68,7 +64,6 @@ export default function Cart() {
         ));
       } else {
         console.error(result.error);
-        // Refresh from server if the operation failed
         await refreshCart();
       }
     } catch (error) {
@@ -84,7 +79,6 @@ export default function Cart() {
     
     if (isNaN(newQuantity) || newQuantity < 1) return;
     
-    // Update local UI immediately for responsiveness
     setLocalCartItems(prev => prev.map(item => 
       item.productId === productId 
         ? { ...item, quantity: newQuantity } 
@@ -113,14 +107,12 @@ export default function Cart() {
     setRemovingItems(prev => ({ ...prev, [productId]: true }));
     
     try {
-      // Update local state immediately for smoother UX
       setLocalCartItems(prev => prev.filter(item => item.productId !== productId));
       
       const result = await removeFromCart(productId);
       
       if (!result.success) {
         console.error(result.error);
-        // Refresh from server if the operation failed
         await refreshCart();
       }
     } catch (error) {
@@ -134,14 +126,12 @@ export default function Cart() {
   const handleClearCart = async () => {
     if (window.confirm('Are you sure you want to clear your cart?')) {
       try {
-        // Update local state immediately for smoother UX
         setLocalCartItems([]);
         
         const result = await clearCart();
         
         if (!result.success) {
           console.error(result.error);
-          // Refresh from server if the operation failed
           await refreshCart();
         }
       } catch (error) {
@@ -309,24 +299,6 @@ export default function Cart() {
                   <div className="flex justify-between text-xl font-bold">
                     <span>Total</span>
                     <span>{total.toFixed(2)} лв</span>
-                  </div>
-
-                  {/* Promo Code */}
-                  <div className="form-control mt-6">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="Enter promo code"
-                        className="input input-bordered flex-grow focus:outline-none focus:ring-2 focus:ring-primary"
-                        disabled={localCartItems.length === 0 || isClearing}
-                      />
-                      <button 
-                        className="btn btn-primary whitespace-nowrap"
-                        disabled={localCartItems.length === 0 || isClearing}
-                      >
-                        Apply
-                      </button>
-                    </div>
                   </div>
 
                   {/* Checkout Button */}
