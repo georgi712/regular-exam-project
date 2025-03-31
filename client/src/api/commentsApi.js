@@ -32,3 +32,32 @@ export const useCreateComment = () => {
 
   return { createComment, isCreating, error };
 };
+
+export const useEditComment = () => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState(null);
+  const { request } = useAuth();
+
+  const editComment = async (commentId, text, rating) => {
+    setIsEditing(true);
+    setError(null);
+
+    try {
+      const updates = {
+        text,
+        rating: Number(rating),
+        updatedAt: new Date().toISOString()
+      };
+
+      const result = await request.patch(`${baseUrl}/${commentId}`, updates);
+      return { success: true, data: result };
+    } catch (err) {
+      setError(err.message || 'Failed to edit comment');
+      return { success: false, error: err.message };
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  return { editComment, isEditing, error };
+};
