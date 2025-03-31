@@ -514,4 +514,48 @@ export const useChangeQuantity = () => {
 
   return { changeQuantity, isUpdating, error };
 };
+export const useRemoveFromCart = () => {
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [error, setError] = useState(null);
+  const { _id: userId, userLoginHandler, request } = useAuth();
+  
+  const removeFromCart = async (productId) => {
+    if (!userId) {
+      return { success: false, error: 'User not authenticated' };
+    }
+    
+    setIsRemoving(true);
+    setError(null);
+    
+    try {
+      const profile = await findUserProfile(userId, request);
+      
+      if (!profile) {
+        throw new Error('User profile not found');
+      }
+      
+      const updatedCart = profile.cart.filter(item => item.productId !== productId);
+      
+      const updateResult = await request.put(`${baseUrl}/${profile._id}`, {
+        ...profile,
+        cart: updatedCart
+      });
+      
+      const authData = JSON.parse(localStorage.getItem('auth') || '{}');
+      const updatedAuthData = {
+        ...authData,
+        cart: updatedCart
+      };
+      
+      userLoginHandler(updatedAuthData);
+      
+      return { success: true, data: updateResult };
+    } catch (err) {
+      console.error('Error removing item from cart:', err);
+      setError(err.message || 'Failed to remove item from cart');
+      return { success: false, error: err.message };
+    } finally {
+      setIsRemoving(false);
+    }
+  };
 };
