@@ -451,7 +451,9 @@ export const useCart = () => {
     fetchCart();
   }, [userId]);
 
-  return { cartItems, loading, error };
+  return { cartItems, loading, error, refreshCart: fetchCart };
+};
+
 export const useChangeQuantity = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState(null);
@@ -514,6 +516,7 @@ export const useChangeQuantity = () => {
 
   return { changeQuantity, isUpdating, error };
 };
+
 export const useRemoveFromCart = () => {
   const [isRemoving, setIsRemoving] = useState(false);
   const [error, setError] = useState(null);
@@ -558,4 +561,52 @@ export const useRemoveFromCart = () => {
       setIsRemoving(false);
     }
   };
+  
+  return { removeFromCart, isRemoving, error };
+};
+
+export const useClearCart = () => {
+  const [isClearing, setIsClearing] = useState(false);
+  const [error, setError] = useState(null);
+  const { _id: userId, userLoginHandler, request } = useAuth();
+  
+  const clearCart = async () => {
+    if (!userId) {
+      return { success: false, error: 'User not authenticated' };
+    }
+    
+    setIsClearing(true);
+    setError(null);
+    
+    try {
+      const profile = await findUserProfile(userId, request);
+      
+      if (!profile) {
+        throw new Error('User profile not found');
+      }
+      
+      const updateResult = await request.put(`${baseUrl}/${profile._id}`, {
+        ...profile,
+        cart: []
+      });
+      
+      const authData = JSON.parse(localStorage.getItem('auth') || '{}');
+      const updatedAuthData = {
+        ...authData,
+        cart: []
+      };
+      
+      userLoginHandler(updatedAuthData);
+      
+      return { success: true, data: updateResult };
+    } catch (err) {
+      console.error('Error clearing cart:', err);
+      setError(err.message || 'Failed to clear cart');
+      return { success: false, error: err.message };
+    } finally {
+      setIsClearing(false);
+    }
+  };
+  
+  return { clearCart, isClearing, error };
 };
