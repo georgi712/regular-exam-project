@@ -1,14 +1,41 @@
 import { useParams } from 'react-router-dom';
 import { useProduct } from '../../api/productApi';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAddToCart } from '../../api/userProfileApi.js';
+import { useGetComments, useGetAverageRating, useEditComment, useDeleteComment } from '../../api/commentsApi';
+import CommentForm from './comments/CommentForm';
+import useAuth from '../../hooks/useAuth.js';
 
 export default function ProductDetails() {
   const { productId } = useParams();
   const { product } = useProduct(productId);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const {updateCartHandler} = useAddToCart();
+  const { updateCartHandler } = useAddToCart();
+  const { _id: currentUserId } = useAuth();
+  
+  const { comments, loading: commentsLoading, error: commentsError, fetchComments } = useGetComments();
+  const { 
+    averageRating, 
+    ratingCount, 
+    loading: ratingLoading, 
+    error: ratingError,
+    fetchAverageRating 
+  } = useGetAverageRating();
+  const { editComment, isEditing } = useEditComment();
+  const { deleteComment, isDeleting } = useDeleteComment();
+  
+  // For editing comments
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editText, setEditText] = useState('');
+  const [editRating, setEditRating] = useState(5);
+  
+  useEffect(() => {
+    if (productId) {
+      fetchComments(productId);
+      fetchAverageRating(productId);
+    }
+  }, [productId]);
   
   const handleQuantityChange = (change) => {
     const newQuantity = Math.max(1, quantity + change);
@@ -20,18 +47,53 @@ export default function ProductDetails() {
     setQuantity(1);
   };
   
-  const reviews = [
-    { id: 1, user: 'Alice', avatar: 'A', rating: 5, comment: 'Great product! Really enjoyed the taste and quality.' },
-    { id: 2, user: 'Bob', avatar: 'B', rating: 4, comment: 'Very useful and healthy. Would recommend to friends and family.' },
-  ];
+  const handleCommentAdded = () => {
+    fetchComments(productId);
+    fetchAverageRating(productId);
+    setShowReviewForm(false);
+  };
   
-  // Calculate average rating
-  const averageRating = reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
+  // Edit comment functions
+  const startEditing = (comment) => {
+    setEditingCommentId(comment._id);
+    setEditText(comment.text);
+    setEditRating(comment.rating);
+  };
   
-  // Rating breakdown
+  const cancelEditing = () => {
+    setEditingCommentId(null);
+    setEditText('');
+    setEditRating(5);
+  };
+  
+  const submitEdit = async (commentId) => {
+    if (!editText.trim()) return;
+    
+    const result = await editComment(commentId, editText, editRating);
+    
+    if (result.success) {
+      setEditingCommentId(null);
+      fetchComments(productId);
+      fetchAverageRating(productId);
+    }
+  };
+  
+  // Delete comment function
+  const handleDelete = async (commentId) => {
+    if (confirm('Are you sure you want to delete this comment?')) {
+      const result = await deleteComment(commentId);
+      if (result.success) {
+        fetchComments(productId);
+        fetchAverageRating(productId);
+      }
+    }
+  };
+ 
   const ratingCounts = Array(5).fill(0);
-  reviews.forEach(review => {
-    ratingCounts[review.rating - 1]++;
+  comments.forEach(comment => {
+    if (comment.rating >= 1 && comment.rating <= 5) {
+      ratingCounts[comment.rating - 1]++;
+    }
   });
 
   if (!product) {
@@ -125,7 +187,7 @@ export default function ProductDetails() {
               className="btn btn-primary"
               onClick={() => setShowReviewForm(!showReviewForm)}
             >
-              Write a Review
+              {showReviewForm ? 'Cancel' : 'Write a Review'}
             </button>
           </div>
           
@@ -133,8 +195,14 @@ export default function ProductDetails() {
           <div className="stats shadow my-4">
             <div className="stat">
               <div className="stat-title">Average Rating</div>
-              <div className="stat-value text-primary">{averageRating.toFixed(1)}/5</div>
-              <div className="stat-desc">Based on {reviews.length} reviews</div>
+              <div className="stat-value text-primary">
+                {commentsLoading ? (
+                  <span className="loading loading-spinner loading-md"></span>
+                ) : (
+                  `${averageRating.toFixed(1)}/5`
+                )}
+              </div>
+              <div className="stat-desc">Based on {ratingCount} reviews</div>
             </div>
             
             <div className="stat">
@@ -146,7 +214,7 @@ export default function ProductDetails() {
                     <progress 
                       className="progress progress-primary w-56" 
                       value={ratingCounts[star-1]} 
-                      max={reviews.length}
+                      max={comments.length || 1}
                     ></progress>
                     <span className="ml-2 text-sm">{ratingCounts[star-1]}</span>
                   </div>
@@ -157,70 +225,125 @@ export default function ProductDetails() {
           
           {/* Review form */}
           {showReviewForm && (
-            <div className="card bg-base-200 mb-6">
-              <div className="card-body">
-                <h3 className="card-title">Write Your Review</h3>
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Your Rating</span>
-                  </label>
-                  <div className="rating rating-lg">
-                    {[...Array(5)].map((_, i) => (
-                      <input 
-                        key={i} 
-                        type="radio" 
-                        name="new-review-rating" 
-                        className="mask mask-star-2 bg-orange-400"
-                      />
-                    ))}
-                  </div>
-                </div>
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Your Review</span>
-                  </label>
-                  <textarea className="textarea textarea-bordered h-24" placeholder="Write your review here..."></textarea>
-                </div>
-                <div className="form-control mt-4">
-                  <button className="btn btn-primary">Submit Review</button>
-                </div>
-              </div>
-            </div>
+            <CommentForm 
+              productId={productId} 
+              onCommentAdded={handleCommentAdded} 
+            />
           )}
           
           <div className="divider"></div>
           
-          <ul className="space-y-6">
-            {reviews.map((review) => (
-              <li key={review.id} className="card bg-base-200">
-                <div className="card-body">
-                  <div className="flex items-center gap-4">
-                    <div className="avatar placeholder">
-                      <div className="bg-neutral-focus text-neutral-content rounded-full w-12">
-                        <span>{review.avatar}</span>
+          {commentsLoading && comments.length === 0 ? (
+            <div className="flex justify-center py-8">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          ) : comments.length === 0 ? (
+            <div className="text-center py-10 bg-base-200 rounded-lg">
+              <p className="text-gray-500">No reviews yet. Be the first to review this product!</p>
+            </div>
+          ) : (
+            <ul className="space-y-6">
+              {comments.map((comment) => (
+                <li key={comment._id} className="card bg-base-200">
+                  <div className="card-body">
+                    {editingCommentId === comment._id ? (
+                      <div>
+                        <div className="rating rating-md mb-4">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <input 
+                              key={star}
+                              type="radio" 
+                              name={`edit-rating-${comment._id}`}
+                              className="mask mask-star-2 bg-orange-400"
+                              checked={editRating === star}
+                              onChange={() => setEditRating(star)}
+                            />
+                          ))}
+                        </div>
+                        
+                        <textarea 
+                          className="textarea textarea-bordered w-full mb-4"
+                          value={editText}
+                          onChange={(e) => setEditText(e.target.value)}
+                        ></textarea>
+                        
+                        <div className="flex justify-end space-x-2">
+                          <button 
+                            onClick={cancelEditing}
+                            className="btn btn-outline btn-sm"
+                            disabled={isEditing}
+                          >
+                            Cancel
+                          </button>
+                          <button 
+                            onClick={() => submitEdit(comment._id)}
+                            className="btn btn-primary btn-sm"
+                            disabled={isEditing || !editText.trim()}
+                          >
+                            {isEditing ? (
+                              <span className="loading loading-spinner loading-xs"></span>
+                            ) : (
+                              'Save'
+                            )}
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold">{review.user}</h3>
-                      <div className="rating">
-                        {[...Array(5)].map((_, i) => (
-                          <input 
-                            key={i} 
-                            type="radio" 
-                            name={`rating-${review.id}`} 
-                            className="mask mask-star-2 bg-orange-400"
-                            checked={i + 1 === review.rating}
-                            readOnly
-                          />
-                        ))}
-                      </div>
-                    </div>
+                    ) : (
+                      <>
+                        <div>
+                          <div className="flex justify-between items-center mb-2">
+                            <h3 className="text-xl font-bold">
+                              {comment.user || 'Anonymous User'}
+                            </h3>
+                            <div className="text-sm text-gray-500">
+                              {new Date(comment.createdAt).toLocaleDateString()}
+                              {comment.updatedAt && comment.updatedAt !== comment.createdAt && ' (edited)'}
+                            </div>
+                          </div>
+                          <div className="rating mb-2">
+                            {[...Array(5)].map((_, i) => (
+                              <input 
+                                key={i} 
+                                type="radio" 
+                                name={`rating-${comment._id}`} 
+                                className="mask mask-star-2 bg-orange-400"
+                                checked={i + 1 === comment.rating}
+                                readOnly
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-lg mt-2">{comment.text}</p>
+                        
+                        {comment._ownerId === currentUserId && (
+                          <div className="flex justify-end space-x-2 mt-4">
+                            <button 
+                              onClick={() => startEditing(comment)}
+                              className="btn btn-ghost btn-sm"
+                              disabled={isDeleting}
+                            >
+                              Edit
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(comment._id)}
+                              className="btn btn-ghost btn-sm text-error"
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? (
+                                <span className="loading loading-spinner loading-xs"></span>
+                              ) : (
+                                'Delete'
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
-                  <p className="text-lg mt-2">{review.comment}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
