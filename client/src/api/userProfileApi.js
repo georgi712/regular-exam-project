@@ -339,7 +339,7 @@ export const useCartInfo = () => {
   
   useEffect(() => {
     setCartItems(cart?.length);
-    setCartPrice(cart?.reduce((acc, cartItem) => acc + Number(cartItem.price), 0))
+    setCartPrice(cart?.reduce((acc, cartItem) => acc + Number(cartItem.price * cartItem.quantity), 0).toFixed(2))
   }, [cart])
 
   return {
