@@ -1,12 +1,14 @@
 import { useParams } from 'react-router-dom';
 import { useProduct } from '../../api/productApi';
 import { useState } from 'react';
+import { useAddToCart } from '../../api/userProfileApi.js';
 
 export default function ProductDetails() {
   const { productId } = useParams();
   const { product } = useProduct(productId);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const {updateCartHandler} = useAddToCart();
   
   const handleQuantityChange = (change) => {
     const newQuantity = Math.max(1, quantity + change);
@@ -14,8 +16,8 @@ export default function ProductDetails() {
   };
 
   const handleAddToCart = () => {
-    console.log('Added to cart:', { product, quantity });
-    // Here you would call your cart service/context to add the item
+    updateCartHandler(productId, quantity, product.price, product.imageUrl, product.name);
+    setQuantity(1);
   };
   
   const reviews = [

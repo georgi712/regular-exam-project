@@ -28,7 +28,7 @@ const ProductCard = ({
   };
 
   const addButtonHandler = (e) => {
-    updateCartHandler(id, quantity);
+    updateCartHandler(id, quantity, price, imageUrl, name);
 
     setQuantity(1);
   }

@@ -1,32 +1,8 @@
 import { Link } from 'react-router-dom';
-
-// Mock data for demonstration
-const MOCK_CART_ITEMS = [
-  {
-    id: 1,
-    name: 'Fresh Apples',
-    price: 2.99,
-    quantity: 2,
-    image: '/images/apple.jpg',
-  },
-  {
-    id: 2,
-    name: 'Organic Bananas',
-    price: 1.99,
-    quantity: 3,
-    image: '/images/banana.jpg',
-  },
-  {
-    id: 3,
-    name: 'Sweet Oranges',
-    price: 3.49,
-    quantity: 1,
-    image: '/images/orange.jpg',
-  },
-];
+import { useCart } from '../../api/userProfileApi.js';
 
 export default function Cart() {
-  const cartItems = MOCK_CART_ITEMS;
+  const { cartItems, loading, error } = useCart();
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = 5.99;
   const tax = subtotal * 0.1; // 10% tax
@@ -88,12 +64,12 @@ export default function Cart() {
                   <div className="divide-y divide-base-200">
                     {cartItems.map((item) => (
                       <div
-                        key={item.id}
+                        key={item.productId}
                         className="flex flex-col sm:flex-row gap-6 items-center py-6 first:pt-0 last:pb-0"
                       >
                         <div className="relative group">
                           <img
-                            src={item.image}
+                            src={item.imageUrl}
                             alt={item.name}
                             className="w-28 h-28 object-cover rounded-xl shadow-md transition-transform duration-300 group-hover:scale-105"
                           />

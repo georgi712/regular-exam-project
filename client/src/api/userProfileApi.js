@@ -26,10 +26,16 @@ export const useCreateUserProfile = () => {
   const [error, setError] = useState(null);
   const { _id: userId, addresses, cart, request } = useAuth();
 
-  const createUserProfile = async () => {
+  const createUserProfile = async (accessToken) => {
     setIsCreating(true);
     setError(null);
     
+    const options = {
+      headers: {
+        'X-Authorization': accessToken
+      }
+    }
+
     try {
       const profileData = {
         _ownerId: userId,
@@ -37,7 +43,7 @@ export const useCreateUserProfile = () => {
         cart: cart || []
       };
       
-      const result = await request.post(`${baseUrl}`, profileData);
+      const result = await request.post(`${baseUrl}`, profileData, options);
       
       console.log('Profile created:', result);
       
@@ -347,7 +353,7 @@ export const useAddToCart = () => {
   const { _id: userId, cart, userLoginHandler, request } = useAuth();
   const { createUserProfile } = useCreateUserProfile();
 
-  const updateCartHandler = async (productId, quantity) => {
+  const updateCartHandler = async (productId, quantity, price, imageUrl, name) => {
     if (!userId) {
       return { success: false, error: 'User not authenticated' };
     }
@@ -358,7 +364,6 @@ export const useAddToCart = () => {
       const profile = await findUserProfile(userId, request);
 
       if (!profile) {
-        createUserProfile
         return { success: false, error: 'User profile not found' };
       }
 
@@ -369,7 +374,7 @@ export const useAddToCart = () => {
       if (existingProduct) {
         existingProduct.quantity += quantity;
       } else {
-        updatedCart.push({ productId, quantity });
+        updatedCart.push({ productId, quantity, price, imageUrl, name });
       }
 
       const updatedUser = { ...profile, cart: updatedCart };
@@ -389,4 +394,59 @@ export const useAddToCart = () => {
   };
 
   return { updateCartHandler };
+};
+
+export const useCart = () => {
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { _id: userId, request } = useAuth();
+
+  useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      setError("User not authenticated");
+      return;
+    }
+
+    const fetchCart = async () => {
+      try {
+        const profile = await findUserProfile(userId, request);
+
+        if (!profile) {
+          return { success: false, error: 'User profile not found' };
+        }
+
+        setLoading(true);
+
+        const response = await request.get(
+          `${baseUrl}/${profile._id}`
+        );
+
+        if (!response || !response.cart) {
+          setCartItems([]);
+          return;
+        }
+
+        const formattedCart = response.cart.map(item => ({
+          productId: item?.productId,
+          name: item?.name || "Unknown Product",
+          imageUrl: item?.imageUrl || "",
+          quantity: item?.quantity,
+          price: item?.price || 0
+        }));
+
+        setCartItems(formattedCart);
+      } catch (err) {
+        console.error("Error fetching cart:", err);
+        setError(err.message || "Failed to load cart");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCart();
+  }, [userId]);
+
+  return { cartItems, loading, error };
 };

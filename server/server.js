@@ -2367,16 +2367,15 @@
             }
         },
         user_profiles: {
-            "p0001": {
+            
+            "p0001":
+            {
                 _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc",
                 _id: 'p0001',
-                addresses: [
-                {
-
-                }
-            ],
-                cart: []
-            }
+                addresses: [ {} ],
+                cart: [ { productId: 'n0016', quantity: 2, price: 12.99 } ],
+                _updatedOn: 1743437418922
+              }
         },
         orders: {
 
