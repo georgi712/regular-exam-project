@@ -115,3 +115,46 @@ export const useGetComments = () => {
 
   return { comments, loading, error, fetchComments };
 };
+
+export const useGetAverageRating = () => {
+  const [averageRating, setAverageRating] = useState(0);
+  const [ratingCount, setRatingCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { request } = useAuth();
+
+  const fetchAverageRating = async (productId) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const searchQuery = encodeURIComponent(`productId="${productId}"`);
+      const result = await request.get(`${baseUrl}?where=${searchQuery}`);
+      
+      if (result.length === 0) {
+        setAverageRating(0);
+        setRatingCount(0);
+        return { success: true, averageRating: 0, count: 0 };
+      }
+      
+      const totalRating = result.reduce((sum, comment) => sum + comment.rating, 0);
+      const average = totalRating / result.length;
+      
+      setAverageRating(average);
+      setRatingCount(result.length);
+      
+      return { 
+        success: true, 
+        averageRating: average, 
+        count: result.length 
+      };
+    } catch (err) {
+      setError(err.message || 'Failed to fetch average rating');
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { averageRating, ratingCount, loading, error, fetchAverageRating };
+};
