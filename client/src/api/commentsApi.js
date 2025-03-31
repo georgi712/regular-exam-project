@@ -84,3 +84,34 @@ export const useDeleteComment = () => {
 
   return { deleteComment, isDeleting, error };
 };
+
+export const useGetComments = () => {
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { request } = useAuth();
+
+  const fetchComments = async (productId) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const searchQuery = encodeURIComponent(`productId="${productId}"`);
+      const result = await request.get(`${baseUrl}?where=${searchQuery}`);
+      
+      const sortedComments = result.sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      
+      setComments(sortedComments);
+      return { success: true, data: sortedComments };
+    } catch (err) {
+      setError(err.message || 'Failed to fetch comments');
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { comments, loading, error, fetchComments };
+};
