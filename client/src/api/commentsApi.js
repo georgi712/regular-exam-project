@@ -61,3 +61,26 @@ export const useEditComment = () => {
 
   return { editComment, isEditing, error };
 };
+
+export const useDeleteComment = () => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState(null);
+  const { request } = useAuth();
+
+  const deleteComment = async (commentId) => {
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      await request.delete(`${baseUrl}/${commentId}`);
+      return { success: true };
+    } catch (err) {
+      setError(err.message || 'Failed to delete comment');
+      return { success: false, error: err.message };
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return { deleteComment, isDeleting, error };
+};
