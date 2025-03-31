@@ -332,8 +332,8 @@ export const useCartInfo = () => {
   const [cartPrice, setCartPrice] = useState('');
   
   useEffect(() => {
-    setCartItems(cart.length);
-    setCartPrice(cart.reduce((acc, cartItem) => acc + Number(cartItem.price), 0))
+    setCartItems(cart?.length);
+    setCartPrice(cart?.reduce((acc, cartItem) => acc + Number(cartItem.price), 0))
   }, [cart])
 
   return {

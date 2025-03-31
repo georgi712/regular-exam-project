@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { UserContext } from './contexts/userContext.js';
 
 import Navbar from "./components/navbar/Navbar.jsx";
 import Footer from "./components/footer/Footer.jsx";
@@ -18,49 +16,14 @@ import Checkout from './components/checkout/Checkout.jsx';
 import Admin from './components/admin/Admin.jsx';
 import Logout from './components/logout/Logout.jsx';
 import usePersistedState from './hooks/usePersistedState.js';
+import UserProvider from './providers/UserProvider.jsx';
 
 function App() {
   
-  const [authData,  setAuthData] = usePersistedState({});
-  const userLoginHandler = (data) => {
-    setAuthData(data)
-  }
-  const userLogoutHandler = () => {
-    setAuthData({})
-  }
   
-  const updateUserAddress = (addressData) => {
-    const newAddress = {
-      address: addressData.address,
-      isDefault: true
-    };
-    
-    setAuthData(currentData => {
-      const existingAddresses = currentData.addresses 
-        ? currentData.addresses.map(addr => ({...addr, isDefault: false}))
-        : [];
-      
-      const updatedAddresses = [...existingAddresses, newAddress];
-      
-      return {
-        ...currentData,
-        addresses: updatedAddresses
-      };
-    });
-    
-    return true;
-  };
   
   return (
-    <UserContext.Provider 
-      value={{
-        ...authData, 
-        userLoginHandler, 
-        userLogoutHandler,
-        updateUserAddress
-      }}
-      key={authData._id || 'no-user'}
-    >
+    <UserProvider>
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow">
@@ -82,7 +45,7 @@ function App() {
         </main>
         <Footer />
       </div>
-    </UserContext.Provider>
+      </UserProvider>
   );
 }
 
