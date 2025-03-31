@@ -1,12 +1,155 @@
 import { Link } from 'react-router-dom';
-import { useCart } from '../../api/userProfileApi.js';
+import { useCart, useChangeQuantity, useRemoveFromCart, useClearCart } from '../../api/userProfileApi.js';
+import { useState, useEffect } from 'react';
 
 export default function Cart() {
-  const { cartItems, loading, error } = useCart();
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = 5.99;
+  const { cartItems, loading, error, refreshCart } = useCart();
+  const { changeQuantity, isUpdating } = useChangeQuantity();
+  const { removeFromCart, isRemoving } = useRemoveFromCart();
+  const { clearCart, isClearing } = useClearCart();
+  const [updatingItems, setUpdatingItems] = useState({});
+  const [removingItems, setRemovingItems] = useState({});
+  const [localCartItems, setLocalCartItems] = useState([]);
+  
+  // Initialize local cart state from fetched cart items
+  useEffect(() => {
+    if (cartItems) {
+      setLocalCartItems(cartItems);
+    }
+  }, [cartItems]);
+  
+  const subtotal = localCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shipping = localCartItems.length > 0 ? 5.99 : 0;
   const tax = subtotal * 0.1; // 10% tax
   const total = subtotal + shipping + tax;
+  
+  const handleIncreaseQuantity = async (productId, currentQuantity) => {
+    setUpdatingItems(prev => ({ ...prev, [productId]: true }));
+    
+    try {
+      const newQuantity = currentQuantity + 1;
+      const result = await changeQuantity(productId, newQuantity);
+      
+      if (result.success) {
+        // Update local state immediately for smoother UX
+        setLocalCartItems(prev => prev.map(item => 
+          item.productId === productId 
+            ? { ...item, quantity: newQuantity } 
+            : item
+        ));
+      } else {
+        console.error(result.error);
+        // Refresh from server if the operation failed
+        await refreshCart();
+      }
+    } catch (error) {
+      console.error("Failed to increase quantity:", error);
+      await refreshCart();
+    } finally {
+      setUpdatingItems(prev => ({ ...prev, [productId]: false }));
+    }
+  };
+  
+  const handleDecreaseQuantity = async (productId, currentQuantity) => {
+    if (currentQuantity <= 1) return;
+    
+    setUpdatingItems(prev => ({ ...prev, [productId]: true }));
+    
+    try {
+      const newQuantity = currentQuantity - 1;
+      const result = await changeQuantity(productId, newQuantity);
+      
+      if (result.success) {
+        // Update local state immediately for smoother UX
+        setLocalCartItems(prev => prev.map(item => 
+          item.productId === productId 
+            ? { ...item, quantity: newQuantity } 
+            : item
+        ));
+      } else {
+        console.error(result.error);
+        // Refresh from server if the operation failed
+        await refreshCart();
+      }
+    } catch (error) {
+      console.error("Failed to decrease quantity:", error);
+      await refreshCart();
+    } finally {
+      setUpdatingItems(prev => ({ ...prev, [productId]: false }));
+    }
+  };
+  
+  const handleQuantityChange = async (productId, event) => {
+    const newQuantity = parseInt(event.target.value, 10);
+    
+    if (isNaN(newQuantity) || newQuantity < 1) return;
+    
+    // Update local UI immediately for responsiveness
+    setLocalCartItems(prev => prev.map(item => 
+      item.productId === productId 
+        ? { ...item, quantity: newQuantity } 
+        : item
+    ));
+    
+    setUpdatingItems(prev => ({ ...prev, [productId]: true }));
+    
+    try {
+      const result = await changeQuantity(productId, newQuantity);
+      
+      if (!result.success) {
+        console.error(result.error);
+        // Refresh from server if the operation failed
+        await refreshCart();
+      }
+    } catch (error) {
+      console.error("Failed to update quantity:", error);
+      await refreshCart();
+    } finally {
+      setUpdatingItems(prev => ({ ...prev, [productId]: false }));
+    }
+  };
+
+  const handleRemoveItem = async (productId) => {
+    setRemovingItems(prev => ({ ...prev, [productId]: true }));
+    
+    try {
+      // Update local state immediately for smoother UX
+      setLocalCartItems(prev => prev.filter(item => item.productId !== productId));
+      
+      const result = await removeFromCart(productId);
+      
+      if (!result.success) {
+        console.error(result.error);
+        // Refresh from server if the operation failed
+        await refreshCart();
+      }
+    } catch (error) {
+      console.error("Failed to remove item:", error);
+      await refreshCart();
+    } finally {
+      setRemovingItems(prev => ({ ...prev, [productId]: false }));
+    }
+  };
+
+  const handleClearCart = async () => {
+    if (window.confirm('Are you sure you want to clear your cart?')) {
+      try {
+        // Update local state immediately for smoother UX
+        setLocalCartItems([]);
+        
+        const result = await clearCart();
+        
+        if (!result.success) {
+          console.error(result.error);
+          // Refresh from server if the operation failed
+          await refreshCart();
+        }
+      } catch (error) {
+        console.error("Failed to clear cart:", error);
+        await refreshCart();
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-base-200 py-12">
@@ -18,19 +161,33 @@ export default function Cart() {
               <div>
                 <h1 className="text-4xl font-bold text-base-content">Shopping Cart</h1>
                 <p className="text-base-content/70 mt-2">
-                  {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
+                  {localCartItems.length} {localCartItems.length === 1 ? 'item' : 'items'} in your cart
                 </p>
               </div>
-              {cartItems.length > 0 && (
+              {localCartItems.length > 0 && (
                 <button
                   className="btn btn-ghost text-error hover:bg-error/10"
+                  onClick={handleClearCart}
+                  disabled={isClearing}
                 >
-                  Clear Cart
+                  {isClearing ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm mr-2"></span>
+                      Clearing...
+                    </>
+                  ) : 'Clear Cart'}
                 </button>
               )}
             </div>
 
-            {cartItems.length === 0 ? (
+            {loading ? (
+              <div className="card bg-base-100 shadow-lg">
+                <div className="card-body flex justify-center items-center py-16">
+                  <div className="loading loading-spinner loading-lg"></div>
+                  <p className="mt-4 text-base-content/70">Loading your cart...</p>
+                </div>
+              </div>
+            ) : localCartItems.length === 0 ? (
               <div className="card bg-base-100 shadow-lg">
                 <div className="card-body text-center py-16">
                   <div className="bg-base-200 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -62,7 +219,7 @@ export default function Cart() {
               <div className="card bg-base-100 shadow-lg">
                 <div className="card-body">
                   <div className="divide-y divide-base-200">
-                    {cartItems.map((item) => (
+                    {localCartItems.map((item) => (
                       <div
                         key={item.productId}
                         className="flex flex-col sm:flex-row gap-6 items-center py-6 first:pt-0 last:pb-0"
@@ -83,17 +240,23 @@ export default function Cart() {
                           <div className="flex items-center justify-center sm:justify-start gap-3 mt-4">
                             <button
                               className="btn btn-circle btn-sm btn-ghost hover:bg-base-200"
+                              onClick={() => handleDecreaseQuantity(item.productId, item.quantity)}
+                              disabled={updatingItems[item.productId] || item.quantity <= 1 || removingItems[item.productId] || isClearing}
                             >
                               -
                             </button>
                             <input
                               type="number"
                               value={item.quantity}
+                              onChange={(e) => handleQuantityChange(item.productId, e)}
                               className="input input-bordered w-20 text-center text-lg font-medium"
                               min="1"
+                              disabled={updatingItems[item.productId] || removingItems[item.productId] || isClearing}
                             />
                             <button
                               className="btn btn-circle btn-sm btn-ghost hover:bg-base-200"
+                              onClick={() => handleIncreaseQuantity(item.productId, item.quantity)}
+                              disabled={updatingItems[item.productId] || removingItems[item.productId] || isClearing}
                             >
                               +
                             </button>
@@ -105,8 +268,15 @@ export default function Cart() {
                           </p>
                           <button
                             className="btn btn-ghost btn-sm text-error hover:bg-error/10"
+                            onClick={() => handleRemoveItem(item.productId)}
+                            disabled={removingItems[item.productId] || isClearing}
                           >
-                            Remove
+                            {removingItems[item.productId] ? (
+                              <>
+                                <span className="loading loading-spinner loading-xs mr-1"></span>
+                                Removing...
+                              </>
+                            ) : 'Remove'}
                           </button>
                         </div>
                       </div>
@@ -148,8 +318,14 @@ export default function Cart() {
                         type="text"
                         placeholder="Enter promo code"
                         className="input input-bordered flex-grow focus:outline-none focus:ring-2 focus:ring-primary"
+                        disabled={localCartItems.length === 0 || isClearing}
                       />
-                      <button className="btn btn-primary whitespace-nowrap">Apply</button>
+                      <button 
+                        className="btn btn-primary whitespace-nowrap"
+                        disabled={localCartItems.length === 0 || isClearing}
+                      >
+                        Apply
+                      </button>
                     </div>
                   </div>
 
@@ -157,6 +333,7 @@ export default function Cart() {
                   <Link
                     to="/checkout"
                     className="btn btn-primary btn-lg w-full mt-6"
+                    disabled={localCartItems.length === 0 || isClearing}
                   >
                     Proceed to Checkout
                   </Link>
