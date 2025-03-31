@@ -181,7 +181,9 @@ export default function Navbar() {
           {/* Right side - Cart & Profile */}
           <div className="flex-none flex gap-2 ml-auto">
             {/* Cart Dropdown */}
-            <div className="dropdown dropdown-end">
+            { !!accessToken 
+            ? (
+              <div className="dropdown dropdown-end">
               <div
                 tabIndex={0}
                 role="button"
@@ -222,6 +224,8 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
+            )
+          : null}
 
             {/* Profile Dropdown */}
             <div className="dropdown dropdown-end">

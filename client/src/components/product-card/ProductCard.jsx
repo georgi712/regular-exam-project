@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAddToCart } from '../../api/userProfileApi.js';
 
 const ProductCard = ({ 
   id,
@@ -9,11 +10,11 @@ const ProductCard = ({
   pricePerKg, 
   weight, 
   origin, 
-  originFlag,
-  onAddToCart 
+  originFlag, 
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
+  const { updateCartHandler } = useAddToCart();
   const navigate = useNavigate();
 
   const handleQuantityChange = (change) => {
@@ -21,14 +22,16 @@ const ProductCard = ({
     setQuantity(newQuantity);
   };
 
-  const handleAddToCart = (e) => {
-    e.stopPropagation();
-    onAddToCart({ name, price, quantity });
-  };
-
-  const handleCardClick = () => {
+  const handleCardClick = (e) => {
+    if (e.target.classList.contains('btn-accent')) return;
     navigate(`/products/${id}/details`);
   };
+
+  const addButtonHandler = (e) => {
+    updateCartHandler(id, quantity);
+
+    setQuantity(1);
+  }
 
   return (
     <div 
@@ -96,7 +99,7 @@ const ProductCard = ({
           
           <button 
             className="btn btn-accent w-full"
-            onClick={handleAddToCart}
+            onClick={addButtonHandler}
             style={{
               transform: isHovered ? 'translateY(0)' : 'translateY(0)',
               opacity: isHovered ? 1 : 0.9,

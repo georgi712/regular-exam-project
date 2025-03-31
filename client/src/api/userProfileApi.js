@@ -341,3 +341,52 @@ export const useCartInfo = () => {
     cartPrice
   }
 }
+
+export const useAddToCart = () => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const { _id: userId, cart, userLoginHandler, request } = useAuth();
+  const { createUserProfile } = useCreateUserProfile();
+
+  const updateCartHandler = async (productId, quantity) => {
+    if (!userId) {
+      return { success: false, error: 'User not authenticated' };
+    }
+
+    setIsUpdating(true);
+
+    try {
+      const profile = await findUserProfile(userId, request);
+
+      if (!profile) {
+        createUserProfile
+        return { success: false, error: 'User profile not found' };
+      }
+
+      let updatedCart = profile.cart ? [...profile.cart] : [];
+
+      const existingProduct = updatedCart.find(item => item.productId === productId);
+
+      if (existingProduct) {
+        existingProduct.quantity += quantity;
+      } else {
+        updatedCart.push({ productId, quantity });
+      }
+
+      const updatedUser = { ...profile, cart: updatedCart };
+      const updateResult = await request.put(`${baseUrl}/${profile._id}`, updatedUser);
+
+      const authData = JSON.parse(localStorage.getItem('auth') || '{}');
+      const newAuthData = { ...authData, cart: updatedCart };
+      userLoginHandler(newAuthData);
+
+      return { success: true, data: updateResult };
+    } catch (err) {
+      console.error('Error updating cart:', err);
+      return { success: false, error: err.message };
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return { updateCartHandler };
+};

@@ -15,13 +15,9 @@ import ProductDetails from './components/product-details/ProductDetails.jsx';
 import Checkout from './components/checkout/Checkout.jsx';
 import Admin from './components/admin/Admin.jsx';
 import Logout from './components/logout/Logout.jsx';
-import usePersistedState from './hooks/usePersistedState.js';
 import UserProvider from './providers/UserProvider.jsx';
 
 function App() {
-  
-  
-  
   return (
     <UserProvider>
       <div className="min-h-screen flex flex-col">
