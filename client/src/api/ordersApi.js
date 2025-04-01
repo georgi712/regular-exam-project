@@ -145,11 +145,59 @@ export const useGetAllOrders = () => {
 
     fetchAllOrders();
     
-    // Cleanup function to prevent state updates if component unmounts
     return () => {
       isMounted = false;
     };
-  }, [userId]); // Remove 'request' from dependencies if it changes on each render
+  }, [role]);
 
   return { orders, loading, error };
+};
+
+export const useUpdateOrderStatus = () => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [error, setError] = useState(null);
+  const { request, role } = useAuth();
+
+  const updateOrderStatus = async (orderId, newStatus) => {
+    if (role !== 'Admin') {
+      return { success: false, error: 'Unauthorized access' };
+    }
+
+    setIsUpdating(true);
+    setError(null);
+
+    try {
+      console.log(`Fetching order ${orderId} for status update to ${newStatus}`);
+      const order = await request.get(`${baseUrl}/${orderId}`);
+      
+      if (!order) {
+        throw new Error('Order not found');
+      }
+
+      
+      const updatedOrder = {
+        status: newStatus
+      };
+
+      
+      const adminHeaders = {
+        'X-Admin': 'true'
+      };
+      
+      try {
+        const result = await request.patch(`${baseUrl}/${orderId}`, updatedOrder, { headers: adminHeaders });
+        return { success: true, data: result };
+      } catch (patchErr) {
+        
+      }
+    } catch (err) {
+      console.error('Error updating order status:', err);
+      setError(err.message || 'An error occurred while updating order status');
+      return { success: false, error: err.message };
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return { updateOrderStatus, isUpdating, error };
 };
