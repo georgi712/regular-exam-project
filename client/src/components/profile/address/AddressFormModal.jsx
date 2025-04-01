@@ -12,6 +12,9 @@ export default function AddressFormModal({ isOpen, onClose }) {
   const toast = useToastContext();
 
   const handleAddressSave = async (addressData) => {
+    // Close the modal immediately
+    onClose();
+    
     const loadingToastId = toast.info('Saving your address...', 10000);
     
     try {
@@ -26,10 +29,7 @@ export default function AddressFormModal({ isOpen, onClose }) {
       if (result.success) {
         toast.success('Address saved successfully!');
         
-        // Auto-close after success
-        setTimeout(() => {
-          onClose();
-        }, 1500);
+        // No need for auto-close since we already closed the modal
       } else {
         toast.error(result.error || 'Failed to save address');
       }

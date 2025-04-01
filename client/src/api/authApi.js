@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import request from "../utils/request.js"
 import { UserContext } from "../contexts/userContext.js";
 import { useCreateUserProfile, useGetAddresses, useGetCart } from "./userProfileApi.js";
@@ -95,43 +95,34 @@ export const useRegister = () => {
 
 export const useLogout = () => {
     const {accessToken, userLogoutHandler} = useContext(UserContext);
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isLoggedOut, setIsLoggedOut] = useState(false);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
+    const logout = useCallback(async () => {
         if (!accessToken) {
+            setIsLoggedOut(true);
             return;
         }
-        
-        const logoutUser = async () => {
-            setIsLoggingOut(true);
-            setError(null);
-            
-            try {
-                const options = {
-                    headers: {
-                        'X-Authorization': accessToken
-                    }
-                };
-                
-                await request.get(`${baseUrl}/logout`, null, options);
-                userLogoutHandler();
-                setIsLoggedOut(true);
-            } catch (err) {
-                setError(err.message || 'Logout failed');
-                console.error('Logout error:', err);
-            } finally {
-                setIsLoggingOut(false);
+
+        const options = {
+            headers: {
+                'X-Authorization': accessToken
             }
         };
-        
-        logoutUser();
+
+        try {
+            await request.get(`${baseUrl}/logout`, null, options);
+            userLogoutHandler();
+            setIsLoggedOut(true);
+        } catch (err) {
+            setError(err.message || 'Logout failed');
+            console.error('Logout error:', err);
+        }
     }, [accessToken, userLogoutHandler]);
 
     return {
+        logout,
         isLoggedOut,
-        isLoggingOut,
         error
     };
 }

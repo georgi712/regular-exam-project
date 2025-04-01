@@ -1,23 +1,19 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useToastContext } from '../../contexts/ToastContext.jsx';
 import Dashboard from './dashboard/Dashboard';
 import ProductsManager from './products/ProductsManager';
 import OrdersManager from './orders/OrdersManager';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('products');
+  const toast = useToastContext();
 
-  // Mock stats for dashboard
-  const stats = {
-    totalOrders: 156,
-    pendingOrders: 23,
-    totalProducts: 87,
-    totalUsers: 312,
-    revenue: {
-      total: 15680,
-      thisMonth: 2450,
-      lastMonth: 2150
-    }
+
+  const handleTabChange = (tab) => {
+    if (tab === activeTab) return;
+    
+    setActiveTab(tab);
   };
 
   const renderTabContent = () => {
@@ -113,7 +109,7 @@ const Admin = () => {
         <div className="tabs tabs-bordered">
           <button
             className={`tab ${activeTab === 'products' ? 'tab-active' : ''} text-lg`}
-            onClick={() => setActiveTab('products')}
+            onClick={() => handleTabChange('products')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -123,7 +119,7 @@ const Admin = () => {
           
           <button
             className={`tab ${activeTab === 'orders' ? 'tab-active' : ''} text-lg`}
-            onClick={() => setActiveTab('orders')}
+            onClick={() => handleTabChange('orders')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />

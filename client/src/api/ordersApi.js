@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import useAuth from '../hooks/useAuth.js';
 
 const baseUrl = 'http://localhost:3030/data/orders';
@@ -115,6 +115,7 @@ export const useGetAllOrders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { request, role } = useAuth();
+  const [count, setCount] = useState(0)
 
   useEffect(() => {
     let isMounted = true;
@@ -144,7 +145,6 @@ export const useGetAllOrders = () => {
     };
 
     fetchAllOrders();
-    
     return () => {
       isMounted = false;
     };

@@ -73,9 +73,6 @@ export default function Login() {
               <div className="form-control">
                 <label className="label">
                   <span className="label-text font-medium">Password</span>
-                  <Link to="/forgot-password" className="label-text-alt link link-hover">
-                    Forgot password?
-                  </Link>
                 </label>
                 <input
                   type="password"

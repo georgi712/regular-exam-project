@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useCart, useChangeQuantity, useRemoveFromCart, useClearCart } from '../../api/userProfileApi.js';
 import { useState, useEffect } from 'react';
+import { useToastContext } from '../../contexts/ToastContext.jsx';
 
 export default function Cart() {
   const { cartItems, loading, error, refreshCart } = useCart();
   const { changeQuantity, isUpdating } = useChangeQuantity();
   const { removeFromCart, isRemoving } = useRemoveFromCart();
   const { clearCart, isClearing } = useClearCart();
+  const toast = useToastContext();
   const [updatingItems, setUpdatingItems] = useState({});
   const [removingItems, setRemovingItems] = useState({});
   const [localCartItems, setLocalCartItems] = useState([]);
@@ -17,12 +19,19 @@ export default function Cart() {
     }
   }, [cartItems]);
   
+  // Show error toast if there's an API error
+  useEffect(() => {
+    if (error) {
+      toast.error(`Error loading cart: ${error}`);
+    }
+  }, [error, toast]);
+  
   const subtotal = localCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = localCartItems.length > 0 ? 2.99 : 0;
   const tax = subtotal * 0.1; // 10% tax
   const total = subtotal + shipping + tax;
   
-  const handleIncreaseQuantity = async (productId, currentQuantity) => {
+  const handleIncreaseQuantity = async (productId, currentQuantity, productName) => {
     setUpdatingItems(prev => ({ ...prev, [productId]: true }));
     
     try {
@@ -35,19 +44,20 @@ export default function Cart() {
             ? { ...item, quantity: newQuantity } 
             : item
         ));
+        toast.success(`Added one more ${productName} to cart`);
       } else {
-        console.error(result.error);
+        toast.error(result.error || 'Failed to update quantity');
         await refreshCart();
       }
     } catch (error) {
-      console.error("Failed to increase quantity:", error);
+      toast.error(`Failed to increase quantity: ${error.message || 'Unknown error'}`);
       await refreshCart();
     } finally {
       setUpdatingItems(prev => ({ ...prev, [productId]: false }));
     }
   };
   
-  const handleDecreaseQuantity = async (productId, currentQuantity) => {
+  const handleDecreaseQuantity = async (productId, currentQuantity, productName) => {
     if (currentQuantity <= 1) return;
     
     setUpdatingItems(prev => ({ ...prev, [productId]: true }));
@@ -62,19 +72,20 @@ export default function Cart() {
             ? { ...item, quantity: newQuantity } 
             : item
         ));
+        toast.info(`Reduced ${productName} quantity to ${newQuantity}`);
       } else {
-        console.error(result.error);
+        toast.error(result.error || 'Failed to update quantity');
         await refreshCart();
       }
     } catch (error) {
-      console.error("Failed to decrease quantity:", error);
+      toast.error(`Failed to decrease quantity: ${error.message || 'Unknown error'}`);
       await refreshCart();
     } finally {
       setUpdatingItems(prev => ({ ...prev, [productId]: false }));
     }
   };
   
-  const handleQuantityChange = async (productId, event) => {
+  const handleQuantityChange = async (productId, event, productName) => {
     const newQuantity = parseInt(event.target.value, 10);
     
     if (isNaN(newQuantity) || newQuantity < 1) return;
@@ -90,20 +101,22 @@ export default function Cart() {
     try {
       const result = await changeQuantity(productId, newQuantity);
       
-      if (!result.success) {
-        console.error(result.error);
+      if (result.success) {
+        toast.info(`Updated ${productName} quantity to ${newQuantity}`);
+      } else {
+        toast.error(result.error || 'Failed to update quantity');
         // Refresh from server if the operation failed
         await refreshCart();
       }
     } catch (error) {
-      console.error("Failed to update quantity:", error);
+      toast.error(`Failed to update quantity: ${error.message || 'Unknown error'}`);
       await refreshCart();
     } finally {
       setUpdatingItems(prev => ({ ...prev, [productId]: false }));
     }
   };
 
-  const handleRemoveItem = async (productId) => {
+  const handleRemoveItem = async (productId, productName) => {
     setRemovingItems(prev => ({ ...prev, [productId]: true }));
     
     try {
@@ -111,12 +124,14 @@ export default function Cart() {
       
       const result = await removeFromCart(productId);
       
-      if (!result.success) {
-        console.error(result.error);
+      if (result.success) {
+        toast.success(`${productName} removed from cart`);
+      } else {
+        toast.error(result.error || 'Failed to remove item');
         await refreshCart();
       }
     } catch (error) {
-      console.error("Failed to remove item:", error);
+      toast.error(`Failed to remove item: ${error.message || 'Unknown error'}`);
       await refreshCart();
     } finally {
       setRemovingItems(prev => ({ ...prev, [productId]: false }));
@@ -130,12 +145,14 @@ export default function Cart() {
         
         const result = await clearCart();
         
-        if (!result.success) {
-          console.error(result.error);
+        if (result.success) {
+          toast.info('Your cart has been cleared');
+        } else {
+          toast.error(result.error || 'Failed to clear cart');
           await refreshCart();
         }
       } catch (error) {
-        console.error("Failed to clear cart:", error);
+        toast.error(`Failed to clear cart: ${error.message || 'Unknown error'}`);
         await refreshCart();
       }
     }
@@ -230,7 +247,7 @@ export default function Cart() {
                           <div className="flex items-center justify-center sm:justify-start gap-3 mt-4">
                             <button
                               className="btn btn-circle btn-sm btn-ghost hover:bg-base-200"
-                              onClick={() => handleDecreaseQuantity(item.productId, item.quantity)}
+                              onClick={() => handleDecreaseQuantity(item.productId, item.quantity, item.name)}
                               disabled={updatingItems[item.productId] || item.quantity <= 1 || removingItems[item.productId] || isClearing}
                             >
                               -
@@ -238,14 +255,14 @@ export default function Cart() {
                             <input
                               type="number"
                               value={item.quantity}
-                              onChange={(e) => handleQuantityChange(item.productId, e)}
+                              onChange={(e) => handleQuantityChange(item.productId, e, item.name)}
                               className="input input-bordered w-20 text-center text-lg font-medium"
                               min="1"
                               disabled={updatingItems[item.productId] || removingItems[item.productId] || isClearing}
                             />
                             <button
                               className="btn btn-circle btn-sm btn-ghost hover:bg-base-200"
-                              onClick={() => handleIncreaseQuantity(item.productId, item.quantity)}
+                              onClick={() => handleIncreaseQuantity(item.productId, item.quantity, item.name)}
                               disabled={updatingItems[item.productId] || removingItems[item.productId] || isClearing}
                             >
                               +
@@ -258,7 +275,7 @@ export default function Cart() {
                           </p>
                           <button
                             className="btn btn-ghost btn-sm text-error hover:bg-error/10"
-                            onClick={() => handleRemoveItem(item.productId)}
+                            onClick={() => handleRemoveItem(item.productId, item.name)}
                             disabled={removingItems[item.productId] || isClearing}
                           >
                             {removingItems[item.productId] ? (
@@ -306,6 +323,11 @@ export default function Cart() {
                     to="/checkout"
                     className="btn btn-primary btn-lg w-full mt-6"
                     disabled={localCartItems.length === 0 || isClearing}
+                    onClick={() => {
+                      if (localCartItems.length > 0) {
+                        toast.info("Proceeding to checkout...");
+                      }
+                    }}
                   >
                     Proceed to Checkout
                   </Link>

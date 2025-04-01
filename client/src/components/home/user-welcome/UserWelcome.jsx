@@ -28,6 +28,9 @@ export default function UserWelcome() {
   const handleAddressSave = async (addressData) => {
     setErrorMessage("");
     
+    // Hide form immediately after save is clicked
+    setShowAddressForm(false);
+    
     try {
       const result = await updateAddress({
         address: addressData.formattedAddress,
@@ -43,7 +46,6 @@ export default function UserWelcome() {
         updateUserAddress(newAddress);
         setSavedAddress(newAddress);
         setSuccessMessage("✅ Address saved successfully!");
-        setShowAddressForm(false);
         
         // Hide success message after 3 seconds
         setTimeout(() => {
@@ -51,9 +53,13 @@ export default function UserWelcome() {
         }, 3000);
       } else {
         setErrorMessage(result.error || "Failed to save address");
+        // Show form again if there was an error
+        setShowAddressForm(true);
       }
     } catch (error) {
       setErrorMessage("An error occurred. Please try again.");
+      // Show form again if there was an error
+      setShowAddressForm(true);
     }
   };
 

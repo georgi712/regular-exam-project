@@ -1,14 +1,25 @@
-import React from 'react';
+import { useEffect, useState } from "react";
+import { useGetAllOrders } from "../../../api/ordersApi.js";
+import { useAllProducts } from "../../../api/productApi.js";
 
 const Dashboard = () => {
-  // Mock data for dashboard metrics
+  const { orders } = useGetAllOrders();
+  const { products } = useAllProducts();
+
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  useEffect(() => {
+    setTotalProducts(products.length)
+    setTotalOrders(orders.length)
+    setTotalRevenue(orders?.reduce((acc, order) => acc + order.pricing.total, 0))
+  }, [orders, products])
+
   const metrics = {
-    totalOrders: 156,
-    totalRevenue: 3782.45,
-    totalProducts: 48,
-    totalUsers: 210,
-    lowStock: 7,
-    pendingOrders: 12,
+    totalOrders,
+    totalRevenue,
+    totalProducts,
   };
 
   return (
@@ -16,11 +27,10 @@ const Dashboard = () => {
       {/* Dashboard Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Dashboard Overview</h2>
-        <div className="badge badge-primary p-3">Last updated: Today, 10:30 AM</div>
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card bg-base-100 shadow border border-base-300">
           <div className="card-body p-5">
             <div className="flex items-center justify-between">
@@ -63,22 +73,6 @@ const Dashboard = () => {
               <div className="rounded-full bg-info/10 p-3">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card bg-base-100 shadow border border-base-300">
-          <div className="card-body p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-base font-normal text-base-content/70">Users</h3>
-                <p className="text-3xl font-bold">{metrics.totalUsers}</p>
-              </div>
-              <div className="rounded-full bg-secondary/10 p-3">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
             </div>

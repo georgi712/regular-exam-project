@@ -88,10 +88,7 @@ export default function Footer() {
             <p className="text-sm opacity-80">
               © {new Date().getFullYear()} Fruvida. All rights reserved.
             </p>
-            <div className="flex gap-4">
-              <a href="/privacy" className="text-sm hover:text-accent">Privacy Policy</a>
-              <a href="/terms" className="text-sm hover:text-accent">Terms of Service</a>
-            </div>
+            
           </div>
         </div>
       </div>

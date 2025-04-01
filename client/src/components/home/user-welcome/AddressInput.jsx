@@ -75,11 +75,27 @@ export default function AddressInput({ onSave, onCancel, isLoading }) {
     }
   };
   
-  const handleClear = () => {
+  const handleClear = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     setAddress("");
     setValidationMessage("");
+    
     if (inputRef.current) {
+      inputRef.current.value = "";
       inputRef.current.focus();
+    }
+    
+    if (googleLoaded && window.google && autocompleteRef.current) {
+      try {
+        autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
+          types: ["address"],
+          componentRestrictions: { country: "BG" }
+        });
+      } catch (error) {
+        console.error("Error reinitializing autocomplete:", error);
+      }
     }
   };
   
