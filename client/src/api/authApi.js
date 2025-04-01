@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import request from "../utils/request.js"
 import { UserContext } from "../contexts/userContext.js";
 import { useCreateUserProfile, useGetAddresses, useGetCart } from "./userProfileApi.js";
@@ -95,23 +95,44 @@ export const useRegister = () => {
 
 export const useLogout = () => {
     const {accessToken, userLogoutHandler} = useContext(UserContext);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [isLoggedOut, setIsLoggedOut] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (!accessToken) {
             return;
         }
-        const options = {
-            headers: {
-                'X-Authorization': accessToken
+        
+        const logoutUser = async () => {
+            setIsLoggingOut(true);
+            setError(null);
+            
+            try {
+                const options = {
+                    headers: {
+                        'X-Authorization': accessToken
+                    }
+                };
+                
+                await request.get(`${baseUrl}/logout`, null, options);
+                userLogoutHandler();
+                setIsLoggedOut(true);
+            } catch (err) {
+                setError(err.message || 'Logout failed');
+                console.error('Logout error:', err);
+            } finally {
+                setIsLoggingOut(false);
             }
-        }
-
-        request.get(`${baseUrl}/logout`, null, options)
-            .then(userLogoutHandler)
-    }, [accessToken, userLogoutHandler])
+        };
+        
+        logoutUser();
+    }, [accessToken, userLogoutHandler]);
 
     return {
-        isLoggedOut: !!accessToken,
-    }
+        isLoggedOut,
+        isLoggingOut,
+        error
+    };
 }
 
