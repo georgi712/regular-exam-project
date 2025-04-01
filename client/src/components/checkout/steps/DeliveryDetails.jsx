@@ -37,7 +37,7 @@ const DeliveryDetails = ({ formData, formErrors, handleInputChange, handleAddres
     if (scriptLoaded && addressInputRef.current) {
       autocompleteRef.current = new window.google.maps.places.Autocomplete(addressInputRef.current, {
         types: ['address'],
-        componentRestrictions: { country: 'us' } // Restrict to US addresses
+        componentRestrictions: { country: 'bg' } 
       });
       
       autocompleteRef.current.addListener('place_changed', handlePlaceChanged);
