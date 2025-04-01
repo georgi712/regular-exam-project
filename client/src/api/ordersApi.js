@@ -102,6 +102,48 @@ export const useGetUserOrders = () => {
     };
 
     fetchOrders();
+    return () => {
+      isMounted = false;
+    };
+  }, [userId]); 
+
+  return { orders, loading, error };
+};
+
+export const useGetAllOrders = () => {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { request, role } = useAuth();
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    const fetchAllOrders = async () => {
+      if (role !== 'Admin') {
+        setError('Unauthorized access');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const result = await request.get(baseUrl);
+        
+        if (isMounted) {
+          setOrders(result || []);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Error fetching all orders:', err);
+        if (isMounted) {
+          setError(err.message || 'An error occurred while fetching orders');
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchAllOrders();
     
     // Cleanup function to prevent state updates if component unmounts
     return () => {
