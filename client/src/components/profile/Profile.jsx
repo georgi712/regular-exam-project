@@ -3,24 +3,17 @@ import { Link } from 'react-router-dom';
 import { UserContext } from '../../contexts/userContext.js';
 import { useSetDefaultAddress, useDeleteAddress } from '../../api/userProfileApi.js';
 import AddressFormModal from './address/AddressFormModal.jsx';
+import { useToastContext } from '../../contexts/ToastContext.jsx';
 
 export default function Profile() {
   const { email, username, addresses = [], _id } = useContext(UserContext);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const toast = useToastContext();
   
   // Use our custom hooks
   const { setDefaultAddress } = useSetDefaultAddress();
   const { deleteAddress } = useDeleteAddress();
-  
-  // Clear error message after 5 seconds
-  useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => setError(null), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [error]);
   
   // Redirect to login if not authenticated
   if (!_id) {
@@ -37,13 +30,20 @@ export default function Profile() {
   const handleSetDefaultAddress = async (addressToUpdate) => {
     try {
       setIsLoading(true);
-      setError(null);
+      
+      const loadingToastId = toast.info('Setting address as default...', 10000);
+      
       const result = await setDefaultAddress(addressToUpdate);
-      if (!result.success) {
-        setError(result.error || 'Failed to set default address');
+      
+      toast.removeToast(loadingToastId);
+      
+      if (result.success) {
+        toast.success('Default address updated successfully');
+      } else {
+        toast.error(result.error || 'Failed to set default address');
       }
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred');
+      toast.error(err.message || 'An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -56,13 +56,20 @@ export default function Profile() {
     
     try {
       setIsLoading(true);
-      setError(null);
+      
+      const loadingToastId = toast.info('Deleting address...', 10000);
+      
       const result = await deleteAddress(addressToDelete);
-      if (!result.success) {
-        setError(result.error || 'Failed to delete address');
+      
+      toast.removeToast(loadingToastId);
+      
+      if (result.success) {
+        toast.success('Address deleted successfully');
+      } else {
+        toast.error(result.error || 'Failed to delete address');
       }
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred');
+      toast.error(err.message || 'An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -80,22 +87,6 @@ export default function Profile() {
               <Link to="/logout" className="btn btn-outline btn-error btn-sm">Sign Out</Link>
             </div>
           </div>
-          
-          {/* Error message */}
-          {error && (
-            <div className="alert alert-error mb-6">
-              <span>{error}</span>
-              <button onClick={() => setError(null)} className="btn btn-sm btn-ghost">✕</button>
-            </div>
-          )}
-          
-          {/* Loading indicator */}
-          {isLoading && (
-            <div className="alert alert-info mb-6">
-              <span className="loading loading-spinner loading-sm mr-2"></span>
-              <span>Processing your request...</span>
-            </div>
-          )}
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* User Info Card */}
