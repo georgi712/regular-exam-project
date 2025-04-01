@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCart, useClearCart } from '../../api/userProfileApi.js';
 import { useCreateOrder } from '../../api/ordersApi.js';
 import useAuth from '../../hooks/useAuth.js';
+import { useToastContext } from '../../contexts/ToastContext.jsx';
 import ReviewCart from './steps/ReviewCart';
 import DeliveryDetails from './steps/DeliveryDetails';
 import PaymentMethod from './steps/PaymentMethod';
@@ -12,6 +13,7 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
+  const toast = useToastContext();
   
   const { _id: userId, email, username, addresses } = useAuth();
   const defaultAddress = addresses?.find(addr => addr.isDefault) || addresses?.[0];
@@ -40,8 +42,7 @@ const Checkout = () => {
     cardNumber: '',
     cardExpiry: '',
     cardCvc: '',
-    cardName: '',
-    promoCode: ''
+    cardName: ''
   });
   
   // Update form data if auth data changes
@@ -94,10 +95,12 @@ const Checkout = () => {
         ...formErrors,
         address: 'We do not deliver to this address'
       });
+      toast.error("We don't deliver to this address");
     } else {
       const newErrors = { ...formErrors };
       delete newErrors.address;
       setFormErrors(newErrors);
+      toast.success("Delivery address confirmed");
     }
   };
   
@@ -126,9 +129,18 @@ const Checkout = () => {
     const errors = validateForm();
     
     if (Object.keys(errors).length === 0) {
-      setActiveStep(prevStep => Math.min(prevStep + 1, 3));
+      setActiveStep(prevStep => {
+        const newStep = Math.min(prevStep + 1, 3);
+        if (newStep === 2) {
+          toast.info("Please confirm your delivery details");
+        } else if (newStep === 3) {
+          toast.info("Please select your payment method");
+        }
+        return newStep;
+      });
     } else {
       setFormErrors(errors);
+      toast.error("Please fill in all required fields");
     }
   };
   
@@ -160,21 +172,32 @@ const Checkout = () => {
         orderData.cardName = formData.cardName;
       }
 
+      toast.info("Processing your order...");
+      
       const result = await createOrder(orderData);
       
       if (result.success) {
         await clearCart();
         setOrderNumber(result.data._id);
         setOrderSuccess(true);
+        toast.success("Order placed successfully! Thank you for your purchase.");
       } else {
         setFormErrors({
           ...formErrors,
           submit: result.error
         });
+        toast.error(`Order failed: ${result.error || "Unknown error"}`);
       }
     } else {
       setFormErrors(errors);
+      toast.error("Please fill in all required fields");
     }
+  };
+  
+  const handleDeliveryOptionChange = (option) => {
+    setDeliveryOption(option);
+    const optionText = option === 'express' ? 'Express Delivery (2 hours)' : 'Standard Delivery (24 hours)';
+    toast.info(`Selected ${optionText}`);
   };
   
   if (loading) {
@@ -282,8 +305,8 @@ const Checkout = () => {
                   {activeStep === 1 && (
                     <ReviewCart 
                       cartItems={cartItems} 
-                      deliveryOption={deliveryOption}
-                      setDeliveryOption={setDeliveryOption}
+                      deliveryOption={deliveryOption} 
+                      setDeliveryOption={handleDeliveryOptionChange}
                     />
                   )}
                   

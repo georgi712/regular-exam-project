@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
-const DELIVERY_AREAS = [
-  { city: 'New York', state: 'NY' },
-  { city: 'Brooklyn', state: 'NY' },
-  { city: 'Queens', state: 'NY' },
-];
+
+export const DELIVERY_AREAS = {
+  "Младост": true,
+  "Люлин": true,
+  "Дружба": true,
+  "Надежда": true,
+  "Красно село": true,
+  "Лозенец": true,
+  "Център": true,
+  "София": true,
+};
 
 const loadGoogleMapsScript = (callback) => {
   if (window.google) {
@@ -14,7 +20,7 @@ const loadGoogleMapsScript = (callback) => {
   }
   
   const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places&language=bg`;
   script.async = true;
   script.defer = true;
   script.onload = callback;
@@ -54,29 +60,34 @@ const DeliveryDetails = ({ formData, formErrors, handleInputChange, handleAddres
       return;
     }
     
-    let city = '';
-    let state = '';
-    
-    place.address_components.forEach(component => {
-      if (component.types.includes('locality')) {
-        city = component.long_name;
-      }
-      
-      if (component.types.includes('administrative_area_level_1')) {
-        state = component.short_name;
-      }
-    });
-    
-    const isValidDeliveryArea = DELIVERY_AREAS.some(
-      area => area.city.toLowerCase() === city.toLowerCase() && area.state.toLowerCase() === state.toLowerCase()
+    const cityComponent = place.address_components.find(
+      component => component.types.includes("locality")
     );
+    
+    const subLocalityComponent = place.address_components.find(
+      component => component.types.includes("sublocality") || 
+                   component.types.includes("neighborhood")
+    );
+
+    const city = cityComponent?.long_name;
+    const district = subLocalityComponent?.long_name;
+    
+    let isValidDeliveryArea = false;
+    
+    if (city === "София" || city === "Sofia") {
+      if (district && DELIVERY_AREAS[district]) {
+        isValidDeliveryArea = true;
+      } else {
+        // If we can't identify a specific district but the city is Sofia, we'll deliver
+        isValidDeliveryArea = true;
+      }
+    }
     
     handleAddressSelect(place.formatted_address, isValidDeliveryArea);
   };
   
   const handleAddressInputChange = (e) => {
     handleInputChange(e);
-    
   };
   
   return (
@@ -162,6 +173,9 @@ const DeliveryDetails = ({ formData, formErrors, handleInputChange, handleAddres
             Delivery available to this address
           </span>
         )}
+        <div className="text-xs text-base-content/70 mt-2">
+          We currently deliver to the following districts in Sofia: Младост, Люлин, Дружба, Надежда, Красно село, Лозенец, Център
+        </div>
       </div>
       
       <div className="form-control w-full mb-6">
