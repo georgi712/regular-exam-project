@@ -1356,6 +1356,7 @@
                 _createdOn: 1617194299472,
                 _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc", // Admin user
                 name: "Red Apples",
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/final-exam-softuni-c972c.firebasestorage.app/o/products%2F1743532206063_apple.png?alt=media&token=ce58746e-8cae-4326-a7e3-872dd6d2980a",
                 price: 3.99,
                 pricePerKg: 7.98,
                 weight: 0.5,
@@ -2371,15 +2372,109 @@
             "p0001":
             {
                 _ownerId: "60f0cf0b-34b0-4abd-9769-8c42f830dffc",
-                _id: 'p0001',
-                addresses: [ {} ],
-                cart: [ { productId: 'n0016', quantity: 2, price: 12.99 } ],
-                _updatedOn: 1743437418922
-              }
+                "addresses": [
+                    {
+                        "address": "ж.к. Люлин 9, бул. „Луи Пастьор“ 19, 1335 София, България",
+                        "isDefault": true
+                    }
+                ],
+                "cart": [],
+                "_createdOn": 1743509269832,
+                "_updatedOn": 1743511487340,
+                "_id": "p0001"
+              },
+              "6f33e9da-b28e-47ac-9090-ffc24f786572": 
+              {
+                "_ownerId": "302ba663-48f8-4040-b9ea-decafcc81088",
+                "addresses": [
+                    {
+                        "address": "ж.к. Люлин 9, бул. „Луи Пастьор“ 19, 1335 София, България",
+                        "isDefault": true
+                    }
+                ],
+                "cart": [],
+                "_createdOn": 1743509269832,
+                "_updatedOn": 1743511487340,
+                "_id": "6f33e9da-b28e-47ac-9090-ffc24f786572"
+            }
         },
-        orders: {
-
-        }
+        orders: [
+            {
+                "_ownerId": "302ba663-48f8-4040-b9ea-decafcc81088",
+                "userInfo": {
+                    "email": "spasovgeorgi801@gmail.com",
+                    "firstName": "Georgi",
+                    "lastName": "Spasov",
+                    "phone": "0886238899"
+                },
+                "address": "ж.к. Люлин 9, бул. „Луи Пастьор“ 19, 1335 София, България",
+                "deliveryNotes": "",
+                "items": [
+                    {
+                        "productId": "f0006",
+                        "name": "Blueberries",
+                        "price": 6.99,
+                        "quantity": 1,
+                        "imageUrl": ""
+                    },
+                    {
+                        "productId": "f0004",
+                        "name": "Strawberries",
+                        "price": 5.99,
+                        "quantity": 1,
+                        "imageUrl": ""
+                    }
+                ],
+                "payment": {
+                    "method": "cash"
+                },
+                "pricing": {
+                    "subtotal": 12.98,
+                    "deliveryFee": 5.99,
+                    "tax": 1.298,
+                    "total": 20.268
+                },
+                "deliveryOption": "express",
+                "status": "delivered",
+                "_createdOn": 1743509334738,
+                "_updatedOn": 1743512261208,
+                "_id": "0d42a4b5-adac-47fa-bc64-3709a6dbe6f7"
+            },
+            {
+                "_ownerId": "302ba663-48f8-4040-b9ea-decafcc81088",
+                "userInfo": {
+                    "email": "spasovgeorgi801@gmail.com",
+                    "firstName": "Georgi",
+                    "lastName": "Spasov",
+                    "phone": "0886238899"
+                },
+                "address": "ж.к. Люлин 9, бул. „Луи Пастьор“ 19, 1335 София, България",
+                "deliveryNotes": "",
+                "items": [
+                    {
+                        "productId": "f0004",
+                        "name": "Strawberries",
+                        "price": 5.99,
+                        "quantity": 6,
+                        "imageUrl": ""
+                    }
+                ],
+                "payment": {
+                    "method": "cash"
+                },
+                "pricing": {
+                    "subtotal": 35.94,
+                    "deliveryFee": 5.99,
+                    "tax": 3.594,
+                    "total": 45.524
+                },
+                "deliveryOption": "express",
+                "status": "delivered",
+                "_createdOn": 1743511487322,
+                "_updatedOn": 1743511824709,
+                "_id": "2797a614-a989-4d45-8804-704a8de3c0cb"
+            }
+        ]
     };
     var rules$1 = {
     	users: {

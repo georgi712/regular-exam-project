@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import OrderDetailsModal from './modals/OrderDetailsModal';
 import { useGetAllOrders, useUpdateOrderStatus } from '../../../api/ordersApi';
+import { useToastContext } from '../../../contexts/ToastContext';
 
 const OrdersManager = () => {
   const [viewOrderId, setViewOrderId] = useState(null);
@@ -10,6 +11,7 @@ const OrdersManager = () => {
   
   const { orders, loading, error } = useGetAllOrders();
   const { updateOrderStatus, isUpdating } = useUpdateOrderStatus();
+  const toast = useToastContext();
   
   const ORDER_STATUSES = {
     PENDING: { value: 'pending', label: 'Pending', color: 'warning' },
@@ -46,15 +48,31 @@ const OrdersManager = () => {
   const handleStatusChange = async (orderId, newStatus) => {
     if (isUpdating) return;
     
+    // Optimistically update the UI
+    setFilteredOrders(prevOrders => 
+      prevOrders.map(order => 
+        order._id === orderId ? { ...order, status: newStatus } : order
+      )
+    );
+
+    // Show pending toast
+    const toastId = toast.info(`Updating order status to ${newStatus}...`);
+    
     const result = await updateOrderStatus(orderId, newStatus);
     
+    // Remove the pending toast
+    toast.removeToast(toastId);
+    
     if (result.success) {
+      toast.success(`Order status updated to ${newStatus}`);
+    } else {
+      // Revert the optimistic update
       setFilteredOrders(prevOrders => 
         prevOrders.map(order => 
-          order._id === orderId ? { ...order, status: newStatus } : order
+          order._id === orderId ? { ...order, status: order.originalStatus || order.status } : order
         )
       );
-    } else {
+      toast.error(`Failed to update order status: ${result.error}`);
       console.error('Failed to update order status:', result.error);
     }
   };
