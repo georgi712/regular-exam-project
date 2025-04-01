@@ -5,14 +5,16 @@ import { useAddToCart } from '../../api/userProfileApi.js';
 import { useGetComments, useGetAverageRating, useEditComment, useDeleteComment } from '../../api/commentsApi';
 import CommentForm from './comments/CommentForm';
 import useAuth from '../../hooks/useAuth.js';
+import { useToastContext } from '../../contexts/ToastContext.jsx';
 
 export default function ProductDetails() {
   const { productId } = useParams();
-  const { product } = useProduct(productId);
+  const { product, loading: productLoading, error: productError } = useProduct(productId);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const { updateCartHandler } = useAddToCart();
   const { _id: currentUserId } = useAuth();
+  const toast = useToastContext();
   
   const { comments, loading: commentsLoading, error: commentsError, fetchComments } = useGetComments();
   const { 
@@ -36,6 +38,24 @@ export default function ProductDetails() {
       fetchAverageRating(productId);
     }
   }, [productId]);
+
+  useEffect(() => {
+    if (productError) {
+      toast.error(`Error loading product: ${productError}`);
+    }
+  }, [productError, toast]);
+
+  useEffect(() => {
+    if (commentsError) {
+      toast.error(`Error loading comments: ${commentsError}`);
+    }
+  }, [commentsError, toast]);
+
+  useEffect(() => {
+    if (ratingError) {
+      toast.error(`Error loading ratings: ${ratingError}`);
+    }
+  }, [ratingError, toast]);
   
   const handleQuantityChange = (change) => {
     const newQuantity = Math.max(1, quantity + change);
@@ -43,14 +63,20 @@ export default function ProductDetails() {
   };
 
   const handleAddToCart = () => {
-    updateCartHandler(productId, quantity, product.price, product.imageUrl, product.name);
-    setQuantity(1);
+    try {
+      updateCartHandler(productId, quantity, product.price, product.imageUrl, product.name);
+      setQuantity(1);
+      toast.success(`${quantity} × ${product.name} added to cart`);
+    } catch (err) {
+      toast.error('Failed to add product to cart');
+    }
   };
   
   const handleCommentAdded = () => {
     fetchComments(productId);
     fetchAverageRating(productId);
     setShowReviewForm(false);
+    toast.success('Your review has been added');
   };
   
   // Edit comment functions
@@ -69,22 +95,37 @@ export default function ProductDetails() {
   const submitEdit = async (commentId) => {
     if (!editText.trim()) return;
     
+    const loadingToastId = toast.info('Updating your review...', 10000);
+    
     const result = await editComment(commentId, editText, editRating);
+    
+    toast.removeToast(loadingToastId);
     
     if (result.success) {
       setEditingCommentId(null);
       fetchComments(productId);
       fetchAverageRating(productId);
+      toast.success('Your review has been updated');
+    } else {
+      toast.error(result.error || 'Failed to update review');
     }
   };
   
   // Delete comment function
   const handleDelete = async (commentId) => {
     if (confirm('Are you sure you want to delete this comment?')) {
+      const loadingToastId = toast.info('Deleting your review...', 10000);
+      
       const result = await deleteComment(commentId);
+      
+      toast.removeToast(loadingToastId);
+      
       if (result.success) {
         fetchComments(productId);
         fetchAverageRating(productId);
+        toast.success('Your review has been deleted');
+      } else {
+        toast.error(result.error || 'Failed to delete review');
       }
     }
   };
@@ -95,6 +136,27 @@ export default function ProductDetails() {
       ratingCounts[comment.rating - 1]++;
     }
   });
+
+  if (productLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-[400px]">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      </div>
+    );
+  }
+
+  if (productError) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="alert alert-error">
+          <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span>Failed to load product. Please try again later.</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (

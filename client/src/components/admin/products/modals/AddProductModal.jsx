@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { uploadImageToFirebase } from '../../../../firebase/storage';
 import { useCreateProduct } from '../../../../api/productApi.js';
+import { useToastContext } from '../../../../contexts/ToastContext.jsx';
 
 const AddProductModal = ({ isOpen, onClose, categories, onProductAdded }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const { create } = useCreateProduct();
+  const { create, isCreating, error } = useCreateProduct();
+  const toast = useToastContext();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -63,7 +64,25 @@ const AddProductModal = ({ isOpen, onClose, categories, onProductAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsUploading(true);
+    
+    // Validate form
+    const requiredFields = ['name', 'price', 'category', 'stock', 'image'];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    
+    if (missingFields.length > 0) {
+      toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      return;
+    }
+    
+    const numericFields = ['price', 'pricePerKg', 'stock'];
+    for (const field of numericFields) {
+      if (formData[field] && isNaN(parseFloat(formData[field]))) {
+        toast.error(`${field} must be a valid number`);
+        return;
+      }
+    }
+    
+    const loadingToastId = toast.info('Creating product...', 10000);
     
     try {
       let imageUrl = '';
@@ -76,22 +95,25 @@ const AddProductModal = ({ isOpen, onClose, categories, onProductAdded }) => {
       const newProduct = {
         ...formData,
         price: parseFloat(formData.price),
-        pricePerKg: parseFloat(formData.pricePerKg),
+        pricePerKg: formData.pricePerKg ? parseFloat(formData.pricePerKg) : undefined,
         weight: parseFloat(formData.weight),
         stock: parseInt(formData.stock, 10),
         imageUrl: imageUrl,
       };
       
-      const response = await create(newProduct);
-      console.log("Product created successfully:", response);
+      const result = await create(newProduct);
       
-      onProductAdded(response);
-      resetForm();
+      toast.removeToast(loadingToastId);
+      
+      if (result.success) {
+        onProductAdded(result.data);
+        toast.success(`Product "${formData.name}" created successfully`);
+      } else {
+        toast.error(result.error || 'Failed to create product');
+      }
     } catch (error) {
-      console.error("Error creating product:", error);
-      alert("Error creating product. Please try again.");
-    } finally {
-      setIsUploading(false);
+      toast.removeToast(loadingToastId);
+      toast.error(`Error: ${error.message || 'Failed to create product'}`);
     }
   };
 
@@ -291,9 +313,9 @@ const AddProductModal = ({ isOpen, onClose, categories, onProductAdded }) => {
             <button 
               type="submit" 
               className="btn btn-primary" 
-              disabled={isUploading}
+              disabled={isCreating}
             >
-              {isUploading ? 'Saving...' : 'Save Product'}
+              {isCreating ? 'Saving...' : 'Save Product'}
             </button>
           </div>
         </form>

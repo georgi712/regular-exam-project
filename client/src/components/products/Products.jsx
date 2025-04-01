@@ -2,6 +2,7 @@ import { useAdvancedProductFiltering } from "../../api/productApi.js";
 import ProductCard from "../product-card/ProductCard";
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useToastContext } from "../../contexts/ToastContext.jsx";
 
 const CATEGORIES = ['All', 'Fruits', 'Vegetables', 'Fresh Juices', 'Nuts'];
 const SORT_OPTIONS = ['Default Sorting', 'Newest', 'Price: Low to High', 'Price: High to Low'];
@@ -10,6 +11,7 @@ const ITEMS_PER_PAGE = 6;
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
+  const toast = useToastContext();
   
   const { 
     products, 
@@ -23,6 +25,12 @@ export default function Products() {
     sortBy: 'name',
     sortDirection: 'asc'
   });
+
+  useEffect(() => {
+    if (error) {
+      toast.error(`Error loading products: ${error}`);
+    }
+  }, [error, toast]);
 
   useEffect(() => {
     const offset = searchParams.get('offset');
@@ -93,6 +101,7 @@ export default function Products() {
     newParams.delete('offset');
     setSearchParams(newParams);
     updateFilters({ sortBy, sortDirection });
+    toast.info(`Sorting products by ${newSort}`);
   };
 
   const handleCategoryChange = (category) => {
@@ -112,6 +121,12 @@ export default function Products() {
     newParams.set('pageSize', ITEMS_PER_PAGE.toString());
     setSearchParams(newParams);
     updateFilters({ category: categoryValue });
+    
+    if (category === 'All') {
+      toast.info('Showing all categories');
+    } else {
+      toast.info(`Filtering by ${category}`);
+    }
   };
 
   const handlePageChange = (page) => {
@@ -129,6 +144,24 @@ export default function Products() {
     newParams.set('pageSize', ITEMS_PER_PAGE.toString());
     setSearchParams(newParams);
     window.scrollTo(0, 0);
+  };
+
+  const handleResetFilters = () => {
+    resetFilters();
+    const newParams = new URLSearchParams();
+    newParams.set('pageSize', ITEMS_PER_PAGE.toString());
+    setSearchParams(newParams);
+    toast.info('All filters have been reset');
+  };
+
+  const handleFilterChange = (filterName, value) => {
+    updateFilters({ [filterName]: value });
+    
+    if (value) {
+      toast.info(`Filter applied: ${filterName} = ${value}`);
+    } else {
+      toast.info(`Filter removed: ${filterName}`);
+    }
   };
 
   const getCurrentSortOption = () => {
@@ -162,7 +195,7 @@ export default function Products() {
                   placeholder="Search products..." 
                   className="input input-bordered join-item w-full md:w-auto bg-white/90"
                   value={filters.search}
-                  onChange={(e) => updateFilters({ search: e.target.value })}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
                 />
                 <button className="btn join-item bg-white/90">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -225,7 +258,7 @@ export default function Products() {
                     <select 
                       className="select select-bordered w-full"
                       value={filters.origin}
-                      onChange={(e) => updateFilters({ origin: e.target.value })}
+                      onChange={(e) => handleFilterChange('origin', e.target.value)}
                     >
                       <option value="">All Origins</option>
                       {filterOptions.origins.map(origin => (
@@ -245,7 +278,7 @@ export default function Products() {
                           placeholder="Min Price" 
                           className="input input-bordered w-full"
                           value={filters.minPrice}
-                          onChange={(e) => updateFilters({ minPrice: e.target.value })}
+                          onChange={(e) => handleFilterChange('minPrice', e.target.value)}
                         />
                       </div>
                       <div className="flex items-center gap-2">
@@ -254,7 +287,7 @@ export default function Products() {
                           placeholder="Max Price" 
                           className="input input-bordered w-full"
                           value={filters.maxPrice}
-                          onChange={(e) => updateFilters({ maxPrice: e.target.value })}
+                          onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
                         />
                       </div>
                     </div>
@@ -269,7 +302,7 @@ export default function Products() {
                   <select 
                     className="select select-bordered w-full"
                     value={filters.featured}
-                    onChange={(e) => updateFilters({ featured: e.target.value })}
+                    onChange={(e) => handleFilterChange('featured', e.target.value)}
                   >
                     <option value="">All Products</option>
                     <option value="true">Featured Only</option>
@@ -279,12 +312,7 @@ export default function Products() {
 
                 <button 
                   className="btn btn-outline btn-block"
-                  onClick={() => {
-                    resetFilters();
-                    const newParams = new URLSearchParams();
-                    newParams.set('pageSize', ITEMS_PER_PAGE.toString());
-                    setSearchParams(newParams);
-                  }}
+                  onClick={handleResetFilters}
                 >
                   Reset Filters
                 </button>
@@ -299,7 +327,7 @@ export default function Products() {
                 {filters.search && (
                   <div className="badge badge-primary gap-1">
                     Search: {filters.search}
-                    <button onClick={() => updateFilters({ search: '' })}>×</button>
+                    <button onClick={() => handleFilterChange('search', '')}>×</button>
                   </div>
                 )}
                 {filters.category && (
@@ -311,25 +339,25 @@ export default function Products() {
                 {filters.minPrice && (
                   <div className="badge badge-primary gap-1">
                     Min Price: ${filters.minPrice}
-                    <button onClick={() => updateFilters({ minPrice: '' })}>×</button>
+                    <button onClick={() => handleFilterChange('minPrice', '')}>×</button>
                   </div>
                 )}
                 {filters.maxPrice && (
                   <div className="badge badge-primary gap-1">
                     Max Price: ${filters.maxPrice}
-                    <button onClick={() => updateFilters({ maxPrice: '' })}>×</button>
+                    <button onClick={() => handleFilterChange('maxPrice', '')}>×</button>
                   </div>
                 )}
                 {filters.origin && (
                   <div className="badge badge-primary gap-1">
                     Origin: {filters.origin}
-                    <button onClick={() => updateFilters({ origin: '' })}>×</button>
+                    <button onClick={() => handleFilterChange('origin', '')}>×</button>
                   </div>
                 )}
                 {filters.featured && (
                   <div className="badge badge-primary gap-1">
                     {filters.featured === 'true' ? 'Featured' : 'Non-Featured'}
-                    <button onClick={() => updateFilters({ featured: '' })}>×</button>
+                    <button onClick={() => handleFilterChange('featured', '')}>×</button>
                   </div>
                 )}
               </div>
@@ -361,7 +389,6 @@ export default function Products() {
                       weight={product.weight}
                       origin={product.origin}
                       originFlag={product.originFlag || "https://via.placeholder.com/30"}
-                      onAddToCart={(item) => console.log('Added to cart:', item)}
                     />
                   ))
                 ) : !error ? (

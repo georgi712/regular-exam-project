@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAddToCart } from '../../api/userProfileApi.js';
+import { useToastContext } from '../../contexts/ToastContext.jsx';
 
 const ProductCard = ({ 
   id,
@@ -16,6 +17,7 @@ const ProductCard = ({
   const [isHovered, setIsHovered] = useState(false);
   const { updateCartHandler } = useAddToCart();
   const navigate = useNavigate();
+  const toast = useToastContext();
 
   const handleQuantityChange = (change) => {
     const newQuantity = Math.max(1, quantity + change);
@@ -28,9 +30,13 @@ const ProductCard = ({
   };
 
   const addButtonHandler = (e) => {
-    updateCartHandler(id, quantity, price, imageUrl, name);
-
-    setQuantity(1);
+    try {
+      updateCartHandler(id, quantity, price, imageUrl, name);
+      setQuantity(1);
+      toast.success(`${quantity} × ${name} added to cart`);
+    } catch (err) {
+      toast.error('Failed to add product to cart');
+    }
   }
 
   return (

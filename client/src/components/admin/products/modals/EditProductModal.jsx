@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { uploadImageToFirebase } from '../../../../firebase/storage';
 import { useEditProduct } from '../../../../api/productApi.js';
+import { useToastContext } from '../../../../contexts/ToastContext.jsx';
 
 const EditProductModal = ({ isOpen, onClose, product, categories, onProductUpdated }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { edit } = useEditProduct();
+  const { edit, isEditing, error } = useEditProduct();
+  const toast = useToastContext();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -65,7 +67,25 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onProductUpdat
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    
+    // Validate form
+    const requiredFields = ['name', 'price', 'category', 'stock'];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    
+    if (missingFields.length > 0) {
+      toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      return;
+    }
+    
+    const numericFields = ['price', 'pricePerKg', 'stock'];
+    for (const field of numericFields) {
+      if (formData[field] && isNaN(parseFloat(formData[field]))) {
+        toast.error(`${field} must be a valid number`);
+        return;
+      }
+    }
+    
+    const loadingToastId = toast.info('Updating product...', 10000);
     
     try {
       let imageUrl = product.imageUrl; 
@@ -85,15 +105,19 @@ const EditProductModal = ({ isOpen, onClose, product, categories, onProductUpdat
         updatedAt: new Date().toISOString(),
       };
       
-      const response = await edit(updatedProduct._id, updatedProduct);
-      console.log("Product updated successfully:", response);
+      const result = await edit(product._id, updatedProduct);
       
-      onProductUpdated(updatedProduct);
+      toast.removeToast(loadingToastId);
+      
+      if (result.success) {
+        onProductUpdated(result.data);
+        toast.success(`Product "${formData.name}" updated successfully`);
+      } else {
+        toast.error(result.error || 'Failed to update product');
+      }
     } catch (error) {
-      console.error("Error updating product:", error);
-      alert("Error updating product. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      toast.removeToast(loadingToastId);
+      toast.error(`Error: ${error.message || 'Failed to update product'}`);
     }
   };
 

@@ -3,13 +3,15 @@ import AddProductModal from './modals/AddProductModal';
 import EditProductModal from './modals/EditProductModal';
 import { useDeleteProduct, useAdvancedProductFiltering } from '../../../api/productApi.js';
 import { useSearchParams } from 'react-router-dom';
+import { useToastContext } from '../../../contexts/ToastContext.jsx';
 
 const ProductsManager = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const { deleteProduct } = useDeleteProduct();
+  const { deleteProduct, isDeleting, error: deleteError } = useDeleteProduct();
   const [searchParams, setSearchParams] = useSearchParams();
+  const toast = useToastContext();
   
   const PRODUCT_CATEGORIES = [
     { value: 'all', label: 'All Categories' },
@@ -32,23 +34,53 @@ const ProductsManager = () => {
     filterOptions
   } = useAdvancedProductFiltering();
 
+  // Show toast for filtering errors
+  useEffect(() => {
+    if (error) {
+      toast.error(`Error loading products: ${error}`);
+    }
+  }, [error, toast]);
+
+  // Show toast for delete errors
+  useEffect(() => {
+    if (deleteError) {
+      toast.error(`Error: ${deleteError}`);
+    }
+  }, [deleteError, toast]);
+
   const handleProductAdded = useCallback((newProduct) => {
     refreshProducts();
     setShowAddModal(false);
-  }, [refreshProducts]);
+    toast.success(`Product "${newProduct.name}" has been added`);
+  }, [refreshProducts, toast]);
 
   const handleProductUpdated = useCallback((updatedProduct) => {
     refreshProducts();
     setShowEditModal(false);
     setSelectedProduct(null);
-  }, [refreshProducts]);
+    toast.success(`Product "${updatedProduct.name}" has been updated`);
+  }, [refreshProducts, toast]);
 
-  const handleDeleteProduct = async (productId) => {
+  const handleDeleteProduct = async (productId, productName) => {
+    if (!window.confirm(`Are you sure you want to delete "${productName}"?`)) {
+      return;
+    }
+
+    const loadingToastId = toast.info('Deleting product...', 10000);
+    
     try {
-      const result = await deleteProduct(productId);      
-      refreshProducts();
+      const result = await deleteProduct(productId);
+      toast.removeToast(loadingToastId);
+      
+      if (result.success) {
+        refreshProducts();
+        toast.success(`Product "${productName}" has been deleted`);
+      } else {
+        toast.error(result.error || 'Failed to delete product');
+      }
     } catch (error) {
-      alert(`Failed to delete product: ${error.message || 'Unknown error'}`);
+      toast.removeToast(loadingToastId);
+      toast.error(`Failed to delete product: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -355,7 +387,7 @@ const ProductsManager = () => {
                         
                         <button 
                           className="btn btn-ghost btn-sm text-error"
-                          onClick={() => handleDeleteProduct(product._id)}
+                          onClick={() => handleDeleteProduct(product._id, product.name)}
                         >
                           Delete
                         </button>
