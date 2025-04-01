@@ -7,66 +7,138 @@ const baseUrl = 'http://localhost:3030/data/products'
 
 export const useAllProducts = () => {
     const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
+        setLoading(true);
+        setError(null);
 
         request.get(baseUrl)
-            .then(setProducts)
-    }, [])
+            .then(result => {
+                setProducts(result);
+                setLoading(false);
+            })
+            .catch(err => {
+                setError(err.message || 'Failed to load products');
+                setLoading(false);
+            });
+    }, []);
 
     return {
         products,
-        setProducts
-    }
+        setProducts,
+        loading,
+        error
+    };
 }
 
 export const useCreateProduct = () => {
     const { request } = useAuth();
+    const [isCreating, setIsCreating] = useState(false);
+    const [error, setError] = useState(null);
 
-    const create = (productData) => {
-        return request.post(baseUrl, productData);
-    }
+    const create = async (productData) => {
+        setIsCreating(true);
+        setError(null);
+
+        try {
+            const result = await request.post(baseUrl, productData);
+            setIsCreating(false);
+            return { success: true, data: result };
+        } catch (err) {
+            setError(err.message || 'Failed to create product');
+            setIsCreating(false);
+            return { success: false, error: err.message || 'Failed to create product' };
+        }
+    };
 
     return {
         create,
-    }
+        isCreating,
+        error
+    };
 }
 
 export const useProduct = (productId) => {
     const [product, setProduct] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
+        setLoading(true);
+        setError(null);
+
         request.get(`${baseUrl}/${productId}`)
-            .then(setProduct);
-    }, [productId])
+            .then(result => {
+                setProduct(result);
+                setLoading(false);
+            })
+            .catch(err => {
+                setError(err.message || 'Failed to load product');
+                setLoading(false);
+            });
+    }, [productId]);
 
     return {
-        product
-    }
+        product,
+        loading,
+        error
+    };
 }
 
 export const useEditProduct = () => {
     const { request } = useAuth();
+    const [isEditing, setIsEditing] = useState(false);
+    const [error, setError] = useState(null);
 
-    const edit = (productId, productData) => {
-        return request.put(`${baseUrl}/${productId}`, {...productData, _id: productId})
-    }
+    const edit = async (productId, productData) => {
+        setIsEditing(true);
+        setError(null);
+
+        try {
+            const result = await request.put(`${baseUrl}/${productId}`, {...productData, _id: productId});
+            setIsEditing(false);
+            return { success: true, data: result };
+        } catch (err) {
+            setError(err.message || 'Failed to edit product');
+            setIsEditing(false);
+            return { success: false, error: err.message || 'Failed to edit product' };
+        }
+    };
 
     return {
         edit,
-    }
+        isEditing,
+        error
+    };
 }
 
 export const useDeleteProduct = () => {
     const { request } = useAuth();
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [error, setError] = useState(null);
 
-    const deleteProduct = (productId) => {
-        return request.delete(`${baseUrl}/${productId}`)
-    }
+    const deleteProduct = async (productId) => {
+        setIsDeleting(true);
+        setError(null);
+
+        try {
+            const result = await request.delete(`${baseUrl}/${productId}`);
+            setIsDeleting(false);
+            return { success: true, data: result };
+        } catch (err) {
+            setError(err.message || 'Failed to delete product');
+            setIsDeleting(false);
+            return { success: false, error: err.message || 'Failed to delete product' };
+        }
+    };
 
     return {
         deleteProduct,
-    }
+        isDeleting,
+        error
+    };
 }
 
 export const useAdvancedProductFiltering = (initialFilters = {}) => {
