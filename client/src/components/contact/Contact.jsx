@@ -1,4 +1,68 @@
+import { useState } from "react";
+import { useCreateContact } from "../../api/contactApi";
+import { useToastContext } from "../../contexts/ToastContext.jsx";
+import LocationMap from "./GoogleMap";
+
 export default function Contact() {
+  const { submitContactForm, isSubmitting, error, success } = useCreateContact();
+  const toast = useToastContext();
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+
+  // Store coordinates for Sofia, Bulgaria
+  const storeLocation = {
+    lat: 42.6977,
+    lng: 23.3219
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    const requiredFields = ["firstName", "lastName", "email", "subject", "message"];
+    const missingFields = requiredFields.filter(field => !formData[field].trim());
+    
+    if (missingFields.length > 0) {
+      toast.error(`Please fill in all required fields: ${missingFields.join(", ")}`);
+      return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    
+    toast.info("Sending your message...");
+    
+    const result = await submitContactForm(formData);
+    
+    if (result.success) {
+      toast.success("Message sent successfully! We'll get back to you soon.");
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        subject: "",
+        message: ""
+      });
+    } else {
+      toast.error(`Failed to send message: ${result.error}`);
+    }
+  };
+
   return (
     <div>
       {/* Hero Section with Background */}
@@ -15,8 +79,6 @@ export default function Contact() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
           {/* Contact Information */}
           <div className="card bg-base-100 shadow-xl">
@@ -112,7 +174,9 @@ export default function Contact() {
               </div>
 
               {/* Map */}
-              <div className="w-full h-64 bg-base-200 rounded-lg mt-8"></div>
+              <div className="w-full h-64 rounded-lg mt-8 overflow-hidden">
+                <LocationMap center={storeLocation} zoom={15} />
+              </div>
             </div>
           </div>
 
@@ -120,7 +184,7 @@ export default function Contact() {
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-2xl mb-6">Send us a Message</h2>
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="form-control w-full">
                     <label className="label">
@@ -128,8 +192,11 @@ export default function Contact() {
                     </label>
                     <input
                       type="text"
+                      name="firstName"
                       placeholder="John"
                       className="input input-bordered w-full"
+                      value={formData.firstName}
+                      onChange={handleChange}
                       required
                     />
                   </div>
@@ -140,8 +207,11 @@ export default function Contact() {
                     </label>
                     <input
                       type="text"
+                      name="lastName"
                       placeholder="Doe"
                       className="input input-bordered w-full"
+                      value={formData.lastName}
+                      onChange={handleChange}
                       required
                     />
                   </div>
@@ -153,8 +223,11 @@ export default function Contact() {
                   </label>
                   <input
                     type="email"
+                    name="email"
                     placeholder="your@email.com"
                     className="input input-bordered w-full"
+                    value={formData.email}
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -165,8 +238,11 @@ export default function Contact() {
                   </label>
                   <input
                     type="text"
+                    name="subject"
                     placeholder="How can we help?"
                     className="input input-bordered w-full"
+                    value={formData.subject}
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -176,8 +252,11 @@ export default function Contact() {
                     <span className="label-text font-medium">Message</span>
                   </label>
                   <textarea
+                    name="message"
                     className="textarea textarea-bordered w-full min-h-[160px] resize-y py-3 px-4 text-base leading-relaxed"
                     placeholder="Tell us about your inquiry..."
+                    value={formData.message}
+                    onChange={handleChange}
                     required
                   ></textarea>
                   <label className="label">
@@ -185,7 +264,18 @@ export default function Contact() {
                   </label>
                 </div>
 
-                <button className="btn btn-primary w-full">Send Message</button>
+                <button 
+                  className="btn btn-primary w-full" 
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm mr-2"></span>
+                      Sending...
+                    </>
+                  ) : "Send Message"}
+                </button>
               </form>
             </div>
           </div>
