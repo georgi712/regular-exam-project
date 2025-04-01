@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useAuth from '../hooks/useAuth.js';
 
 const baseUrl = 'http://localhost:3030/data/orders';
@@ -66,4 +66,48 @@ export const useCreateOrder = () => {
   };
 
   return { createOrder, isCreating, error };
+};
+
+export const useGetUserOrders = () => {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { _id: userId, request } = useAuth();
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    const fetchOrders = async () => {
+      if (!userId) {
+        setOrders([]);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const result = await request.get(`${baseUrl}?_ownerId=${userId}`);
+        
+        if (isMounted) {
+          setOrders(result || []);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+        if (isMounted) {
+          setError(err.message || 'An error occurred while fetching orders');
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchOrders();
+    
+    // Cleanup function to prevent state updates if component unmounts
+    return () => {
+      isMounted = false;
+    };
+  }, [userId]); // Remove 'request' from dependencies if it changes on each render
+
+  return { orders, loading, error };
 };
