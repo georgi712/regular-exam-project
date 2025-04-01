@@ -2,31 +2,38 @@ import { useActionState, useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLogin } from '../../api/authApi.js';
 import { UserContext } from '../../contexts/userContext.js';
+import { useToastContext } from '../../contexts/ToastContext.jsx';
 
 export default function Login() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const { login } = useLogin();
+  const toast = useToastContext();
 
   const loginHandler = async (_, formData) => {
     const values = Object.fromEntries(formData);
     setIsLoading(true);
-    setError(null);
+    
+    const loadingToastId = toast.info('Signing in...', 10000);
     
     try {
       const result = await login(values.email, values.password);
       
+      toast.removeToast(loadingToastId);
+      
       if (result.success) {
         if (result.warning) {
+          toast.warning(result.warning);
         }
         
+        toast.success('Welcome back!');
         navigate('/');
       } else {
-        setError(result.error || 'Login failed. Please check your credentials.');
+        toast.error(result.error || 'Login failed. Please check your credentials.');
       }
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred. Please try again.');
+      toast.removeToast(loadingToastId);
+      toast.error(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -48,13 +55,6 @@ export default function Login() {
 
         <div className="card bg-base-100 border border-base-200">
           <div className="card-body">
-            {error && (
-              <div className="alert alert-error">
-                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <span>{error}</span>
-              </div>
-            )}
-            
             <form className="space-y-6" action={loginAction}>
               <div className="form-control">
                 <label className="label">
