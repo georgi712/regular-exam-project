@@ -2,11 +2,11 @@ import React from 'react';
 
 const WhyChooseUs = () => {
   return (
-    <section className="py-16 bg-base-200">
+    <section className="py-16 bg-accent text-accent-content">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">Why Choose Us</h2>
-          <p className="text-base-content/70 max-w-2xl mx-auto">We're committed to providing you with the best quality products and service.</p>
+          <p className="text-accent-content/80 max-w-2xl mx-auto">We're committed to providing you with the best quality products and service.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
@@ -26,7 +26,7 @@ const WhyChooseUs = () => {
               icon: '✨'
             }
           ].map((feature) => (
-            <div key={feature.title} className="card bg-base-100 border border-base-200 hover:border-accent transition-all duration-300">
+            <div key={feature.title} className="card bg-base-100 border border-accent-content/10 hover:border-accent-content/30 transition-all duration-300">
               <div className="card-body items-center text-center">
                 <div className="text-5xl mb-6">{feature.icon}</div>
                 <h3 className="card-title text-xl mb-2">{feature.title}</h3>

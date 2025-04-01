@@ -3,10 +3,9 @@ import { Link } from 'react-router-dom';
 import Dashboard from './dashboard/Dashboard';
 import ProductsManager from './products/ProductsManager';
 import OrdersManager from './orders/OrdersManager';
-import UsersManager from './users/UsersManager';
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('products');
 
   // Mock stats for dashboard
   const stats = {
@@ -27,8 +26,6 @@ const Admin = () => {
         return <ProductsManager />;
       case 'orders':
         return <OrdersManager />;
-      case 'users':
-        return <UsersManager />;
       default:
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -90,18 +87,15 @@ const Admin = () => {
     }
   };
 
+  // Render the active component based on the selected tab
   const renderActiveComponent = () => {
     switch(activeTab) {
-      case 'dashboard':
-        return <Dashboard />;
       case 'products':
         return <ProductsManager />;
       case 'orders':
         return <OrdersManager />;
-      case 'users':
-        return <UsersManager />;
       default:
-        return <Dashboard />;
+        return <ProductsManager />;
     }
   };
 
@@ -109,21 +103,14 @@ const Admin = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-        <p className="text-base-content/70">Manage your products, orders, and users</p>
+        <p className="text-base-content/70">Manage your products and orders</p>
       </div>
       
-      <div className="border-b border-base-300 mb-8">
+      {/* Always display the Dashboard component */}
+      <Dashboard />
+      
+      <div className="mt-8 border-b border-base-300 mb-8">
         <div className="tabs tabs-bordered">
-          <button
-            className={`tab ${activeTab === 'dashboard' ? 'tab-active' : ''} text-lg`}
-            onClick={() => setActiveTab('dashboard')}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            Dashboard
-          </button>
-          
           <button
             className={`tab ${activeTab === 'products' ? 'tab-active' : ''} text-lg`}
             onClick={() => setActiveTab('products')}
@@ -142,16 +129,6 @@ const Admin = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
             Orders
-          </button>
-          
-          <button
-            className={`tab ${activeTab === 'users' ? 'tab-active' : ''} text-lg`}
-            onClick={() => setActiveTab('users')}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            Users
           </button>
         </div>
       </div>

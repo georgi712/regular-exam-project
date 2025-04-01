@@ -11,32 +11,6 @@ const Dashboard = () => {
     pendingOrders: 12,
   };
 
-  // Mock data for recent orders
-  const recentOrders = [
-    { id: 'ORD-2023-005', customer: 'David Wilson', date: '2023-03-17', total: 15.97, status: 'cancelled' },
-    { id: 'ORD-2023-004', customer: 'Maria Garcia', date: '2023-03-18', total: 20.45, status: 'shipped' },
-    { id: 'ORD-2023-003', customer: 'Robert Johnson', date: '2023-03-19', total: 14.95, status: 'pending' },
-    { id: 'ORD-2023-002', customer: 'Jane Smith', date: '2023-03-19', total: 25.94, status: 'processing' },
-    { id: 'ORD-2023-001', customer: 'John Doe', date: '2023-03-20', total: 10.97, status: 'delivered' },
-  ];
-
-  // Order status colors
-  const statusColors = {
-    pending: 'warning',
-    processing: 'info',
-    shipped: 'primary',
-    delivered: 'success',
-    cancelled: 'error',
-  };
-
-  // Mock data for low stock products
-  const lowStockProducts = [
-    { id: 4, name: 'Fresh Strawberries', stock: 8, image: '/images/products/strawberries.jpg' },
-    { id: 3, name: 'Sweet Oranges', stock: 15, image: '/images/products/oranges.jpg' },
-    { id: 6, name: 'Organic Carrots', stock: 9, image: '/images/products/carrots.jpg' },
-    { id: 7, name: 'Fresh Milk', stock: 5, image: '/images/products/milk.jpg' },
-  ];
-
   return (
     <div className="space-y-8">
       {/* Dashboard Header */}
@@ -107,92 +81,6 @@ const Dashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Charts and Tables Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Orders */}
-        <div className="card bg-base-100 shadow border border-base-300">
-          <div className="card-body">
-            <h3 className="card-title text-lg font-semibold flex justify-between">
-              Recent Orders
-              <button className="btn btn-sm btn-ghost">View All</button>
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="table table-compact w-full">
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.map(order => (
-                    <tr key={order.id} className="hover">
-                      <td>{order.id}</td>
-                      <td>{order.customer}</td>
-                      <td>{order.date}</td>
-                      <td>${order.total.toFixed(2)}</td>
-                      <td>
-                        <div className={`badge badge-${statusColors[order.status]} badge-sm`}>
-                          {order.status}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* Low Stock Products */}
-        <div className="card bg-base-100 shadow border border-base-300">
-          <div className="card-body">
-            <h3 className="card-title text-lg font-semibold flex justify-between">
-              Low Stock Products
-              <button className="btn btn-sm btn-ghost">View All</button>
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="table table-compact w-full">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Stock</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lowStockProducts.map(product => (
-                    <tr key={product.id} className="hover">
-                      <td>
-                        <div className="flex items-center space-x-3">
-                          <div className="avatar">
-                            <div className="mask mask-squircle w-10 h-10">
-                              <img src={product.image} alt={product.name} />
-                            </div>
-                          </div>
-                          <div>
-                            <div className="font-medium">{product.name}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="text-error font-medium">{product.stock} left</div>
-                      </td>
-                      <td>
-                        <button className="btn btn-sm btn-outline">Restock</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
