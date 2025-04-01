@@ -16,6 +16,7 @@ import Checkout from './components/checkout/Checkout.jsx';
 import Admin from './components/admin/Admin.jsx';
 import Logout from './components/logout/Logout.jsx';
 import UserProvider from './providers/UserProvider.jsx';
+import MyOrders from './components/profile/orders/MyOrders';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/orders" element={<MyOrders />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
