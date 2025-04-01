@@ -2,35 +2,45 @@ import { useActionState, useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../contexts/userContext.js';
 import { useRegister } from '../../api/authApi.js';
+import { useToastContext } from '../../contexts/ToastContext.jsx';
 
 export default function Register() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const { register } = useRegister();
+  const toast = useToastContext();
 
   const registerHandler = async (previousState, formData) => {
     const values = Object.fromEntries(formData);
     const username = values.firstName + ' ' + values.lastName;
 
     if (values.password !== values.rePass) {
-      setError('Passwords do not match!');
+      toast.error('Passwords do not match!');
       return values;
     }
 
     setIsLoading(true);
-    setError(null);
+    
+    // Show a loading toast that we'll dismiss on completion
+    const loadingToastId = toast.info('Creating your account...', 10000);
     
     try {
       const result = await register(values.email, values.password, username);
       
+      // Remove the loading toast
+      toast.removeToast(loadingToastId);
+      
       if (result.success) {
+        toast.success(`Welcome, ${values.firstName}! Your account has been created.`);
         navigate('/');
       } else {
-        setError(result.error || 'Registration failed. Please try again.');
+        toast.error(result.error || 'Registration failed. Please try again.');
       }
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred. Please try again.');
+      // Remove the loading toast
+      toast.removeToast(loadingToastId);
+      
+      toast.error(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -52,12 +62,6 @@ export default function Register() {
 
         <div className="card bg-base-100 border border-base-200">
           <div className="card-body">
-            {error && (
-              <div className="alert alert-error">
-                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <span>{error}</span>
-              </div>
-            )}
             
             <form className="space-y-6" action={registerAction}>
               <div className="grid grid-cols-2 gap-4">
