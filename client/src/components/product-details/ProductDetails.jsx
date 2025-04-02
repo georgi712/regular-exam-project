@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useProduct } from '../../api/productApi';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAddToCart } from '../../api/userProfileApi.js';
 import { useGetComments, useGetAverageRating, useEditComment, useDeleteComment } from '../../api/commentsApi';
 import CommentForm from './comments/CommentForm';
@@ -13,7 +13,7 @@ export default function ProductDetails() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const { updateCartHandler } = useAddToCart();
-  const { _id: currentUserId } = useAuth();
+  const { _id: currentUserId, isAuthenticated } = useAuth();
   const toast = useToastContext();
   
   const { comments, loading: commentsLoading, error: commentsError, fetchComments } = useGetComments();
@@ -27,15 +27,24 @@ export default function ProductDetails() {
   const { editComment, isEditing } = useEditComment();
   const { deleteComment, isDeleting } = useDeleteComment();
   
-  // For editing comments
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editText, setEditText] = useState('');
   const [editRating, setEditRating] = useState(5);
   
+  // Error ref to prevent infinite toast loops
+  const hasShownSortErrorRef = useRef(false);
+  
   useEffect(() => {
     if (productId) {
-      fetchComments(productId);
-      fetchAverageRating(productId);
+      try {
+        fetchComments(productId);
+        fetchAverageRating(productId);
+      } catch (err) {
+        if (!hasShownSortErrorRef.current && err.message?.includes('sort')) {
+          hasShownSortErrorRef.current = true;
+          toast.error('Error processing comments: ' + err.message);
+        }
+      }
     }
   }, [productId]);
 
@@ -79,7 +88,6 @@ export default function ProductDetails() {
     toast.success('Your review has been added');
   };
   
-  // Edit comment functions
   const startEditing = (comment) => {
     setEditingCommentId(comment._id);
     setEditText(comment.text);
@@ -130,12 +138,41 @@ export default function ProductDetails() {
     }
   };
  
+  // Safe calculation of rating counts with error handling
   const ratingCounts = Array(5).fill(0);
-  comments.forEach(comment => {
-    if (comment.rating >= 1 && comment.rating <= 5) {
-      ratingCounts[comment.rating - 1]++;
+  try {
+    if (Array.isArray(comments)) {
+      comments.forEach(comment => {
+        if (comment.rating >= 1 && comment.rating <= 5) {
+          ratingCounts[comment.rating - 1]++;
+        }
+      });
     }
-  });
+  } catch (err) {
+    if (!hasShownSortErrorRef.current) {
+      hasShownSortErrorRef.current = true;
+      console.error('Error processing rating counts:', err);
+    }
+  }
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Unknown date';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'Unknown date';
+      }
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Unknown date';
+    }
+  };
 
   if (productLoading) {
     return (
@@ -240,174 +277,176 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {/* Reviews Section */}
-      <div className="card bg-base-100 shadow-lg">
-        <div className="card-body">
-          <div className="flex justify-between items-center">
-            <h2 className="card-title text-3xl font-bold">Customer Reviews</h2>
-            <button 
-              className="btn btn-primary"
-              onClick={() => setShowReviewForm(!showReviewForm)}
-            >
-              {showReviewForm ? 'Cancel' : 'Write a Review'}
-            </button>
-          </div>
-          
-          {/* Rating summary */}
-          <div className="stats shadow my-4">
-            <div className="stat">
-              <div className="stat-title">Average Rating</div>
-              <div className="stat-value text-primary">
-                {commentsLoading ? (
-                  <span className="loading loading-spinner loading-md"></span>
-                ) : (
-                  `${averageRating.toFixed(1)}/5`
-                )}
-              </div>
-              <div className="stat-desc">Based on {ratingCount} reviews</div>
+      {/* Reviews Section - only show for authenticated users */}
+      {isAuthenticated && (
+        <div className="card bg-base-100 shadow-lg">
+          <div className="card-body">
+            <div className="flex justify-between items-center">
+              <h2 className="card-title text-3xl font-bold">Customer Reviews</h2>
+              <button 
+                className="btn btn-primary"
+                onClick={() => setShowReviewForm(!showReviewForm)}
+              >
+                {showReviewForm ? 'Cancel' : 'Write a Review'}
+              </button>
             </div>
             
-            <div className="stat">
-              <div className="stat-title">Rating Breakdown</div>
-              <div className="w-full">
-                {[5, 4, 3, 2, 1].map(star => (
-                  <div key={star} className="flex items-center mb-1">
-                    <span className="w-8 text-sm">{star} ★</span>
-                    <progress 
-                      className="progress progress-primary w-56" 
-                      value={ratingCounts[star-1]} 
-                      max={comments.length || 1}
-                    ></progress>
-                    <span className="ml-2 text-sm">{ratingCounts[star-1]}</span>
-                  </div>
-                ))}
+            {/* Rating summary */}
+            <div className="stats shadow my-4">
+              <div className="stat">
+                <div className="stat-title">Average Rating</div>
+                <div className="stat-value text-primary">
+                  {commentsLoading ? (
+                    <span className="loading loading-spinner loading-md"></span>
+                  ) : (
+                    `${averageRating.toFixed(1)}/5`
+                  )}
+                </div>
+                <div className="stat-desc">Based on {ratingCount} reviews</div>
+              </div>
+              
+              <div className="stat">
+                <div className="stat-title">Rating Breakdown</div>
+                <div className="w-full">
+                  {[5, 4, 3, 2, 1].map(star => (
+                    <div key={star} className="flex items-center mb-1">
+                      <span className="w-8 text-sm">{star} ★</span>
+                      <progress 
+                        className="progress progress-primary w-56" 
+                        value={ratingCounts[star-1]} 
+                        max={comments.length || 1}
+                      ></progress>
+                      <span className="ml-2 text-sm">{ratingCounts[star-1]}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-          
-          {/* Review form */}
-          {showReviewForm && (
-            <CommentForm 
-              productId={productId} 
-              onCommentAdded={handleCommentAdded} 
-            />
-          )}
-          
-          <div className="divider"></div>
-          
-          {commentsLoading && comments.length === 0 ? (
-            <div className="flex justify-center py-8">
-              <span className="loading loading-spinner loading-lg"></span>
-            </div>
-          ) : comments.length === 0 ? (
-            <div className="text-center py-10 bg-base-200 rounded-lg">
-              <p className="text-gray-500">No reviews yet. Be the first to review this product!</p>
-            </div>
-          ) : (
-            <ul className="space-y-6">
-              {comments.map((comment) => (
-                <li key={comment._id} className="card bg-base-200">
-                  <div className="card-body">
-                    {editingCommentId === comment._id ? (
-                      <div>
-                        <div className="rating rating-md mb-4">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <input 
-                              key={star}
-                              type="radio" 
-                              name={`edit-rating-${comment._id}`}
-                              className="mask mask-star-2 bg-orange-400"
-                              checked={editRating === star}
-                              onChange={() => setEditRating(star)}
-                            />
-                          ))}
-                        </div>
-                        
-                        <textarea 
-                          className="textarea textarea-bordered w-full mb-4"
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                        ></textarea>
-                        
-                        <div className="flex justify-end space-x-2">
-                          <button 
-                            onClick={cancelEditing}
-                            className="btn btn-outline btn-sm"
-                            disabled={isEditing}
-                          >
-                            Cancel
-                          </button>
-                          <button 
-                            onClick={() => submitEdit(comment._id)}
-                            className="btn btn-primary btn-sm"
-                            disabled={isEditing || !editText.trim()}
-                          >
-                            {isEditing ? (
-                              <span className="loading loading-spinner loading-xs"></span>
-                            ) : (
-                              'Save'
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
+            
+            {/* Review form */}
+            {showReviewForm && (
+              <CommentForm 
+                productId={productId} 
+                onCommentAdded={handleCommentAdded} 
+              />
+            )}
+            
+            <div className="divider"></div>
+            
+            {commentsLoading && comments.length === 0 ? (
+              <div className="flex justify-center py-8">
+                <span className="loading loading-spinner loading-lg"></span>
+              </div>
+            ) : comments.length === 0 ? (
+              <div className="text-center py-10 bg-base-200 rounded-lg">
+                <p className="text-gray-500">No reviews yet. Be the first to review this product!</p>
+              </div>
+            ) : (
+              <ul className="space-y-6">
+                {comments.map((comment) => (
+                  <li key={comment._id} className="card bg-base-200">
+                    <div className="card-body">
+                      {editingCommentId === comment._id ? (
                         <div>
-                          <div className="flex justify-between items-center mb-2">
-                            <h3 className="text-xl font-bold">
-                              {comment.user || 'Anonymous User'}
-                            </h3>
-                            <div className="text-sm text-gray-500">
-                              {new Date(comment.createdAt).toLocaleDateString()}
-                              {comment.updatedAt && comment.updatedAt !== comment.createdAt && ' (edited)'}
-                            </div>
-                          </div>
-                          <div className="rating mb-2">
-                            {[...Array(5)].map((_, i) => (
+                          <div className="rating rating-md mb-4">
+                            {[1, 2, 3, 4, 5].map((star) => (
                               <input 
-                                key={i} 
+                                key={star}
                                 type="radio" 
-                                name={`rating-${comment._id}`} 
+                                name={`edit-rating-${comment._id}`}
                                 className="mask mask-star-2 bg-orange-400"
-                                checked={i + 1 === comment.rating}
-                                readOnly
+                                checked={editRating === star}
+                                onChange={() => setEditRating(star)}
                               />
                             ))}
                           </div>
-                        </div>
-                        <p className="text-lg mt-2">{comment.text}</p>
-                        
-                        {comment._ownerId === currentUserId && (
-                          <div className="flex justify-end space-x-2 mt-4">
+                          
+                          <textarea 
+                            className="textarea textarea-bordered w-full mb-4"
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                          ></textarea>
+                          
+                          <div className="flex justify-end space-x-2">
                             <button 
-                              onClick={() => startEditing(comment)}
-                              className="btn btn-ghost btn-sm"
-                              disabled={isDeleting}
+                              onClick={cancelEditing}
+                              className="btn btn-outline btn-sm"
+                              disabled={isEditing}
                             >
-                              Edit
+                              Cancel
                             </button>
                             <button 
-                              onClick={() => handleDelete(comment._id)}
-                              className="btn btn-ghost btn-sm text-error"
-                              disabled={isDeleting}
+                              onClick={() => submitEdit(comment._id)}
+                              className="btn btn-primary btn-sm"
+                              disabled={isEditing || !editText.trim()}
                             >
-                              {isDeleting ? (
+                              {isEditing ? (
                                 <span className="loading loading-spinner loading-xs"></span>
                               ) : (
-                                'Delete'
+                                'Save'
                               )}
                             </button>
                           </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+                        </div>
+                      ) : (
+                        <>
+                          <div>
+                            <div className="flex justify-between items-center mb-2">
+                              <h3 className="text-xl font-bold">
+                                {comment.user || 'Anonymous User'}
+                              </h3>
+                              <div className="text-sm text-gray-500">
+                                {formatDate(comment._createdOn)}
+                                {comment._updatedOn && comment._updatedOn !== comment._createdOn && ' (edited)'}
+                              </div>
+                            </div>
+                            <div className="rating mb-2">
+                              {[...Array(5)].map((_, i) => (
+                                <input 
+                                  key={i} 
+                                  type="radio" 
+                                  name={`rating-${comment._id}`} 
+                                  className="mask mask-star-2 bg-orange-400"
+                                  checked={i + 1 === comment.rating}
+                                  readOnly
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-lg mt-2">{comment.text}</p>
+                          
+                          {comment._ownerId === currentUserId && (
+                            <div className="flex justify-end space-x-2 mt-4">
+                              <button 
+                                onClick={() => startEditing(comment)}
+                                className="btn btn-ghost btn-sm"
+                                disabled={isDeleting}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(comment._id)}
+                                className="btn btn-ghost btn-sm text-error"
+                                disabled={isDeleting}
+                              >
+                                {isDeleting ? (
+                                  <span className="loading loading-spinner loading-xs"></span>
+                                ) : (
+                                  'Delete'
+                                )}
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 } 
