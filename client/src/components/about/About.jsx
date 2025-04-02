@@ -1,30 +1,32 @@
+import styles from './About.module.css';
+
 const TEAM_MEMBERS = [
   {
     id: 1,
     name: "John Smith",
     role: "CEO & Founder",
-    image: "https://i.pravatar.cc/300?img=1",
+    image: "/images/shipman-northcutt-sgZX15Da8YE-unsplash.jpg",
     bio: "John founded FruVida with a vision to make fresh, organic produce accessible to everyone."
   },
   {
     id: 2,
     name: "Sarah Johnson",
     role: "Head of Operations",
-    image: "https://i.pravatar.cc/300?img=2",
+    image: "/images/julia-rekamie-Z72YujnOrlY-unsplash.jpg",
     bio: "Sarah ensures smooth operations and maintains our high quality standards."
   },
   {
     id: 3,
     name: "Michael Chen",
     role: "Lead Nutritionist",
-    image: "https://i.pravatar.cc/300?img=3",
+    image: "/images/alireza-heidarpour-0FW20hVjtck-unsplash.jpg",
     bio: "Michael helps curate our product selection for maximum health benefits."
   },
   {
     id: 4,
     name: "Emma Davis",
     role: "Customer Relations",
-    image: "https://i.pravatar.cc/300?img=4",
+    image: "/images/jaishree-hotchandani-koFxncdbXnE-unsplash.jpg",
     bio: "Emma leads our customer service team and ensures client satisfaction."
   }
 ];
@@ -63,7 +65,13 @@ export default function About() {
               local agriculture remains at the heart of everything we do.
             </p>
           </div>
-          <div className="bg-base-200 rounded-lg h-[400px]"></div>
+          <div className={styles.imageContainer}>
+            <img 
+              src="/images/dylan-gillis-KdeqA3aTnBY-unsplash.jpg" 
+              alt="Coffee shop interior" 
+              className={styles.image}
+            />
+          </div>
         </section>
 
         {/* Values Section */}
@@ -135,22 +143,22 @@ export default function About() {
         <section className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="stat place-items-center">
             <div className="stat-title">Happy Customers</div>
-            <div className="stat-value">10K+</div>
+            <div className="stat-value">1K+</div>
           </div>
           
           <div className="stat place-items-center">
             <div className="stat-title">Products</div>
-            <div className="stat-value">500+</div>
-          </div>
-          
-          <div className="stat place-items-center">
-            <div className="stat-title">Local Farmers</div>
             <div className="stat-value">50+</div>
           </div>
           
           <div className="stat place-items-center">
+            <div className="stat-title">Local Farmers</div>
+            <div className="stat-value">10+</div>
+          </div>
+          
+          <div className="stat place-items-center">
             <div className="stat-title">Cities Served</div>
-            <div className="stat-value">15+</div>
+            <div className="stat-value">1+</div>
           </div>
         </section>
       </div>

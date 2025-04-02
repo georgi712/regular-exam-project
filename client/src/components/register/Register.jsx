@@ -14,6 +14,12 @@ export default function Register() {
     const values = Object.fromEntries(formData);
     const username = values.firstName + ' ' + values.lastName;
 
+    // Password validation
+    if (values.password.length < 4) {
+      toast.error('Password must be at least 4 characters long!');
+      return values;
+    }
+
     if (values.password !== values.rePass) {
       toast.error('Passwords do not match!');
       return values;

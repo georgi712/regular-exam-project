@@ -12,6 +12,13 @@ export default function Login() {
 
   const loginHandler = async (_, formData) => {
     const values = Object.fromEntries(formData);
+
+    // Password validation
+    if (values.password.length < 4) {
+      toast.error('Password must be at least 4 characters long!');
+      return values;
+    }
+    
     setIsLoading(true);
     
     const loadingToastId = toast.info('Signing in...', 10000);

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -18,19 +18,29 @@ const defaultOptions = {
 };
 
 const LocationMap = ({ center = { lat: 42.6977, lng: 23.3219 }, zoom = 15 }) => {
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: API_KEY,
+  });
+
   const mapCenter = useMemo(() => center, [center]);
 
+  if (loadError) {
+    return <div className="w-full h-full bg-base-200 rounded-lg flex items-center justify-center">Error loading map</div>;
+  }
+
+  if (!isLoaded) {
+    return <div className="w-full h-full bg-base-200 animate-pulse rounded-lg" />;
+  }
+
   return (
-    <LoadScript googleMapsApiKey={API_KEY} loadingElement={<div className="w-full h-full bg-base-200 animate-pulse rounded-lg" />}>
-      <GoogleMap
-        mapContainerStyle={mapContainerStyle}
-        center={mapCenter}
-        zoom={zoom}
-        options={defaultOptions}
-      >
-        <Marker position={mapCenter} />
-      </GoogleMap>
-    </LoadScript>
+    <GoogleMap
+      mapContainerStyle={mapContainerStyle}
+      center={mapCenter}
+      zoom={zoom}
+      options={defaultOptions}
+    >
+      <Marker position={mapCenter} />
+    </GoogleMap>
   );
 };
 

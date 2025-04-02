@@ -86,7 +86,7 @@ export const useGetUserOrders = () => {
 
       try {
         setLoading(true);
-        const result = await request.get(`${baseUrl}?_ownerId=${userId}`);
+        const result = await request.get(`${baseUrl}?where=${encodeURIComponent(`_ownerId="${userId}"`)}`);
         
         if (isMounted) {
           setOrders(result || []);

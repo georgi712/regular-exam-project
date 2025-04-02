@@ -101,7 +101,6 @@ export default function Products() {
     newParams.delete('offset');
     setSearchParams(newParams);
     updateFilters({ sortBy, sortDirection });
-    toast.info(`Sorting products by ${newSort}`);
   };
 
   const handleCategoryChange = (category) => {
@@ -157,12 +156,7 @@ export default function Products() {
   const handleFilterChange = (filterName, value) => {
     updateFilters({ [filterName]: value });
     
-    if (value) {
-      toast.info(`Filter applied: ${filterName} = ${value}`);
-    } else {
-      toast.info(`Filter removed: ${filterName}`);
-    }
-  };
+  }
 
   const getCurrentSortOption = () => {
     if (filters.sortBy === '_createdOn' && filters.sortDirection === 'desc') {
