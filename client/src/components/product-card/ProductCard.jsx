@@ -66,22 +66,16 @@ const ProductCard = ({
         <div className="mb-2">
           <h3 className="card-title text-xl font-bold">{name}</h3>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-accent font-bold text-lg">{price} лв</span>
-            <span className="text-sm text-base-content/70">/ {pricePerKg} лв/кг</span>
+            <span className="text-accent font-bold text-lg">{price} $</span>
+            <span className="text-sm text-base-content/70">/ {pricePerKg} $/kg</span>
           </div>
         </div>
         
         <div className="flex items-center gap-2 text-base-content/70 text-sm bg-base-200/50 p-2 rounded-lg mb-4">
-          <span>{weight}</span>
+          <span>{weight} kg</span>
           <span>•</span>
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-full overflow-hidden border border-base-300">
-              <img 
-                src={originFlag} 
-                alt={`${origin} flag`} 
-                className="w-full h-full object-cover"
-              />
-            </div>
+            
             <span>{origin}</span>
           </div>
         </div>

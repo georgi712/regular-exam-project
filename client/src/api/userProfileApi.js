@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth.js';
 
-const baseUrl = 'http://localhost:3030/data/user_profiles'
+const baseUrl = `${import.meta.env.VITE_APP_SERVER_URL}/data/user_profiles`;
 
 const findUserProfile = async (userId, request) => {
   if (!userId) {

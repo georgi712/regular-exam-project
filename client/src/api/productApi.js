@@ -3,7 +3,7 @@ import request from "../utils/request.js"
 import { useSearchParams } from "react-router-dom"
 import useAuth from "../hooks/useAuth.js"
 
-const baseUrl = 'http://localhost:3030/data/products'
+const baseUrl = `${import.meta.env.VITE_APP_SERVER_URL}/data/products`;
 
 export const useAllProducts = () => {
     const [products, setProducts] = useState([]);

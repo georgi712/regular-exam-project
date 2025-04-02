@@ -222,8 +222,8 @@ export default function ProductDetails() {
           <h1 className="text-4xl font-bold">{product.name}</h1>
           
           <div className="flex items-center gap-2">
-            <span className="text-3xl font-bold text-accent">{product.price} лв</span>
-            <span className="text-lg text-base-content/70">/ {product.pricePerKg} лв/кг</span>
+            <span className="text-3xl font-bold text-accent">{product.price} $</span>
+            <span className="text-lg text-base-content/70">/ {product.pricePerKg} $/кг</span>
           </div>
 
           <div className="flex items-center gap-2 text-base-content/70 text-base bg-base-200/50 p-3 rounded-lg">

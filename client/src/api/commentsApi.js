@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import useAuth from '../hooks/useAuth.js';
 
-const baseUrl = 'http://localhost:3030/data/comments';
+const baseUrl =  `${import.meta.env.VITE_APP_SERVER_URL}/data/comments`;
 
 export const useCreateComment = () => {
   const [isCreating, setIsCreating] = useState(false);

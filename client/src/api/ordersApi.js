@@ -1,7 +1,7 @@
 import { useState, useEffect, use } from 'react';
 import useAuth from '../hooks/useAuth.js';
 
-const baseUrl = 'http://localhost:3030/data/orders';
+const baseUrl = `${import.meta.env.VITE_APP_SERVER_URL}/data/orders`;
 
 export const useCreateOrder = () => {
   const [isCreating, setIsCreating] = useState(false);

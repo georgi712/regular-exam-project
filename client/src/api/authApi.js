@@ -4,7 +4,7 @@ import { UserContext } from "../contexts/userContext.js";
 import { useCreateUserProfile, useGetAddresses, useGetCart } from "./userProfileApi.js";
 import useAuth from "../hooks/useAuth.js";
 
-const baseUrl = 'http://localhost:3030/users';
+const baseUrl = `${import.meta.env.VITE_APP_SERVER_URL}/users`;
 
 export const useLogin = () => {
     const { userLoginHandler } = useAuth();

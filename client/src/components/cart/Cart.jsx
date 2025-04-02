@@ -242,7 +242,7 @@ export default function Cart() {
                         <div className="flex-grow text-center sm:text-left">
                           <h3 className="font-bold text-xl">{item.name}</h3>
                           <p className="text-accent font-bold text-lg mt-1">
-                            {item.price.toFixed(2)} лв
+                            {item.price.toFixed(2)} $
                           </p>
                           <div className="flex items-center justify-center sm:justify-start gap-3 mt-4">
                             <button
@@ -271,7 +271,7 @@ export default function Cart() {
                         </div>
                         <div className="text-center sm:text-right">
                           <p className="font-bold text-xl mb-3">
-                            {(item.price * item.quantity).toFixed(2)} лв
+                            {(item.price * item.quantity).toFixed(2)} $
                           </p>
                           <button
                             className="btn btn-ghost btn-sm text-error hover:bg-error/10"
@@ -302,20 +302,20 @@ export default function Cart() {
                 <div className="space-y-4">
                   <div className="flex justify-between text-base-content/70">
                     <span>Subtotal</span>
-                    <span>{subtotal.toFixed(2)} лв</span>
+                    <span>{subtotal.toFixed(2)} $</span>
                   </div>
                   <div className="flex justify-between text-base-content/70">
                     <span>Shipping</span>
-                    <span>{shipping.toFixed(2)} лв</span>
+                    <span>{shipping.toFixed(2)} $</span>
                   </div>
                   <div className="flex justify-between text-base-content/70">
                     <span>Tax (10%)</span>
-                    <span>{tax.toFixed(2)} лв</span>
+                    <span>{tax.toFixed(2)} $</span>
                   </div>
                   <div className="divider my-2"></div>
                   <div className="flex justify-between text-xl font-bold">
                     <span>Total</span>
-                    <span>{total.toFixed(2)} лв</span>
+                    <span>{total.toFixed(2)} $</span>
                   </div>
 
                   {/* Checkout Button */}
