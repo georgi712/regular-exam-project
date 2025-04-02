@@ -18,6 +18,9 @@ import Logout from './components/logout/Logout.jsx';
 import UserProvider from './providers/UserProvider.jsx';
 import MyOrders from './components/profile/orders/MyOrders';
 import { ToastProvider } from './contexts/ToastContext.jsx';
+import AuthGard from './components/guards/AuthGard.jsx';
+import UserGard from './components/guards/UserGard.jsx';
+import AdminGuard from './components/guards/AdminGuard.jsx';
 
 function App() {
   return (
@@ -28,18 +31,24 @@ function App() {
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:productId/details" element={<ProductDetails />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/logout" element={<Logout />} />
-              <Route path="/register" element={<Register />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/orders" element={<MyOrders />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/products/:productId/details" element={<ProductDetails />} />
+              <Route element={<AuthGard />} >
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/orders" element={<MyOrders />} />
+                <Route path="/logout" element={<Logout />} />
+              </Route>
+              <Route element={<UserGard />} >
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route element={<AdminGuard />} >
+                  <Route path="/admin" element={<Admin />} />
+                </Route>
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
