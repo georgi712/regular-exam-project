@@ -21,6 +21,7 @@ import { ToastProvider } from './contexts/ToastContext.jsx';
 import AuthGard from './components/guards/AuthGard.jsx';
 import UserGard from './components/guards/UserGard.jsx';
 import AdminGuard from './components/guards/AdminGuard.jsx';
+import AuthGardLogout from './components/guards/AuthGardLogout.jsx';
 
 function App() {
   return (
@@ -40,6 +41,8 @@ function App() {
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/orders" element={<MyOrders />} />
+              </Route>
+              <Route element={<AuthGardLogout/>} >
                 <Route path="/logout" element={<Logout />} />
               </Route>
               <Route element={<UserGard />} >
