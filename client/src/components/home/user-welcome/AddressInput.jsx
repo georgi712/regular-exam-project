@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 // Google Maps API key
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+const GOOGLE_API_KEY = import.meta.env.OOGLE_API_KEY;
 
 // Valid delivery areas
 export const DELIVERY_AREAS = {

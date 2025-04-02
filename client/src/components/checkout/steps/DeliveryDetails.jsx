@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+const GOOGLE_API_KEY = "AIzaSyB9Xn_i8XOKSy58XfaVfy4VKSWpspSsfms";
 
 export const DELIVERY_AREAS = {
   "Младост": true,

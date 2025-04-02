@@ -3,7 +3,7 @@ import { getStorage } from "firebase/storage";
 
 // Firebase configuration from Vite environment variables
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  apiKey: "AIzaSyBiwi1hM31G3eCRSsV0-vkRRL97FfPsh9M",
   authDomain: "final-exam-softuni-c972c.firebaseapp.com",
   projectId: "final-exam-softuni-c972c",
   storageBucket: "final-exam-softuni-c972c.firebasestorage.app",
