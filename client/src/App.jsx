@@ -48,9 +48,9 @@ function App() {
               <Route element={<UserGard />} >
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route element={<AdminGuard />} >
+              </Route>
+              <Route element={<AdminGuard />} >
                   <Route path="/admin" element={<Admin />} />
-                </Route>
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
