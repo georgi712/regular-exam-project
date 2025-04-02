@@ -161,7 +161,6 @@ The admin user has exclusive access to:
 - Tailwind CSS
 - DaisyUI
 - React Router
-- React Query
 - Context API for state management
 - React Toastify for notifications
 - Vitest for testing
