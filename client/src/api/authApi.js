@@ -3,6 +3,8 @@ import request from "../utils/request.js"
 import { UserContext } from "../contexts/userContext.js";
 import { useCreateUserProfile, useGetAddresses, useGetCart } from "./userProfileApi.js";
 import useAuth from "../hooks/useAuth.js";
+import { useNavigate } from "react-router-dom";
+import { useToastContext } from "../contexts/ToastContext.jsx";
 
 const baseUrl = `${import.meta.env.VITE_APP_SERVER_URL}/users`;
 
@@ -17,6 +19,10 @@ export const useLogin = () => {
             const addressResult = await getAddresses(result);
             const cartResult = await getCart(result)
             
+            if (result.code >= 400) {
+                throw new Error(result.message)
+            }
+
             if (!addressResult.success) {
                 return {
                     success: true,
@@ -97,6 +103,8 @@ export const useLogout = () => {
     const {accessToken, userLogoutHandler} = useContext(UserContext);
     const [isLoggedOut, setIsLoggedOut] = useState(false);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
+    const toast = useToastContext();
 
     const logout = useCallback(async () => {
         if (!accessToken) {
