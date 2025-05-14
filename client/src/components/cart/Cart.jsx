@@ -24,7 +24,7 @@ export default function Cart() {
     if (error) {
       toast.error(`Error loading cart: ${error}`);
     }
-  }, [error, toast]);
+  }, [error]);
   
   const subtotal = localCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = localCartItems.length > 0 ? 2.99 : 0;
