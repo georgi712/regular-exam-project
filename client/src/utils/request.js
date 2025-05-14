@@ -28,9 +28,7 @@ const request = async (method, url, data, options = {}) => {
         return;
     }
 
-    const result = await response.json();
-
-    return result;
+    return response;
 }
 
 export default {

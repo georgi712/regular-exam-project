@@ -119,12 +119,15 @@ export const useLogout = () => {
         };
 
         try {
-            await request.get(`${baseUrl}/logout`, null, options);
+            const response = await request.get(`${baseUrl}/logout`, null, options);
+            if (response.code === 403) {
+                toast.error('Unable to logout');
+                return navigate('/');
+            }
             userLogoutHandler();
             setIsLoggedOut(true);
         } catch (err) {
-            setError(err.message || 'Logout failed');
-            console.error('Logout error:', err);
+            toast.error(err.message || 'Logout failed');
         }
     }, [accessToken, userLogoutHandler]);
 
