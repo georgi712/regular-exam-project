@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
 
-const API_KEY = "AIzaSyB9Xn_i8XOKSy58XfaVfy4VKSWpspSsfms";
+const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const mapContainerStyle = {
   width: '100%',

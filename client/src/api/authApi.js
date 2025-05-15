@@ -3,6 +3,8 @@ import request from "../utils/request.js"
 import { UserContext } from "../contexts/userContext.js";
 import { useCreateUserProfile, useGetAddresses, useGetCart } from "./userProfileApi.js";
 import useAuth from "../hooks/useAuth.js";
+import { useNavigate } from "react-router-dom";
+import { useToastContext } from "../contexts/ToastContext.jsx";
 
 const baseUrl = `${import.meta.env.VITE_APP_SERVER_URL}/users`;
 
@@ -11,12 +13,17 @@ export const useLogin = () => {
     const { getAddresses } = useGetAddresses();
     const { getCart } = useGetCart();
     
+    
     const login = async (email, password) => {
         try {
             const result = await request.post(`${baseUrl}/login`, {email, password});
             const addressResult = await getAddresses(result);
             const cartResult = await getCart(result)
             
+            if (result.code >= 400) {
+                throw new Error(result.message)
+            }
+
             if (!addressResult.success) {
                 return {
                     success: true,
@@ -96,7 +103,9 @@ export const useRegister = () => {
 export const useLogout = () => {
     const {accessToken, userLogoutHandler} = useContext(UserContext);
     const [isLoggedOut, setIsLoggedOut] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState(null); 
+    const navigate = useNavigate();
+    const toast = useToastContext();
 
     const logout = useCallback(async () => {
         if (!accessToken) {
@@ -111,12 +120,15 @@ export const useLogout = () => {
         };
 
         try {
-            await request.get(`${baseUrl}/logout`, null, options);
+            const response = await fetch(`${baseUrl}/logout`, options);
+            if (response.code === 403) {
+                toast.error('Unable to logout');
+                return navigate('/');
+            }
             userLogoutHandler();
             setIsLoggedOut(true);
         } catch (err) {
-            setError(err.message || 'Logout failed');
-            console.error('Logout error:', err);
+            toast.error(err.message || 'Logout failed');
         }
     }, [accessToken, userLogoutHandler]);
 
