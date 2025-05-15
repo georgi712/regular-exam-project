@@ -13,6 +13,7 @@ export const useLogin = () => {
     const { getAddresses } = useGetAddresses();
     const { getCart } = useGetCart();
     
+    
     const login = async (email, password) => {
         try {
             const result = await request.post(`${baseUrl}/login`, {email, password});
@@ -102,7 +103,9 @@ export const useRegister = () => {
 export const useLogout = () => {
     const {accessToken, userLogoutHandler} = useContext(UserContext);
     const [isLoggedOut, setIsLoggedOut] = useState(false);
-    const [error, setError] = useState(null);
+
+    const [error, setError] = useState(null); 
+
     const navigate = useNavigate();
     const toast = useToastContext();
 
@@ -119,7 +122,9 @@ export const useLogout = () => {
         };
 
         try {
-            const response = await request.get(`${baseUrl}/logout`, null, options);
+
+            const response = await fetch(`${baseUrl}/logout`, options);
+
             if (response.code === 403) {
                 toast.error('Unable to logout');
                 return navigate('/');

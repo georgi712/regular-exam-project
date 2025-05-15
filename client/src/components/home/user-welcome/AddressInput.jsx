@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 // Google Maps API key
-const GOOGLE_API_KEY = "AIzaSyB9Xn_i8XOKSy58XfaVfy4VKSWpspSsfms";
-
+const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 // Valid delivery areas
 export const DELIVERY_AREAS = {
   "Младост": true,

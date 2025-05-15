@@ -2,6 +2,7 @@
 
 Fruvida is a modern web application for ordering fresh fruits, vegetables, and other healthy food products online. The platform focuses on delivering high-quality, fresh products directly to customers' doors with an intuitive user interface and seamless shopping experience.
 
+To go to the site [click here](https://final-exam-softuni-c972c.web.app/)
 ## Table of Contents
 
 - [Overview](#overview)
